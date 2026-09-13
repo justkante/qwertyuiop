@@ -154,11 +154,14 @@ jobs:
           security import release.p12 -k build.keychain -P build -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "signing" build.keychain
 
-      - name: Install Provisioning Profile
+      - name: Install Provisioning Profiles
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          # Install Main App Profile
           echo "${{ secrets.PROVISIONING_PROFILE_BASE64 }}" | tr -d '\n ' | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/Creatify_TestFlight.mobileprovision
+          # Install Extension Profile
+          echo "${{ secrets.EXTENSION_PROVISIONING_PROFILE_BASE64 }}" | tr -d '\n ' | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/OneSignal_TestFlight.mobileprovision
 
       - name: Build iOS IPA
         run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --dart-define=ENVIRONMENT=prod
