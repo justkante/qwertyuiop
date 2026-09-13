@@ -1,0 +1,4 @@
+- `[x]` Fixing android/build.gradle structure
+- `[/]` Install Android SDK 31
+- `[ ]` Resolve Network/SSL blockers
+- `[ ]` Run build and verify on emulator

@@ -1,0 +1,89 @@
+workflows:
+  android-workflow:
+    name: Android Release Workflow
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      groups:
+        - google_play # Group for Google Play credentials
+      vars:
+        PACKAGE_NAME: "com.creatify.mobile"
+        FLUTTER_VERSION: "3.22.0"
+      flutter: stable
+    scripts:
+      - name: Set up .env file
+        script: |
+          echo "DOJAH_WIDGET_ID=$DOJAH_WIDGET_ID" > .env
+          echo "PROD_DOJAH_WIDGET_ID=$PROD_DOJAH_WIDGET_ID" >> .env
+          echo "PUSHER_APP_KEY=$PUSHER_APP_KEY" >> .env
+          echo "PROD_PUSHER_APP_KEY=$PROD_PUSHER_APP_KEY" >> .env
+          echo "PUSHER_CLUSTER=$PUSHER_CLUSTER" >> .env
+          echo "ONESIGNAL_APP_ID=$ONESIGNAL_APP_ID" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID" >> .env
+          echo "GOOGLE_ANDROID_CLIENT_ID=$GOOGLE_ANDROID_CLIENT_ID" >> .env
+          echo "GOOGLE_IOS_CLIENT_ID=$GOOGLE_IOS_CLIENT_ID" >> .env
+          echo "MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
+          echo "STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY" >> .env
+          echo "PROD_STRIPE_PUBLISHABLE_KEY=$PROD_STRIPE_PUBLISHABLE_KEY" >> .env
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Generate files
+        script: |
+          flutter pub run build_runner build --delete-conflicting-outputs
+      - name: Build Android AAB
+        script: |
+          flutter build appbundle --release --dart-define=ENVIRONMENT=prod
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal # Use internal track for testing
+
+  ios-workflow:
+    name: iOS Release Workflow
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      groups:
+        - app_store_connect # Group for Apple credentials
+      vars:
+        APP_ID: 6739023456 # Replace with your actual Apple App ID
+        FLUTTER_VERSION: "3.22.0"
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Set up .env file
+        script: |
+          echo "DOJAH_WIDGET_ID=$DOJAH_WIDGET_ID" > .env
+          echo "PROD_DOJAH_WIDGET_ID=$PROD_DOJAH_WIDGET_ID" >> .env
+          echo "PUSHER_APP_KEY=$PUSHER_APP_KEY" >> .env
+          echo "PROD_PUSHER_APP_KEY=$PROD_PUSHER_APP_KEY" >> .env
+          echo "PUSHER_CLUSTER=$PUSHER_CLUSTER" >> .env
+          echo "ONESIGNAL_APP_ID=$ONESIGNAL_APP_ID" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=$GOOGLE_WEB_CLIENT_ID" >> .env
+          echo "GOOGLE_ANDROID_CLIENT_ID=$GOOGLE_ANDROID_CLIENT_ID" >> .env
+          echo "GOOGLE_IOS_CLIENT_ID=$GOOGLE_IOS_CLIENT_ID" >> .env
+          echo "MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
+          echo "STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY" >> .env
+          echo "PROD_STRIPE_PUBLISHABLE_KEY=$PROD_STRIPE_PUBLISHABLE_KEY" >> .env
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Generate files
+        script: |
+          flutter pub run build_runner build --delete-conflicting-outputs
+      - name: Install CocoaPods
+        script: |
+          find . -name "Podfile" -execdir pod install \;
+      - name: Flutter build ipa
+        script: |
+          flutter build ipa --release --dart-define=ENVIRONMENT=prod --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

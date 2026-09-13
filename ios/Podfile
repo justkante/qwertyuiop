@@ -1,0 +1,119 @@
+# Uncomment this line to define a global platform for your project
+# platform :ios, '17.0'
+
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+platform :ios, '15.0'
+ENV['SWIFT_VERSION'] = '5.0'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig, then run flutter pub get"
+end
+
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+flutter_ios_podfile_setup
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+
+  # Explicitly add TweetNacl to fix CTweetNacl module dependency issue
+  pod 'TweetNacl', '~> 1.0'
+
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+
+      # Fix for CTweetNacl module error with Pusher on Xcode 26.0
+      # Disable explicit module builds for Pusher and TweetNacl pods
+      if ['PusherSwift', 'PusherSwiftWithEncryption', 'TweetNacl'].include?(target.name)
+        config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+        # Additional settings to resolve module dependencies
+        config.build_settings['SWIFT_ENABLE_INCREMENTAL_COMPILATION'] = 'NO'
+        config.build_settings['SWIFT_COMPILATION_MODE'] = 'wholemodule'
+      end
+
+      # Fix: CTweetNacl C target can't find its own header (ctweetnacl.h)
+      if ['TweetNacl', 'PusherTweetNacl'].include?(target.name)
+        config.build_settings['HEADER_SEARCH_PATHS'] = "$(inherited) ${PODS_ROOT}/#{target.name}/Sources/CTweetNacl/include"
+      end
+
+      config.build_settings['CODE_SIGNING_REQUIRED'] = "NO"
+      config.build_settings['CODE_SIGNING_ALLOWED'] = "NO"
+
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+      config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+      config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+
+      # Ensure proper library search paths
+      config.build_settings['LIBRARY_SEARCH_PATHS'] = [
+        '$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)',
+        '$(inherited)',
+      ]
+
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+
+        ## dart: PermissionGroup.camera
+        'PERMISSION_CAMERA=1',
+
+        ## dart: PermissionGroup.microphone
+        'PERMISSION_MICROPHONE=1',
+
+        ## dart: PermissionGroup.location
+        'PERMISSION_LOCATION=1',
+      ]
+
+      # Let pods inherit the platform deployment target (15.0)
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+    end
+  end
+
+  # Additional project-level settings for all targets
+  installer.pods_project.build_configurations.each do |config|
+    config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+  end
+
+  # Directly patch ctweetnacl.c to use a relative include path that always resolves.
+  # The file uses #include "ctweetnacl.h" but the header lives in the include/ subdir.
+  ['TweetNacl', 'PusherTweetNacl'].each do |pod_name|
+    c_file = File.join(installer.sandbox.root, pod_name, 'Sources', 'CTweetNacl', 'ctweetnacl.c')
+    if File.exist?(c_file)
+      content = File.read(c_file)
+      patched = content.gsub('#include "ctweetnacl.h"', '#include "include/ctweetnacl.h"')
+      if patched != content
+        FileUtils.chmod(0644, c_file)
+        File.write(c_file, patched)
+      end
+    end
+  end
+end
+
+target 'OneSignalNotificationServiceExtension' do
+  use_frameworks! :linkage => :static
+  pod 'OneSignalXCFramework', '>= 5.0.0', '< 6.0'
+end

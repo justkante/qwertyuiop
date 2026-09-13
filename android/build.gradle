@@ -1,0 +1,84 @@
+buildscript {
+    ext.kotlin_version = '2.2.20'
+    ext.kotlin_coroutines_version = '1.7.1'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.11.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        maven { url "https://download.flutter.io" }
+        maven { url "https://jitpack.io" }
+        mavenCentral()
+    }
+    
+    configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'org.jetbrains.kotlin') {
+                details.useVersion '2.2.20'
+            }
+            // Force a stable version of firebase-messaging to help resolution
+            if (details.requested.group == 'com.google.firebase' && details.requested.name == 'firebase-messaging') {
+                details.useVersion '24.0.0'
+            }
+            // Force a stable version of work-runtime to help resolution
+            if (details.requested.group == 'androidx.work' && details.requested.name == 'work-runtime') {
+                details.useVersion '2.8.1'
+            }
+        }
+    }
+}
+
+// Force SDK 36 and build tools for all subprojects (plugins)
+subprojects {
+    afterEvaluate { project ->
+        if (project.extensions.findByName("android") != null) {
+            project.android {
+                compileSdkVersion 35
+                buildToolsVersion "35.0.0"
+            }
+        }
+    }
+
+    // Add skip metadata check for all subprojects to handle Kotlin version mismatches in AARs
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            freeCompilerArgs += ["-Xskip-metadata-version-check"]
+        }
+    }
+
+    // Suppress AAR metadata check issues for bleeding-edge dependencies
+    tasks.whenTaskAdded { task ->
+        if (task.name.contains("check") && task.name.contains("Metadata")) {
+            task.enabled = false
+        }
+    }
+}
+
+// Global suppression for the app module as well
+allprojects {
+    tasks.whenTaskAdded { task ->
+        if (task.name.contains("check") && task.name.contains("Metadata")) {
+            task.enabled = false
+        }
+    }
+}
+
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

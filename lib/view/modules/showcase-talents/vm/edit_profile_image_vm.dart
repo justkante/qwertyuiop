@@ -1,0 +1,29 @@
+import 'dart:async';
+
+import 'package:creatify_mobile/core/di/injector.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+class EditProfileImageNotifier extends AutoDisposeAsyncNotifier<String> {
+  Future<void> editProfileImage(String filePath) async {
+    state = const AsyncValue.loading();
+
+    state = await AsyncValue.guard(() => ref.read(creatorRepository).uploadProfileImage(filePath));
+
+    if (!state.hasError) {
+      ref.invalidate(fetchCreatorProfileProvider);
+      ref.invalidate(fetchRecruiterProfileProvider);
+      ref.read(filterCreatorsProvider.notifier).filterCreators();
+    }
+  }
+
+  @override
+  FutureOr<String> build() {
+    return '';
+  }
+}
+
+final editProfileImageProvider = AutoDisposeAsyncNotifierProvider<EditProfileImageNotifier, String>(
+  EditProfileImageNotifier.new,
+);

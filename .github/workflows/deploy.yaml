@@ -1,0 +1,159 @@
+name: Flutter Build & Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # build_android:
+  #   name: Build Android (AAB)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Free disk space
+  #       run: |
+  #         sudo rm -rf /usr/share/dotnet
+  #         sudo rm -rf /usr/local/lib/android
+  #         sudo rm -rf /opt/ghc
+  #         sudo rm -rf "/usr/local/share/boost"
+  #         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+  #
+  #     - uses: actions/checkout@v4
+  #     - uses: subosito/flutter-action@v2
+  #       with:
+  #         channel: 'stable'
+  #
+  #     - name: Set up Android SDK
+  #       run: echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
+  #     
+  #     - name: Create dummy .env file
+  #       run: |
+  #         echo "DOJAH_WIDGET_ID=dummy" >> .env
+  #         echo "PROD_DOJAH_WIDGET_ID=dummy" >> .env
+  #         echo "PUSHER_APP_KEY=dummy" >> .env
+  #         echo "PROD_PUSHER_APP_KEY=dummy" >> .env
+  #         echo "PUSHER_CLUSTER=dummy" >> .env
+  #         echo "ONESIGNAL_APP_ID=dummy" >> .env
+  #         echo "GOOGLE_WEB_CLIENT_ID=dummy" >> .env
+  #         echo "GOOGLE_ANDROID_CLIENT_ID=dummy" >> .env
+  #         echo "GOOGLE_IOS_CLIENT_ID=dummy" >> .env
+  #         echo "MIXPANEL_TOKEN=dummy" >> .env
+  #         echo "STRIPE_PUBLISHABLE_KEY=dummy" >> .env
+  #         echo "PROD_STRIPE_PUBLISHABLE_KEY=dummy" >> .env
+  #
+  #     - name: Install dependencies
+  #       run: |
+  #         flutter clean
+  #         flutter pub get
+  #         flutter pub run build_runner build --delete-conflicting-outputs
+  #
+  #     - name: Build AAB
+  #       run: |
+  #         cd android
+  #         # Clear any stale locks and disable daemon
+  #         rm -rf .gradle
+  #         chmod +x gradlew
+  #         cd ..
+  #         flutter build appbundle --release --dart-define=ENVIRONMENT=prod --android-skip-build-dependency-validation
+  #       env:
+  #         GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process"
+  #
+  #     - name: Upload AAB to Artifacts
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: android-release
+  #         path: build/app/outputs/bundle/release/app-release.aab
+  #
+  #     - name: Release to Play Store (Internal Testing)
+  #       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #       uses: r0adkll/upload-google-play@v1
+  #       with:
+  #         serviceAccountJsonKeyData: ${{ secrets.PLAY_STORE_CONFIG_JSON }}
+  #         packageName: com.creatify.mobile
+  #         releaseFiles: build/app/outputs/bundle/release/app-release.aab
+  #         track: internal
+  #         status: completed
+
+  build_ios:
+    name: Build iOS (IPA)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Create dummy .env file
+        run: |
+          echo "DOJAH_WIDGET_ID=dummy" >> .env
+          echo "PROD_DOJAH_WIDGET_ID=dummy" >> .env
+          echo "PUSHER_APP_KEY=dummy" >> .env
+          echo "PROD_PUSHER_APP_KEY=dummy" >> .env
+          echo "PUSHER_CLUSTER=dummy" >> .env
+          echo "ONESIGNAL_APP_ID=dummy" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=dummy" >> .env
+          echo "GOOGLE_ANDROID_CLIENT_ID=dummy" >> .env
+          echo "GOOGLE_IOS_CLIENT_ID=dummy" >> .env
+          echo "MIXPANEL_TOKEN=dummy" >> .env
+          echo "STRIPE_PUBLISHABLE_KEY=dummy" >> .env
+          echo "PROD_STRIPE_PUBLISHABLE_KEY=dummy" >> .env
+
+      - name: Install dependencies
+        run: |
+          flutter clean
+          flutter pub get
+          flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Install Pods
+        run: |
+          cd ios
+          rm -rf Pods
+          rm -rf Podfile.lock
+          pod repo update
+          pod install --repo-update
+          cd ..
+
+      - name: Clean build artifacts
+        run: |
+          cd ios
+          rm -rf Pods
+          rm -rf .symlinks/
+          rm -rf Flutter/Flutter.framework
+          rm -rf Flutter/Flutter.podspec
+          cd ..
+          flutter clean
+
+      - name: Install Apple Certificate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.P12_BASE64 }}
+          p12-password: "" # Using empty password for compatibility
+
+      - name: Install Provisioning Profile
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "${{ secrets.PROVISIONING_PROFILE_BASE64 }}" | tr -d '\n ' | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/Creatify_TestFlight.mobileprovision
+
+      - name: Build iOS IPA
+        run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --dart-define=ENVIRONMENT=prod
+        env:
+          FLUTTER_XCODE_DISABLE_SPM: true
+          COCOAPODS_DISABLE_STATS: true
+
+      - name: Upload IPA to Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-release
+          path: build/ios/ipa/*.ipa
+
+      - name: Upload to TestFlight
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          app-path: 'build/ios/ipa/*.ipa'
+          issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
+          api-key-content: ${{ secrets.APPSTORE_API_KEY_P8 }}
