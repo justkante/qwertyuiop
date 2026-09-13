@@ -131,15 +131,13 @@ jobs:
 
       - name: Install Apple Certificate
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          KEY_BASE64: ${{ secrets.IOS_PRIVATE_KEY_TEXT }}
+          CER_BASE64: ${{ secrets.IOS_CERTIFICATE_TEXT }}
         run: |
-          # 1. Create temporary files with NO indentation to preserve key formatting
-          cat << 'EOF' > release.key
-          ${{ secrets.IOS_PRIVATE_KEY_TEXT }}
-          EOF
-          
-          cat << 'EOF' > release.pem
-          ${{ secrets.IOS_CERTIFICATE_TEXT }}
-          EOF
+          # 1. Decode keys directly to files (Immune to YAML indentation issues)
+          echo "$KEY_BASE64" | base64 --decode > release.key
+          echo "$CER_BASE64" | base64 --decode > release.pem
           
           # 2. Build the P12 on the Mac itself
           openssl pkcs12 -export -inkey release.key -in release.pem -out release.p12 -passout pass:build -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES
