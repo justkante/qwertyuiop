@@ -129,14 +129,17 @@ jobs:
         env:
           KEY_TEXT: ${{ secrets.IOS_PRIVATE_KEY_TEXT }}
           CER_TEXT: ${{ secrets.IOS_CERTIFICATE_TEXT }}
-          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
         run: |
-          # 1. Create temporary files from raw text
-          echo "$KEY_TEXT" > release.key
-          echo "$CER_TEXT" > release.pem
+          # 1. Create temporary files using heredoc for perfect text preservation
+          cat << 'EOF' > release.key
+          ${{ secrets.IOS_PRIVATE_KEY_TEXT }}
+          EOF
           
-          # 2. Build the P12 on the Mac itself (Perfect compatibility)
-          # We use a hardcoded internal password 'build' to avoid shell errors
+          cat << 'EOF' > release.pem
+          ${{ secrets.IOS_CERTIFICATE_TEXT }}
+          EOF
+          
+          # 2. Build the P12 on the Mac itself
           openssl pkcs12 -export -inkey release.key -in release.pem -out release.p12 -passout pass:build -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES
           
           # 3. Create temporary keychain
@@ -146,7 +149,7 @@ jobs:
           security unlock-keychain -p "signing" build.keychain
           security set-keychain-settings -t 3600 -u build.keychain
 
-          # 4. Import the P12 we just made
+          # 4. Import the P12
           security import release.p12 -k build.keychain -P build -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple: -s -k "signing" build.keychain
 
