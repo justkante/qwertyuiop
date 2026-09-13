@@ -108,10 +108,15 @@ jobs:
       - name: Install Pods
         run: |
           cd ios
-          rm -rf Pods
-          rm -rf Podfile.lock
-          pod repo update
-          pod install --repo-update
+          # Retry logic for network-sensitive pod install
+          n=0
+          until [ "$n" -ge 3 ]
+          do
+            pod repo update && pod install --repo-update && break
+            n=$((n+1)) 
+            echo "Pod install failed. Retry $n/3..."
+            sleep 10
+          done
           cd ..
 
       - name: Clean build artifacts
