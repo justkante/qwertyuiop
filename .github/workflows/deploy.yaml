@@ -132,21 +132,16 @@ jobs:
       - name: Install Apple Certificate
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          # 1. Write Base64 secrets to temporary files
-          cat << 'EOF' > key.base64
-          ${{ secrets.IOS_PRIVATE_KEY_TEXT }}
-          EOF
+          # 1. Write Base64 to files using printf (Avoids YAML indentation corruption)
+          printf "%s" "${{ secrets.IOS_PRIVATE_KEY_TEXT }}" > key.base64
+          printf "%s" "${{ secrets.IOS_CERTIFICATE_TEXT }}" > cer.base64
           
-          cat << 'EOF' > cer.base64
-          ${{ secrets.IOS_CERTIFICATE_TEXT }}
-          EOF
-          
-          # 2. Decode the files (Safe from shell escaping issues)
+          # 2. Decode the files
           base64 --decode -i key.base64 > release.key
           base64 --decode -i cer.base64 > release.pem
           
-          # 3. Build the P12 on the Mac itself
-          openssl pkcs12 -export -inkey release.key -in release.pem -out release.p12 -passout pass:build -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES
+          # 3. Build the P12 on the Mac using ALL legacy flags required for macOS compatibility
+          openssl pkcs12 -export -inkey release.key -in release.pem -out release.p12 -passout pass:build -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES -macalg sha1
           
           # 4. Create temporary keychain
           security create-keychain -p "signing" build.keychain
