@@ -16,6 +16,7 @@ import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/talent_card.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/onboarding_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/start_onboarding_vm.dart';
@@ -265,7 +266,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               onTap: () async {
                                 final isRecruiter = userData.roles?.contains('recruiter') ?? false;
                                 if (isRecruiter) {
-                                  context.push(const MyRecruiterProfileView());
+                                  context.push(MyRecruiterProfileView());
                                   return;
                                 }
 

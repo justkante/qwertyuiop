@@ -15,6 +15,7 @@ import 'package:creatify_mobile/view/modules/home/support_view.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/transactions_providers.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -146,7 +147,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         icon: AppImages.profileOutline,
                         title: 'Creator Profile',
                         onTap: () {
-                          context.push(const MyCreatorProfileView());
+                          context.push(MyCreatorProfileView());
                         },
                       ),
                     DrawerMenuItem(
