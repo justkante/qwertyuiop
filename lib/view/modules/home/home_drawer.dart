@@ -16,9 +16,9 @@ import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/vm/start_onboarding_vm.dart';
-import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart' as creator_providers;
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/start_onboarding_vm.dart' as onboarding_providers;
+import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart' as tab_providers;
 import 'package:creatify_mobile/view/modules/transactions/vm/transactions_providers.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -154,11 +154,11 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                           context.push(const MyCreatorProfileView());
                         } else {
                           // Trigger onboarding/upgrade flow
-                          ref.read(navBarController.notifier).index = 0; // Go home
-                          ref.invalidate(getOnboardingStatusProvider);
-                          ref.watch(getOnboardingStatusProvider.future).then((status) {
+                          ref.read(tab_providers.navBarController.notifier).index = 0; // Go home
+                          ref.invalidate(creator_providers.getOnboardingStatusProvider);
+                          ref.read(creator_providers.getOnboardingStatusProvider.future).then((status) {
                             if (status.isOnboarded != true) {
-                              ref.read(startOnboardingProvider.notifier).startOnboarding();
+                              ref.read(onboarding_providers.startOnboardingProvider.notifier).startOnboarding();
                             } else {
                               context.push(const MyCreatorProfileView());
                             }

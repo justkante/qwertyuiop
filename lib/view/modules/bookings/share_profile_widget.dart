@@ -9,7 +9,7 @@ import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
-import 'package:creatify_mobile/view/widgets/snackbar.dart';
+import 'package:creatify_mobile/view/widgets/snackbar.dart' as snackbar;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -132,7 +132,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
               final message = "Check out ${widget.profile?.name}'s profile on Creatify: $link";
               await AppUtils.shareLink(message, context);
             } else {
-              ToastDialog.showError('Profile link not available', context);
+              snackbar.ToastDialog.showError('Profile link not available', context);
             }
           },
         ),
