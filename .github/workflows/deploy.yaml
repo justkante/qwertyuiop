@@ -182,4 +182,4 @@ jobs:
           app-path: 'build/ios/ipa/*.ipa'
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
-          api-key-content: ${{ secrets.APPSTORE_API_KEY_P8 }}
+          api-private-key: ${{ secrets.APPSTORE_API_KEY_P8 }}
