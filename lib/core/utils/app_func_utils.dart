@@ -12,26 +12,16 @@ class AppUtils {
     // Share Position is needed on iOS 26
     final box = context.findRenderObject() as RenderBox?;
 
-    final res = await SharePlus.instance.share(
-      ShareParams(
-        files: [shots],
-        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-      ),
+    final res = await Share.shareXFiles(
+      [shots],
+      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
     );
     return res;
   }
 
   static Future<void> shareLink(String link, BuildContext context) async {
-    // Share Position is needed on iOS 26
-    final box = context.findRenderObject() as RenderBox?;
-
     await HapticFeedback.mediumImpact();
-    SharePlus.instance.share(
-      ShareParams(
-        uri: Uri.parse(link),
-        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-      ),
-    );
+    await Share.share(link);
   }
 
   static Future<void> openLink(SocialPlatform platform, {String? value}) async {

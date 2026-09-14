@@ -396,6 +396,8 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
                               .toList() ??
                           [];
 
+                      if (recommendedCreators.isEmpty) return const SizedBox.shrink();
+
                       return Container(
                         padding: const EdgeInsets.fromLTRB(21, 14, 0, 14),
                         decoration: const BoxDecoration(

@@ -132,13 +132,23 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         },
                       ),
                     ],
-                    DrawerMenuItem(
-                      icon: AppImages.profileOutline,
-                      title: 'Recruiter Profile',
-                      onTap: () {
-                        context.push(const MyRecruiterProfileView());
-                      },
-                    ),
+                    if (userData.roles?.contains('recruiter') == true)
+                      DrawerMenuItem(
+                        icon: AppImages.profileOutline,
+                        title: 'Recruiter Profile',
+                        onTap: () {
+                          context.push(const MyRecruiterProfileView());
+                        },
+                      ),
+                    if (userData.roles?.contains('creator') == true ||
+                        (userData.roles?.contains('recruiter') != true))
+                      DrawerMenuItem(
+                        icon: AppImages.profileOutline,
+                        title: 'Creator Profile',
+                        onTap: () {
+                          context.push(const MyCreatorProfileView());
+                        },
+                      ),
                     DrawerMenuItem(
                       icon: AppImages.editOutline,
                       title: 'Draft Bookings',
