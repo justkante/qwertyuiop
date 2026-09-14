@@ -51,6 +51,16 @@ class _JobPostCardState extends State<JobPostCard> {
   }
 
   @override
+  void didUpdateWidget(covariant JobPostCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialFavorite != oldWidget.initialFavorite) {
+      setState(() {
+        isFavorite = widget.initialFavorite;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final statusLower = widget.status.toLowerCase();
     final isClosed = statusLower == 'closed';
@@ -122,12 +132,12 @@ class _JobPostCardState extends State<JobPostCard> {
                         12.0.width,
                       ],
                       GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           final newValue = !isFavorite;
                           setState(() {
                             isFavorite = newValue;
                           });
-                          widget.onFavoriteToggle?.call(newValue);
+                          await widget.onFavoriteToggle?.call(newValue);
                         },
                         child: Icon(
                           isFavorite ? Icons.favorite : Icons.favorite_outline,

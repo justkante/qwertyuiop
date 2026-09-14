@@ -141,15 +141,28 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                           context.push(const MyRecruiterProfileView());
                         },
                       ),
-                    if (userData.roles?.contains('creator') == true ||
-                        (userData.roles?.contains('recruiter') != true))
-                      DrawerMenuItem(
-                        icon: AppImages.profileOutline,
-                        title: 'Creator Profile',
-                        onTap: () {
-                          context.push(MyCreatorProfileView());
-                        },
-                      ),
+                    DrawerMenuItem(
+                      icon: AppImages.profileOutline,
+                      title: (userData.roles?.contains('creator') == true)
+                          ? 'Creator Profile'
+                          : 'Become a Creator',
+                      onTap: () {
+                        if (userData.roles?.contains('creator') == true) {
+                          context.push(const MyCreatorProfileView());
+                        } else {
+                          // Trigger onboarding/upgrade flow
+                          ref.read(navBarController.notifier).index = 0; // Go home
+                          ref.invalidate(getOnboardingStatusProvider);
+                          ref.watch(getOnboardingStatusProvider.future).then((status) {
+                            if (status.isOnboarded != true) {
+                              ref.read(startOnboardingProvider.notifier).startOnboarding();
+                            } else {
+                              context.push(const MyCreatorProfileView());
+                            }
+                          });
+                        }
+                      },
+                    ),
                     DrawerMenuItem(
                       icon: AppImages.editOutline,
                       title: 'Draft Bookings',

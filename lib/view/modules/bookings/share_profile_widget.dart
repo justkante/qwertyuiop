@@ -126,8 +126,13 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
           text: 'Share',
           padding: const EdgeInsets.symmetric(vertical: 12),
           onPressed: () async {
-            await AppUtils.shareLink(
-                'https://creatifyapp.com/profile/${widget.profile?.profileId}', context);
+            if (widget.profile?.profileId != null) {
+              final link = 'https://creatifyapp.com/profile/${widget.profile?.profileId}';
+              final message = "Check out ${widget.profile?.name}'s profile on Creatify: $link";
+              await AppUtils.shareLink(message, context);
+            } else {
+              ToastDialog.showError('Profile link not available', context);
+            }
           },
         ),
       ],
