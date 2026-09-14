@@ -169,17 +169,21 @@ jobs:
           FLUTTER_XCODE_DISABLE_SPM: true
           COCOAPODS_DISABLE_STATS: true
 
+      - name: Get IPA path
+        id: ipa_path
+        run: echo "path=$(ls build/ios/ipa/*.ipa | head -n 1)" >> $GITHUB_OUTPUT
+
       - name: Upload IPA to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ios-release
-          path: build/ios/ipa/*.ipa
+          path: ${{ steps.ipa_path.outputs.path }}
 
       - name: Upload to TestFlight
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: apple-actions/upload-testflight-build@v1
         with:
-          app-path: 'build/ios/ipa/*.ipa'
+          app-path: ${{ steps.ipa_path.outputs.path }}
           issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
           api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
           api-private-key: ${{ secrets.APPSTORE_API_KEY_P8 }}
