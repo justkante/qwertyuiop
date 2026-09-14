@@ -21,7 +21,14 @@ class AppUtils {
 
   static Future<void> shareLink(String link, BuildContext context) async {
     await HapticFeedback.mediumImpact();
-    await Share.share(link);
+
+    // Share Position is needed on iOS 26
+    final box = context.findRenderObject() as RenderBox?;
+
+    await Share.share(
+      link,
+      sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+    );
   }
 
   static Future<void> openLink(SocialPlatform platform, {String? value}) async {

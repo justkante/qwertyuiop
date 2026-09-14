@@ -264,9 +264,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           Expanded(
                             child: HomeActionCard(
                               onTap: () async {
+                                final isCreator = userData.roles?.contains('creator') ?? false;
+                                if (isCreator) {
+                                  context.push(const MyCreatorProfileView());
+                                  return;
+                                }
+
                                 final isRecruiter = userData.roles?.contains('recruiter') ?? false;
                                 if (isRecruiter) {
-                                  context.push(MyRecruiterProfileView());
+                                  context.push(const MyRecruiterProfileView());
                                   return;
                                 }
 
