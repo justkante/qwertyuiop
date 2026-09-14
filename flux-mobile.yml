@@ -1,0 +1,23 @@
+app_name: Creatify Mobile
+platform: flutter
+android:
+  keystore_path: ./android/keystore.jks
+  key_alias: creatify
+  key_password: Cr3@t1Fy#89zX!
+  store_password: Cr3@t1Fy#89zX!
+ios:
+  enabled: true
+  export_method: app-store
+playstore:
+  service_account_json: ./keys/playstore.json
+  package_name: com.creatify.mobile
+  default_track: internal
+appstore:
+  api_key_path: ./keys/AuthKey_27BASBQF77.p8
+  api_key_id: 27BASBQF77
+  issuer_id: 540cef66-a1fa-4af1-8341-6c3f70b41f8d
+  bundle_id: com.creatify.mobile
+  default_track: testflight
+  upload_tool: transporter
+versioning:
+  strategy: auto
