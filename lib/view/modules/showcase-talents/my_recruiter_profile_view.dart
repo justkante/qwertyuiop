@@ -1,13 +1,9 @@
 import 'package:creatify_mobile/view/modules/bookings/widgets/expandable_profile_image.dart';
-import 'package:creatify_mobile/view/modules/bookings/widgets/most_recent_card.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/image_preview.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/upgrade_account_successful_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/metrics_card.dart';
-import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
@@ -20,58 +16,35 @@ import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/manage_subscription_view.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 
 class MyRecruiterProfileView extends ConsumerStatefulWidget {
   const MyRecruiterProfileView({super.key});
 
   @override
-  ConsumerState<MyRecruiterProfileView> createState() => _CreatorUpgradeProfileViewState();
+  ConsumerState<MyRecruiterProfileView> createState() => _MyRecruiterProfileViewState();
 }
 
-class _CreatorUpgradeProfileViewState extends ConsumerState<MyRecruiterProfileView>
-    with SingleTickerProviderStateMixin {
+class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView> with SingleTickerProviderStateMixin {
   late TabController tabController;
-  //final GlobalKey _menuButtonKey = GlobalKey();
-
   bool openingGallery = false;
 
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
   }
-
-  // void _showProfileMenu() {
-  //   final menuItems = ProfileMenuController.createDefaultMenuItems(
-  //     onEditProfileImage: _onEditProfileImage,
-  //   );
-
-  //   ProfileMenuController.showProfileMenu(
-  //     context: context,
-  //     buttonKey: _menuButtonKey,
-  //     menuItems: menuItems,
-  //   );
-  // }
 
   void _onEditProfileImage() async {
     setState(() => openingGallery = true);
-
     await pickImageFromGallery().then((value) {
       setState(() => openingGallery = false);
-
       if (value != null && value.path.isNotEmpty) {
         if (!mounted) return;
-
-        context.push(
-          ImagePreviewScreen(
-            imageFile: value,
-            fileName: 'Profile Image',
-          ),
-        );
+        context.push(ImagePreviewScreen(imageFile: value, fileName: 'Profile Image'));
       }
-    }).catchError((error) {
-      setState(() => openingGallery = false);
-    });
+    }).catchError((error) => setState(() => openingGallery = false));
   }
 
   @override
@@ -79,40 +52,22 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyRecruiterProfileVi
     final userData = ref.watch(userControllerProvider);
     final myRecruiterProfile = ref.watch(fetchRecruiterProfileProvider(userData.id ?? ''));
 
-    ref.listen(verifySubscriptionPaymentProvider, (_, value) {
-      if (value is AsyncData) {
-        AppBottomSheet.showBottomSheet(
-          context,
-          widget: const UpgradeAccountSuccessfulSheet(),
-        );
-      }
-      if (value is AsyncError) {
-        ToastDialog.showError(value.error.toString(), context);
-      }
-    });
-
     return OverlayLoadingIndicator(
       isLoading: openingGallery,
       text: 'Opening Gallery...',
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-            // title: Text(
-            //   'My Recruiter Profile',
-            //   style: context.textTheme.bodyLarge?.copyWith(
-            //     fontWeight: FontWeight.w500,
-            //     color: AppColors.subHeading,
-            //   ),
-            // ),
-            // actions: [
-            //   IconButton(
-            //     key: _menuButtonKey,
-            //     icon: const Icon(Icons.more_vert, color: AppColors.icons),
-            //     onPressed: () {
-            //       //_showProfileMenu();
-            //     },
-            //   ),
-            // ],
-            ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          actions: [
+            IconButton(icon: const Icon(Icons.more_vert, color: AppColors.icons), onPressed: () {}),
+          ],
+        ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
@@ -121,326 +76,217 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyRecruiterProfileVi
               myRecruiterProfile.when(
                 data: (data) {
                   return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // MARK: Profile Image and Name
-                      LayoutBuilder(builder: (context, contraints) {
-                        final widthx = contraints.maxWidth;
-
-                        return Stack(
-                          clipBehavior: Clip.none,
-                          alignment: Alignment.center,
-                          children: [
-                            ExpandableProfileImage(
-                              imageUrl: data.profileImage,
-                              initials: data.initials,
-                              size: 80,
-                              imageDecoration: BoxDecoration(
-                                border: Border.all(
-                                  color: AppColors.primary,
-                                  width: 1.5,
-                                ),
-                                borderRadius: BorderRadius.circular(40),
-                              ),
-                              initialsFallback: Center(
-                                child: InitialAvatar(
+                      // Top Section: DP, Badge, Name
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Spacer(),
+                          Stack(
+                            alignment: Alignment.bottomRight,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 2)),
+                                child: ExpandableProfileImage(
+                                  imageUrl: data.profileImage,
                                   initials: data.initials,
-                                  padding: const EdgeInsets.all(20),
-                                  size: 28,
+                                  size: 80,
+                                  initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 28, padding: const EdgeInsets.all(20))),
                                 ),
                               ),
-                              customImageBuilder: (context, onTap) => Center(
-                                child: GestureDetector(
-                                  onTap: onTap,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: AppColors.primary,
-                                        width: 1.5,
-                                      ),
-                                      borderRadius: BorderRadius.circular(40),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(40),
-                                      child: Image.network(
-                                        data.profileImage!,
-                                        width: 80,
-                                        height: 80,
-                                        fit: BoxFit.cover,
-                                        loadingBuilder: (context, child, loadingProgress) =>
-                                            loadingProgress == null
-                                                ? child
-                                                : Container(
-                                                    width: 72,
-                                                    height: 72,
-                                                    color: Colors.grey.shade300,
-                                                    child: const Center(
-                                                      child: CircularProgressIndicator.adaptive(
-                                                        strokeWidth: 2,
-                                                        valueColor: AlwaysStoppedAnimation(
-                                                            AppColors.primary),
-                                                      ),
-                                                    ),
-                                                  ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-
-                            // Edit Icon
-                            Positioned(
-                              bottom: widthx * 0.00005,
-                              right: widthx * 0.4,
-                              child: InkWell(
+                              GestureDetector(
                                 onTap: _onEditProfileImage,
                                 child: Container(
-                                  padding: const EdgeInsets.all(6.0),
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: AppColors.btnInactive,
-                                  ),
-                                  child: SvgPicture.asset(
-                                    AppImages.edit,
-                                    width: 12,
-                                    height: 12,
-                                    colorFilter: AppColors.primary.colorFilterMode(),
-                                  ),
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+                                  child: const Icon(Icons.camera_alt_outlined, size: 16, color: AppColors.primary),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      }),
-                      8.0.height,
-                      Center(
-                        child: Text(
-                          userData.name ?? 'John Doe',
-                          textAlign: TextAlign.center,
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      4.0.height,
-
-                      Center(
-                        child: Text(
-                          'Recruiter Profile',
-                          style: context.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.highlightBlue,
-                          ),
-                        ),
-                      ),
-                      8.0.height,
-
-                      // Rating
-                      Center(
-                        child: StarRating(
-                          rating: data.ratingsAndReviews?.averageRating ?? 0.0,
-                          starCount: 5,
-                          starSize: 16,
-                        ),
-                      ),
-                      24.0.height,
-
-                      // MARK: Metrics
-                      Text(
-                        "Recruiter Metrics",
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: AppColors.subHeading,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      8.0.height,
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: MetricsCard(
-                              label: 'Total Bookings',
-                              tooltipMessage:
-                                  'Total number of bookings this recruiter has made on Creatify',
-                              value: data.analytics?.totalBookings?.toString() ?? '0',
-                            ),
+                            ],
                           ),
                           Expanded(
-                            flex: 3,
-                            child: MetricsCard(
-                              label: 'Repeat Hire Rate',
-                              tooltipMessage:
-                                  'Percentage of creators this recruiter has hired more than once',
-                              value: "${data.analytics?.repeatHireRate?.toString()}%",
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: MetricsCard(
-                              label: 'Joined',
-                              tooltipMessage: 'How long the recruiter has been on Creatify',
-                              value: data.analytics?.memberSince?.timeNoAgo() ?? '0',
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: _buildUpgradeBadge(),
                             ),
                           ),
                         ],
                       ),
                       12.0.height,
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(
-                            flex: 3,
-                            child: MetricsCard(
-                              label: 'Active Bookings',
-                              tooltipMessage:
-                                  'Number of bookings currently in progress with creators',
-                              value: data.analytics?.activeBookings?.toString() ?? '0',
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: MetricsCard(
-                              label: 'Cancellation Rate',
-                              tooltipMessage:
-                                  'Percentage of bookings this recruiter has cancelled after confirming a booking',
-                              value: "${data.analytics?.cancellationRate?.toString()}%",
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: MetricsCard(
-                              label: 'Average Response Time',
-                              tooltipMessage:
-                                  'Average time this recruiter takes to respond to messages and booking requests',
-                              value: data.analytics?.averageResponseTime?.toString() ?? '0',
-                            ),
-                          ),
+                          Text(userData.name ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                          4.0.width,
+                          const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
+                        ],
+                      ),
+                      Text('Recruiter Profile', style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w500)),
+                      8.0.height,
+                      StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 16),
+                      Text('${data.ratingsAndReviews?.averageRating ?? 0.0} (0 reviews)', style: const TextStyle(color: AppColors.body, fontSize: 11)),
+                      16.0.height,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildSmallInfoChip(Icons.location_on_outlined, 'Lagos, Nigeria'),
+                          12.0.width,
+                          _buildSmallInfoChip(Icons.business_center_outlined, 'Company'),
                         ],
                       ),
                       24.0.height,
-
-                      // MARK: Reviews Section
-                      Text(
-                        "Ratings & Reviews",
-                        style: context.textTheme.bodySmall?.copyWith(
-                          color: AppColors.subHeading,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      16.0.height,
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          // Ratings Summary
-                          RatingSummary(
-                            rating: data.ratingsAndReviews?.averageRating ?? 0.0,
-                            totalReviews: data.ratingsAndReviews?.totalReviews ?? 0,
-                          ),
-                          32.0.width,
-
-                          // Ratings Metrics
-                          Expanded(
-                            child: RatingMetrics(
-                              ratings: [
-                                RatingData(
-                                  stars: 5,
-                                  count: data.ratingsAndReviews?.ratingBreakdown?.the5Star ?? 0,
-                                ),
-                                RatingData(
-                                  stars: 4,
-                                  count: data.ratingsAndReviews?.ratingBreakdown?.the4Star ?? 0,
-                                ),
-                                RatingData(
-                                  stars: 3,
-                                  count: data.ratingsAndReviews?.ratingBreakdown?.the3Star ?? 0,
-                                ),
-                                RatingData(
-                                  stars: 2,
-                                  count: data.ratingsAndReviews?.ratingBreakdown?.the2Star ?? 0,
-                                ),
-                                RatingData(
-                                  stars: 1,
-                                  count: data.ratingsAndReviews?.ratingBreakdown?.the1Star ?? 0,
-                                ),
-                              ],
-                            ),
-                          ),
+                          Expanded(child: MainButton(text: 'Edit Profile', color: const Color(0xFFE0F2F1), textColor: AppColors.primary, onPressed: () {})),
+                          12.0.width,
+                          Expanded(child: MainButton(text: 'View Public Profile', color: AppColors.grey50, textColor: const Color(0xFF1B3131), onPressed: () {})),
                         ],
                       ),
-                      18.0.height,
-                      Text(
-                        "Most Recent",
-                        style: context.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                          color: AppColors.body,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      12.0.height,
-
-                      // Most Recent Card List
-                      Column(
-                        children: data.ratingsAndReviews?.reviews?.isEmpty == true
-                            ? [
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    child: Text(
-                                      'No Reviews Yet',
-                                      style: context.textTheme.bodyMedium,
-                                    ),
-                                  ),
-                                ),
-                              ]
-                            : data.ratingsAndReviews?.reviews
-                                    ?.where((review) => review.review != null)
-                                    .map(
-                                      (review) => Padding(
-                                        padding: const EdgeInsets.only(bottom: 12.0),
-                                        child: MostRecentCard(
-                                          reviewerName: review.reviewerName ?? 'Jane Doe',
-                                          rating: review.rating ?? 0.0,
-                                          reviewDate: review.createdAt != null
-                                              ? review.createdAt!
-                                                  .toLocal()
-                                                  .toFormattedDateWithYear()
-                                              : 'Unknown Date',
-                                          reviewText: review.review ?? 'No review text',
-                                        ),
-                                      ),
-                                    )
-                                    .toList() ??
-                                [],
-                      ),
-                      16.0.height,
+                      24.0.height,
+                      _buildProfileTabs(),
+                      24.0.height,
+                      _buildOverviewTab(data),
                     ],
                   );
                 },
-                error: (error, stacktrace) => Center(child: Text(error.toString())),
-                loading: () => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      105.0.height,
-                      const Text('Loading your Recruiter Profile...'),
-                      8.0.height,
-                      const CircularProgressIndicator.adaptive(
-                        valueColor: AlwaysStoppedAnimation(AppColors.primary),
-                      ),
-                    ],
-                  ),
-                ),
+                error: (error, _) => Center(child: Text(error.toString())),
+                loading: () => const Center(child: CircularProgressIndicator.adaptive()),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildUpgradeBadge() {
+    return GestureDetector(
+      onTap: () => context.push(const ManageSubscriptionView()),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(color: const Color(0xFFFFF1EF), borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.workspace_premium_outlined, color: Color(0xFFFF6F61), size: 14),
+            4.0.width,
+            const Text('Upgrade', style: TextStyle(color: Color(0xFFFF6F61), fontWeight: FontWeight.bold, fontSize: 11)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSmallInfoChip(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 14, color: AppColors.body),
+        4.0.width,
+        Text(text, style: const TextStyle(fontSize: 12, color: AppColors.body)),
+      ],
+    );
+  }
+
+  Widget _buildProfileTabs() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(30)),
+      child: TabBar(
+        controller: tabController,
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)]),
+        labelColor: Colors.black,
+        unselectedLabelColor: AppColors.body,
+        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+        dividerColor: Colors.transparent,
+        tabs: const [Tab(text: 'Overview'), Tab(text: 'Company Info'), Tab(text: 'Preferences')],
+      ),
+    );
+  }
+
+  Widget _buildOverviewTab(dynamic data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(children: [const Text('Recruiter Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), 4.0.width, const Icon(Icons.info_outline, size: 14, color: AppColors.body)]),
+            Row(children: [const Text('Last 30 days', style: TextStyle(fontSize: 11, color: AppColors.body)), const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.body)]),
+          ],
+        ),
+        16.0.height,
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 3,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.2,
+          children: [
+            _buildMetricItem('Total Bookings', '0', Icons.shopping_bag_outlined, const Color(0xFFE3F2FD), const Color(0xFF2196F3)),
+            _buildMetricItem('Active Bookings', '0', Icons.access_time, const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
+            _buildMetricItem('Repeat Hire Rate', '0%', Icons.refresh_outlined, const Color(0xFFF3E5F5), const Color(0xFF7B1FA2)),
+            _buildMetricItem('Cancellation Rate', '0.0%', Icons.cancel_outlined, const Color(0xFFFFF1EF), const Color(0xFFFF6F61)),
+            _buildMetricItem('Average Response', '0 hrs', Icons.flash_on_outlined, const Color(0xFFE0F2F1), const Color(0xFF00897B)),
+            _buildMetricItem('Member Since', '1 week', Icons.calendar_today_outlined, const Color(0xFFFFFDE7), const Color(0xFFF9A825)),
+          ],
+        ),
+        32.0.height,
+        const Text('Ratings & Reviews', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+        16.0.height,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('0.0', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
+                const StarRating(rating: 0, starCount: 5, starSize: 12),
+                const Text('(0 Reviews)', style: TextStyle(color: AppColors.body, fontSize: 10)),
+              ],
+            ),
+            32.0.width,
+            const Expanded(child: RatingMetrics(ratings: [])),
+          ],
+        ),
+        24.0.height,
+        _buildNoReviewsState(),
+      ],
+    );
+  }
+
+  Widget _buildMetricItem(String label, String value, IconData icon, Color bgColor, Color iconColor) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(border: Border.all(color: AppColors.grey100), borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(children: [Container(padding: const EdgeInsets.all(4), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 12))]),
+          4.0.height,
+          Text(label, style: const TextStyle(fontSize: 8, color: AppColors.body)),
+          Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoReviewsState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        children: [
+          Container(padding: const EdgeInsets.all(12), decoration: const BoxDecoration(color: Color(0xFFF3E5F5), shape: BoxShape.circle), child: const Icon(Icons.people_outline, color: Color(0xFF7B1FA2), size: 24)),
+          12.0.height,
+          const Text('No reviews yet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+          const Text('Complete bookings to receive reviews.', style: TextStyle(color: AppColors.body, fontSize: 11)),
+        ],
       ),
     );
   }
