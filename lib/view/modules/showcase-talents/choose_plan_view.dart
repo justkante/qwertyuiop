@@ -425,7 +425,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
     final price = _isAnnual ? monthlyPrice * 10 : monthlyPrice;
     final formattedAmount = price.amountInt(
       includeCommas: true,
-      minDecimalPlaces: price >= 100 ? 0 : 2,
+      minDecimalPlaces: (price >= 100) ? 0 : 2,
     );
 
     final isSymbolPrefixed = !['kr', 'лв', 'Kč', 'Ft', 'Fr', 'zł', 'lei'].contains(symbol.toLowerCase());

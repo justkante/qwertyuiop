@@ -627,7 +627,7 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
     final price = isAnnual ? monthlyPrice * 10 : monthlyPrice;
     final formattedAmount = price.amountInt(
       includeCommas: true,
-      minDecimalPlaces: price >= 100 ? 0 : 2,
+      minDecimalPlaces: (price >= 100) ? 0 : 2,
     );
 
     // Check if symbol should be prefixed or suffixed

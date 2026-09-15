@@ -324,7 +324,7 @@ class ComparePlansView extends ConsumerWidget {
 
     final formattedAmount = monthlyPrice.amountInt(
       includeCommas: true,
-      minDecimalPlaces: monthlyPrice >= 100 ? 0 : 2,
+      minDecimalPlaces: (monthlyPrice >= 100) ? 0 : 2,
     );
 
     final isSymbolPrefixed = !['kr', 'лв', 'Kč', 'Ft', 'Fr', 'zł', 'lei'].contains(symbol.toLowerCase());
