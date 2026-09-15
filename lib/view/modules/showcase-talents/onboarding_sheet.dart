@@ -218,9 +218,12 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
                   32.0.height,
                   MainButton(
                     text: 'Continue to Profile',
-                    onPressed: () {
-                      context.pop();
-                      context.push(const MyCreatorProfileView());
+                    onPressed: () async {
+                      await ref.read(userControllerProvider.notifier).refreshUser();
+                      if (context.mounted) {
+                        context.pop();
+                        context.push(const MyCreatorProfileView());
+                      }
                     },
                   ),
                 ],

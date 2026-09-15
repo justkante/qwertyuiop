@@ -42,6 +42,7 @@ class ApiEndpoints {
   String get version => "v1";
 
   // Authentication
+  String get me => "/api/auth/me";
   String get login => "/api/auth/sign-in";
   String get signUp => "/api/auth/sign-up";
   String get verifyEmail => "/api/auth/verify-email";

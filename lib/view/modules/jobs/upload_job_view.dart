@@ -24,12 +24,45 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
   final _locationController = TextEditingController();
   final _priceController = TextEditingController();
   final _durationController = TextEditingController(text: '0');
+  final _hourController = TextEditingController();
+  final _minuteController = TextEditingController();
 
   String? _selectedService;
   String? _selectedWorkMode;
   DateTime? _startDate;
   TimeOfDay? _startTime;
   String _durationUnit = 'Days';
+  String _period = 'AM';
+
+  @override
+  void initState() {
+    super.initState();
+    _hourController.addListener(_onTimeChanged);
+    _minuteController.addListener(_onTimeChanged);
+  }
+
+  void _onTimeChanged() {
+    final hourText = _hourController.text;
+    final minuteText = _minuteController.text;
+
+    if (hourText.isEmpty || minuteText.isEmpty) return;
+
+    final hour = int.tryParse(hourText);
+    final minute = int.tryParse(minuteText);
+
+    if (hour != null && minute != null) {
+      // Validate bounds
+      if (hour < 1 || hour > 12 || minute < 0 || minute > 59) return;
+
+      int finalHour = hour;
+      if (_period == 'PM' && hour != 12) finalHour += 12;
+      if (_period == 'AM' && hour == 12) finalHour = 0;
+
+      setState(() {
+        _startTime = TimeOfDay(hour: finalHour, minute: minute);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -37,6 +70,8 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
     _locationController.dispose();
     _priceController.dispose();
     _durationController.dispose();
+    _hourController.dispose();
+    _minuteController.dispose();
     super.dispose();
   }
 
@@ -160,22 +195,111 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               // Start Time
               const Text('Start Time', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
               8.0.height,
-              InkWell(
-                onTap: () async {
-                  final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
-                  if (time != null) setState(() => _startTime = time);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(_startTime?.format(context) ?? 'Select', style: const TextStyle(fontSize: 12, color: AppColors.body)),
-                      const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
-                    ],
+              Row(
+                children: [
+                  // Time Input Group
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Hour
+                        SizedBox(
+                          width: 45,
+                          child: TextFormField(
+                            controller: _hourController,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            maxLength: 2,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            decoration: const InputDecoration(
+                              counterText: "",
+                              hintText: '12',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            onChanged: (val) {
+                              if (val.length == 2) FocusScope.of(context).nextFocus();
+                            },
+                          ),
+                        ),
+                        const Text(':', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        // Minute
+                        SizedBox(
+                          width: 45,
+                          child: TextFormField(
+                            controller: _minuteController,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            maxLength: 2,
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            decoration: const InputDecoration(
+                              counterText: "",
+                              hintText: '00',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            onChanged: (val) {
+                              if (val.length == 2) FocusScope.of(context).nextFocus();
+                            },
+                          ),
+                        ),
+                        12.0.width,
+                        // AM/PM
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _period,
+                            icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.body),
+                            items: ['AM', 'PM']
+                                .map((e) => DropdownMenuItem(
+                                      value: e,
+                                      child: Text(e, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                    ))
+                                .toList(),
+                            onChanged: (val) {
+                              setState(() {
+                                _period = val!;
+                                _onTimeChanged();
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                  16.0.width,
+                  // Quick Clock Picker
+                  InkWell(
+                    onTap: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: _startTime ?? TimeOfDay.now(),
+                      );
+                      if (time != null) {
+                        setState(() {
+                          _startTime = time;
+                          int displayHour = time.hourOfPeriod;
+                          if (displayHour == 0) displayHour = 12;
+                          _hourController.text = displayHour.toString().padLeft(2, '0');
+                          _minuteController.text = time.minute.toString().padLeft(2, '0');
+                          _period = time.period == DayPeriod.am ? 'AM' : 'PM';
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.grey50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.access_time, color: AppColors.primary, size: 24),
+                    ),
+                  ),
+                ],
               ),
               24.0.height,
 
@@ -188,16 +312,21 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Unit', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                        const Text('Amount', style: TextStyle(fontSize: 10, color: AppColors.body)),
                         4.0.height,
                         TextFormField(
                           controller: _durationController,
                           keyboardType: TextInputType.number,
                           validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                           decoration: InputDecoration(
+                            hintText: 'e.g. 5',
+                            hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 12),
                             fillColor: AppColors.grey50,
                             filled: true,
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
                           ),
                         ),
                       ],
@@ -208,8 +337,14 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 14),
-                        _buildDropdownField('', ['Days', 'Hours', 'Weeks'], (val) => setState(() => _durationUnit = val!), initialValue: _durationUnit),
+                        const Text('Unit', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                        4.0.height,
+                        _buildDropdownField(
+                          '',
+                          ['Days', 'Hours', 'Weeks'],
+                          (val) => setState(() => _durationUnit = val!),
+                          initialValue: _durationUnit,
+                        ),
                       ],
                     ),
                   ),
@@ -240,11 +375,16 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                 keyboardType: TextInputType.number,
                 validator: (val) => val == null || val.isEmpty ? 'Price is required' : null,
                 decoration: InputDecoration(
+                  prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? 'NGN'} ',
+                  prefixStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                   hintText: '0.00',
                   hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 12),
                   fillColor: AppColors.grey50,
                   filled: true,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
               40.0.height,
@@ -341,7 +481,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         'price': double.tryParse(_priceController.text) ?? 0.0,
         'type': _jobType,
         'work_mode': _selectedWorkMode,
-        'currency': 'NGN',
+        'currency': ref.read(userControllerProvider).primaryCurrency ?? 'NGN',
         'start_date': DateFormat('yyyy-MM-dd').format(_startDate!),
         'start_time': _startTime != null ? '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}' : null,
         'duration': '${_durationController.text} $_durationUnit',

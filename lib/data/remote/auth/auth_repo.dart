@@ -9,6 +9,7 @@ import 'package:creatify_mobile/data/models/responses/user_dto.dart';
 import 'package:creatify_mobile/data/remote/auth/auth_service.dart';
 
 abstract class AuthRepo {
+  Future<UserDto> getMe();
   Future<UserDto> signUp(SignUpReq req);
   Future<UserDto> signIn(SignInReq req);
   Future<UserDto> googleSignIn(String token);
@@ -29,6 +30,11 @@ class AuthImpl implements AuthRepo {
   final AuthService _authService;
 
   AuthImpl(this._authService);
+
+  @override
+  Future<UserDto> getMe() async {
+    return await _authService.getMe();
+  }
 
   @override
   Future<String> forgotPassword({required String email}) async {

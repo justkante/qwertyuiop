@@ -52,6 +52,10 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
   void initState() {
     super.initState();
     versionCode();
+    // Refresh user data when drawer is initialized to ensure roles/status are up to date
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(userControllerProvider.notifier).refreshUser();
+    });
   }
 
   @override
@@ -65,77 +69,100 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
 
     return Drawer(
       backgroundColor: Colors.white,
-      width: MediaQuery.sizeOf(context).width * 0.7,
+      width: MediaQuery.sizeOf(context).width * 0.8,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.zero,
       ),
       child: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Section
-            InkWell(
-              onTap: () {
-                context.pop();
-                context.push(const EditProfileView());
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    InitialAvatar(initials: userData.getInitials),
-                    8.0.width,
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hello ${userData.name?.split(' ').first},',
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            color: AppColors.subHeading,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          'Edit Profile',
-                          style: context.textTheme.bodySmall,
-                        )
-                      ],
+            // Branding Section
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Creatify',
+                    style: context.textTheme.displayMedium?.copyWith(
+                      color: AppColors.primary,
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const Spacer(),
-                    SvgPicture.asset(
-                      AppImages.chevronRight,
-                      width: 16,
-                      height: 16,
-                      colorFilter: AppColors.icons.colorFilterMode(),
+                  ),
+                  Text(
+                    'Create. Connect. Collaborate.',
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: AppColors.body,
+                      fontSize: 11,
+                      letterSpacing: 0.5,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
 
-            Container(
-              height: 1,
-              color: AppColors.surface,
-              margin: const EdgeInsets.symmetric(horizontal: 24),
+            // Profile Section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: InkWell(
+                onTap: () {
+                  context.pop();
+                  context.push(const EditProfileView());
+                },
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey100,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: Row(
+                    children: [
+                      InitialAvatar(
+                        initials: userData.getInitials,
+                        size: 20,
+                        padding: const EdgeInsets.all(12),
+                      ),
+                      12.0.width,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hello ${userData.name?.split(' ').first},',
+                              style: context.textTheme.bodyMedium?.copyWith(
+                                color: AppColors.black2,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Text(
+                              'Edit Profile',
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: AppColors.body,
+                                fontSize: 12,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: AppColors.body, size: 20),
+                    ],
+                  ),
+                ),
+              ),
             ),
 
             // Menu Items
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const DrawerHeading(title: 'PROFILE'),
-                    // Only show Ambassador Referrals to users with the 'ambassador' role
-                    if (userData.roles != null && userData.roles!.contains('ambassador')) ...[
-                      DrawerMenuItem(
-                        icon: AppImages.wallet,
-                        title: 'Ambassador Referrals',
-                        onTap: () {
-                          context.push(const AmbassadorReferralView());
-                        },
-                      ),
-                    ],
+                    const DrawerHeading(title: 'WORKSPACE'),
                     if (userData.roles?.contains('recruiter') == true)
                       DrawerMenuItem(
                         icon: AppImages.profileOutline,
@@ -173,6 +200,13 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         context.push(const DraftBookingsView());
                       },
                     ),
+
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      child: Divider(color: AppColors.grey100, height: 1),
+                    ),
+
+                    const DrawerHeading(title: 'DISCOVERY'),
                     DrawerMenuItem(
                       icon: AppImages.document,
                       title: 'Search Preferences',
@@ -195,37 +229,40 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         context.push(const NotificationsView());
                       },
                     ),
-                    if (hasWalletPin || userData.authStrategy == 'email') ...[
-                      const DrawerHeading(title: 'SECURITY'),
-                    ],
-                    if (hasWalletPin) ...[
+
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      child: Divider(color: AppColors.grey100, height: 1),
+                    ),
+
+                    const DrawerHeading(title: 'SETTINGS'),
+                    if (userData.authStrategy == 'email')
                       DrawerMenuItem(
-                        icon: AppImages.pinLock,
-                        title: 'Change Transaction PIN',
-                        onTap: () {
-                          context.push(const ChangeTransactionPinView());
-                        },
-                      ),
-                    ],
-                    if (userData.authStrategy == 'email') ...[
-                      DrawerMenuItem(
-                        icon: AppImages.obscureField,
+                        icon: AppImages.padlock,
                         title: 'Change Password',
                         onTap: () {
                           context.push(const ChangePasswordView());
                         },
                       ),
-                      DrawerMenuItem(
-                        icon: AppImages.passwordLock,
-                        title: 'Biometrics',
-                        onTap: () {
-                          AppBottomSheet.showBottomSheet(
-                            context,
-                            widget: const EnableBiometricsSheet(),
-                          );
-                        },
-                      ),
-                    ],
+                    DrawerMenuItem(
+                      icon: AppImages.touchId,
+                      title: 'Biometrics',
+                      onTap: () {
+                        AppBottomSheet.showBottomSheet(
+                          context,
+                          widget: const EnableBiometricsSheet(),
+                        );
+                      },
+                    ),
+                    DrawerMenuItem(
+                      icon: AppImages.premium,
+                      title: 'Manage Subscription',
+                      iconColor: AppColors.primary,
+                      onTap: () {
+                        context.push(const ManageSubscriptionView());
+                      },
+                    ),
+
                     const DrawerHeading(title: 'SUPPORT'),
                     DrawerMenuItem(
                       icon: AppImages.personSupport,
@@ -234,9 +271,17 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         context.push(const SupportView());
                       },
                     ),
+                    DrawerMenuItem(
+                      icon: AppImages.info,
+                      title: 'Help Centre',
+                      onTap: () {
+                        // context.push(const HelpCentreView());
+                      },
+                    ),
+
                     const DrawerHeading(title: 'LEGAL'),
                     DrawerMenuItem(
-                      icon: AppImages.privacy,
+                      icon: AppImages.secure,
                       title: 'Privacy Policy',
                       onTap: () {
                         context.push(
@@ -249,44 +294,68 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                     ),
                     DrawerMenuItem(
                       icon: AppImages.document,
-                      title: 'Terms and conditions',
+                      title: 'Terms & Conditions',
                       onTap: () {
                         context.push(
                           const WebviewScreen(
                             url: Constants.termsAndConditionsUrl,
-                            routeName: 'Terms and Conditions',
+                            routeName: 'Terms & Conditions',
                           ),
                         );
                       },
                     ),
-                    8.0.height,
-                    const DrawerHeading(title: 'ACCOUNT'),
-                    DrawerMenuItem(
-                      icon: AppImages.logout,
-                      title: 'Log out',
-                      color: Colors.red,
-                      onTap: () {
-                        AppBottomSheet.showBottomSheet(
-                          context,
-                          widget: const LogoutSheet(),
-                        );
-                      },
+
+                    16.0.height,
+                    // Account Section with red background
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF1EF),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const DrawerHeading(title: 'ACCOUNT', color: AppColors.highlightCoral),
+                            DrawerMenuItem(
+                              icon: AppImages.logout,
+                              title: 'Log out',
+                              subtitle: 'Sign out from your account',
+                              color: AppColors.highlightRed,
+                              onTap: () {
+                                AppBottomSheet.showBottomSheet(
+                                  context,
+                                  widget: const LogoutSheet(),
+                                );
+                              },
+                            ),
+                            DrawerMenuItem(
+                              icon: AppImages.trash,
+                              title: 'Delete Account',
+                              subtitle: 'Permanently remove all your data from Creatify',
+                              color: AppColors.highlightRed,
+                              onTap: () {
+                                AppBottomSheet.showBottomSheet(
+                                  context,
+                                  widget: const DeleteAccountSheet(),
+                                );
+                              },
+                            ),
+                            8.0.height,
+                          ],
+                        ),
+                      ),
                     ),
-                    10.0.height,
-                    DrawerMenuItem(
-                      icon: AppImages.trash,
-                      title: 'Delete Account',
-                      subtitle: 'Permanently remove all your data from Creatify',
-                      color: Colors.red.withValues(alpha: 0.6),
-                      onTap: () {
-                        AppBottomSheet.showBottomSheet(
-                          context,
-                          widget: const DeleteAccountSheet(),
-                        );
-                      },
+
+                    24.0.height,
+                    Center(
+                      child: Text(
+                        "v $_appVersion",
+                        style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
+                      ),
                     ),
                     24.0.height,
-                    Center(child: Text("v $_appVersion")),
                   ],
                 ),
               ),
@@ -294,6 +363,99 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class DrawerMenuItem extends StatelessWidget {
+  final String icon;
+  final String title;
+  final String? subtitle;
+  final bool showRedDot;
+  final VoidCallback onTap;
+  final Color? color;
+  final Color? iconColor;
+
+  const DrawerMenuItem({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    required this.onTap,
+    this.color,
+    this.iconColor,
+    this.showRedDot = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.pop();
+        onTap();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        child: Row(
+          children: [
+            Stack(
+              alignment: Alignment.topRight,
+              clipBehavior: Clip.none,
+              children: [
+                SvgPicture.asset(
+                  icon,
+                  width: 22,
+                  height: 22,
+                  colorFilter: (iconColor ?? color ?? AppColors.icons).colorFilterMode(),
+                ),
+                if (showRedDot) ...[
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: AppColors.highlightRed,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  )
+                ],
+              ],
+            ),
+            16.0.width,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: context.textTheme.bodyMedium?.copyWith(
+                      color: color ?? AppColors.black2,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                    ),
+                  ),
+                  if (subtitle != null) ...[
+                    Text(
+                      subtitle!,
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: AppColors.body,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.body, size: 18),
+          ],
+        ),
+      ),
+    );
+  }
+}
     );
   }
 }

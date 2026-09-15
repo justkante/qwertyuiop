@@ -22,8 +22,18 @@ class ToggleFavoriteJobNotifier extends AutoDisposeAsyncNotifier<void> {
       final response = await apiService.toggleFavorite(jobId);
       if (response.data['success']) {
         ref.invalidate(fetchFavoriteJobsProvider);
-        // We don't necessarily want to refetch all jobs here as it might be expensive,
-        // but it ensures UI consistency if we navigate back to search.
+
+        // Also update the jobController state if it's currently holding this job
+        final isFavorited = response.data['is_favorited'];
+        final jobController = ref.read(jobControllerProvider.notifier);
+        jobController.state = jobController.state.copyWith(
+          jobs: jobController.state.jobs.map((j) {
+            if (j.id == jobId) {
+              return j.copyWith(isFavorited: isFavorited);
+            }
+            return j;
+          }).toList(),
+        );
       }
     });
   }

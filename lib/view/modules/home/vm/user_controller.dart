@@ -22,6 +22,16 @@ class UserController extends StateNotifier<UserDto> {
     saveUserToStorage(user);
   }
 
+  Future<void> refreshUser() async {
+    try {
+      final user = await ref.read(authRepository).getMe();
+      state = user;
+      await saveUserToStorage(user);
+    } catch (e) {
+      log('Error refreshing user data: $e');
+    }
+  }
+
   void updateReferredByCode(String referredByCode) async {
     state = state.copyWith(
       referredByCode: referredByCode,

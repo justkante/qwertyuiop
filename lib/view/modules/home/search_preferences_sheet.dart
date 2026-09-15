@@ -134,13 +134,11 @@ class _SearchPreferencesSheetState extends ConsumerState<SearchPreferencesSheet>
               color: AppColors.highlightCoral,
               isLoading: updatingPreferences,
               text: 'Save Preferences',
-              onPressed: selectedSubCategoryIds.isEmpty
-                  ? null
-                  : () {
-                      ref
-                          .read(updatePreferencesProvider.notifier)
-                          .updatePreferences(selectedSubCategoryIds.toList());
-                    },
+              onPressed: () {
+                ref
+                    .read(updatePreferencesProvider.notifier)
+                    .updatePreferences(selectedSubCategoryIds.toList());
+              },
             ),
             12.0.height,
           ],

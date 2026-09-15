@@ -123,6 +123,9 @@ class JobController extends StateNotifier<JobState> {
             return j;
           }).toList(),
         );
+
+        // Invalidate favorites provider so it refreshes when user navigates to Favourites screen
+        ref.invalidate(fetchFavoriteJobsProvider);
       }
     } catch (e) {
       // Handle error

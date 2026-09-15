@@ -28,6 +28,22 @@ class AuthService {
         _storage = storage,
         _hiveStorage = hiveStorage;
 
+  Future<UserDto> getMe() async {
+    try {
+      final response = await _networkService.request(
+        endpoints.me,
+        RequestMethod.get,
+      );
+
+      final user = UserDto.fromJson(response.data['data']);
+      await _hiveStorage.set(StorageKey.userProfileData.name, user);
+
+      return user;
+    } catch (e) {
+      throw e.toString();
+    }
+  }
+
   Future<UserDto> signUp(SignUpReq req) async {
     try {
       final response = await _networkService.request(

@@ -57,10 +57,10 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
         );
       },
       child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 14, 10, 12),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
             color: AppColors.surface,
           ),
@@ -68,167 +68,145 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                widget.profile?.profileImage != null
-                    ? CachedImageHandler(
-                        imageUrl: widget.profile?.profileImage ?? '',
-                        height: 56,
-                        width: 56,
-                      )
-                    : InitialAvatar(
-                        initials: widget.profile?.initials ?? '',
-                        padding: const EdgeInsets.all(14),
-                        size: 16,
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    widget.profile?.profileImage != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(40),
+                            child: CachedImageHandler(
+                              imageUrl: widget.profile?.profileImage ?? '',
+                              height: 80,
+                              width: 80,
+                            ),
+                          )
+                        : InitialAvatar(
+                            initials: widget.profile?.initials ?? '',
+                            padding: const EdgeInsets.all(24),
+                            size: 24,
+                          ),
+                    Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: widget.profile?.isOnline == true ? Colors.green : Colors.grey,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
                       ),
-                8.0.width,
+                    ),
+                  ],
+                ),
+                16.0.width,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    "${widget.profile?.name} ${widget.profile?.countryCode?.flagFromCodeSync() ?? ''}",
-                                    overflow: TextOverflow.ellipsis,
-                                    style: context.textTheme.bodyLarge?.copyWith(
-                                      fontSize: 15,
-                                      color: AppColors.subHeading,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                                if (widget.profile?.isPremium == true) ...[
-                                  3.0.width,
-                                  SvgPicture.asset(
-                                    AppImages.blueTick,
-                                    width: 16,
-                                    height: 16,
-                                  ),
-                                ],
-                              ],
+                            child: Text(
+                              "${widget.profile?.name} ${widget.profile?.countryCode?.flagFromCodeSync() ?? ''}",
+                              overflow: TextOverflow.ellipsis,
+                              style: context.textTheme.bodyLarge?.copyWith(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          // Text(
-                          //   "${num.parse(widget.profile?.categories?.first?.services?.first?.price ?? '0').amountWithCurrency('ngn')}/hr",
-                          //   textAlign: TextAlign.right,
-                          //   style: context.textTheme.bodySmall?.copyWith(
-                          //     color: AppColors.spot500,
-                          //     fontFamily: FontFamily.inter,
-                          //     fontWeight: FontWeight.w500,
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                      2.0.height,
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          widget.profile?.categories?.isEmpty == true
-                              ? Text(
-                                  'No Creator Niche',
-                                  style: context.textTheme.bodySmall?.copyWith(
-                                    fontSize: 10,
-                                  ),
-                                )
-                              : RichText(
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  text: TextSpan(
-                                    text: widget.profile?.categories?.first.name ?? '',
-                                    style: context.textTheme.bodySmall?.copyWith(
-                                      fontSize: 10,
-                                      color: AppColors.highlightCoral,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    children: [
-                                      TextSpan(
-                                        text: widget.profile?.categories
-                                                ?.map((category) => category.name)
-                                                .join(' | ')
-                                                .substring(widget
-                                                        .profile?.categories?.first.name?.length ??
-                                                    0) ??
-                                            '',
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              fontSize: 10,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                  textAlign: TextAlign.left,
-                                ),
-                          4.0.height,
-
-                          // Star Rating
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                '(${widget.profile?.ratingsAndReviews?.averageRating ?? 0.0})',
-                                style: context.textTheme.bodySmall?.copyWith(
-                                  fontSize: 11,
-                                  color: AppColors.subHeading,
-                                ),
-                              ),
-                              6.0.width,
-                              StarRating(
-                                rating: widget.profile?.ratingsAndReviews?.averageRating ?? 0.0,
-                                starCount: 5,
-                                starSize: 12,
-                              )
-                            ],
+                          InkWell(
+                            onTap: widget.onFavoriteToggle,
+                            child: Icon(
+                              widget.isFavorite || widget.profile?.isFavorited == true
+                                  ? Icons.favorite
+                                  : Icons.favorite_outline,
+                              size: 24,
+                              color: widget.isFavorite || widget.profile?.isFavorited == true
+                                  ? Colors.red
+                                  : AppColors.body,
+                            ),
                           ),
                         ],
+                      ),
+                      4.0.height,
+                      Row(
+                        children: [
+                          const Icon(Icons.location_on_outlined, size: 14, color: AppColors.body),
+                          4.0.width,
+                          Text(
+                            widget.profile?.location ?? 'Lagos, Nigeria',
+                            style: context.textTheme.bodySmall?.copyWith(fontSize: 12, color: AppColors.body),
+                          ),
+                        ],
+                      ),
+                      8.0.height,
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: (widget.profile?.categories ?? []).map((cat) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF1EF),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            cat.name ?? '',
+                            style: const TextStyle(color: Color(0xFFFF6F61), fontSize: 10, fontWeight: FontWeight.w500),
+                          ),
+                        )).toList(),
+                      ),
+                      12.0.height,
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.orange, size: 16),
+                          4.0.width,
+                          Text(
+                            '${widget.profile?.ratingsAndReviews?.averageRating ?? 0.0}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                          Text(
+                            ' (${widget.profile?.ratingsAndReviews?.totalReviews ?? 0} reviews)',
+                            style: const TextStyle(color: AppColors.body, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                      8.0.height,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE0F2F1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.flash_on, color: Color(0xFF00BFA5), size: 14),
+                            4.0.width,
+                            Text(
+                              'Responds in 2h', // Mock data to match image
+                              style: const TextStyle(color: Color(0xFF00BFA5), fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
-            12.0.height,
+            16.0.height,
             Row(
               children: [
-                if (userData.id != null) ...[
-                  InkWell(
-                    onTap: widget.onFavoriteToggle,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: AppColors.surface,
-                        ),
-                      ),
-                      child: widget.isLoading
-                          ? CircularProgressIndicator.adaptive(
-                              constraints: BoxConstraints.tight(const Size(16, 16)),
-                              padding: const EdgeInsets.all(12.0),
-                              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-                              strokeWidth: 2,
-                            )
-                          : SvgPicture.asset(
-                              widget.isFavorite || widget.profile?.isFavorited == true
-                                  ? AppImages.favoriteFill
-                                  : AppImages.favorite,
-                              width: 27,
-                              height: 27,
-                            ),
-                    ),
-                  ),
-                  12.0.width,
-                ],
                 Expanded(
+                  flex: 3,
                   child: MainButton(
-                    text: 'View Profile',
-                    textColor: AppColors.subHeading,
-                    borderRadius: 8,
-                    color: AppColors.grey100,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    text: 'View Profile →',
+                    textColor: Colors.white,
+                    borderRadius: 24,
+                    color: const Color(0xFF1B3131),
                     onPressed: () {
                       context.push(
                         CreatorProfileView(
@@ -237,6 +215,28 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                         ),
                       );
                     },
+                  ),
+                ),
+                12.0.width,
+                Expanded(
+                  flex: 2,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      // Handle Book action
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.primary),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.send_outlined, size: 16, color: AppColors.primary),
+                        8.0.width,
+                        const Text('Book', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -307,102 +307,50 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
           ],
         ),
         child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  widget.profile?.profileImage != null
-                      ? CachedImageHandler(
-                          imageUrl: widget.profile?.profileImage ?? '',
-                          height: 40,
-                          width: 40,
-                        )
-                      : InitialAvatar(
-                          initials: widget.profile?.initials ?? '',
-                          padding: const EdgeInsets.all(14),
-                          size: 12,
-                        ),
-                  8.0.width,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              widget.profile?.profileImage != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedImageHandler(
+                        imageUrl: widget.profile?.profileImage ?? '',
+                        height: 40,
+                        width: 40,
+                      ),
+                    )
+                  : InitialAvatar(
+                      initials: widget.profile?.initials ?? '',
+                      padding: const EdgeInsets.all(14),
+                      size: 12,
+                    ),
+              8.0.width,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.profile?.name ?? 'Temiloluwa Otedola',
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.bodyLarge?.copyWith(
+                        fontSize: 14,
+                        color: AppColors.subHeading,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      widget.profile?.name ?? 'Temiloluwa Otedola',
-                                      overflow: TextOverflow.ellipsis,
-                                      style: context.textTheme.bodyLarge?.copyWith(
-                                        fontSize: 15,
-                                        color: AppColors.subHeading,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                  if (widget.profile?.isPremium == true) ...[
-                                    3.0.width,
-                                    SvgPicture.asset(
-                                      AppImages.blueTick,
-                                      width: 16,
-                                      height: 16,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        2.0.height,
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            widget.profile?.categories?.isEmpty == true
-                                ? Text(
-                                    'No Creator Niche',
-                                    style: context.textTheme.bodySmall?.copyWith(
-                                      fontSize: 10,
-                                    ),
-                                  )
-                                : RichText(
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    text: TextSpan(
-                                      text: widget.profile?.categories?.first.name ?? '',
-                                      style: context.textTheme.bodySmall?.copyWith(
-                                        fontSize: 10,
-                                        color: AppColors.highlightCoral,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: widget.profile?.categories
-                                                  ?.map((category) => category.name)
-                                                  .join(' | ')
-                                                  .substring(widget.profile?.categories?.first.name
-                                                          ?.length ??
-                                                      0) ??
-                                              '',
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                fontSize: 10,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                          ],
+                        const Icon(Icons.star, color: Colors.orange, size: 12),
+                        2.0.width,
+                        Text(
+                          '${widget.profile?.ratingsAndReviews?.averageRating ?? 0.0}',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
                         ),
                       ],
                     ),
-                  )
-                ],
-              ),
+                  ],
+                ),
+              )
             ],
           ),
         ),

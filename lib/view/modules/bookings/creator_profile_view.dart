@@ -205,6 +205,16 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                   ],
                 ),
               ),
+              4.0.height,
+              Center(
+                child: Text(
+                  'Creator Profile',
+                  style: context.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.highlightBlue,
+                  ),
+                ),
+              ),
               8.0.height,
 
               // Rating
