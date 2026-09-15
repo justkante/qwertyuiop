@@ -1,18 +1,16 @@
 import 'package:creatify_mobile/data/models/responses/booking_item_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/bookings_card.dart';
-import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
-import 'package:creatify_mobile/view/widgets/card_and_text_widget.dart';
+import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class SentBookingsView extends ConsumerStatefulWidget {
-  final int? length;
-  const SentBookingsView({super.key, this.length});
+  const SentBookingsView({super.key});
 
   @override
   ConsumerState<SentBookingsView> createState() => _SentBookingsViewState();
@@ -21,188 +19,240 @@ class SentBookingsView extends ConsumerStatefulWidget {
 class _SentBookingsViewState extends ConsumerState<SentBookingsView> {
   final searchController = TextEditingController();
   String searchQuery = '';
-  BookingStatus? selectedStatus;
+  BookingStatus selectedStatus = BookingStatus.pending; // Default or maybe 'All' logic
+  String currentFilter = 'All';
 
-  void _onSearchChanged() {
-    setState(() {
-      searchQuery = searchController.text.toLowerCase();
-    });
-  }
-
-  void _onStatusFilterChanged(BookingStatus? status) {
-    setState(() {
-      selectedStatus = status;
-    });
-  }
+  final List<String> filters = ['All', 'Pending', 'Accepted', 'Renegotiated', 'Completed'];
 
   @override
   void initState() {
     super.initState();
-    searchController.addListener(_onSearchChanged);
+    searchController.addListener(() {
+      setState(() => searchQuery = searchController.text.toLowerCase());
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(fetchSentBookingsProvider);
+    });
   }
 
   @override
   void dispose() {
-    searchController.removeListener(_onSearchChanged);
     searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final sentBookings = ref.watch(fetchSentBookingsProvider);
+    final sentBookingsAsync = ref.watch(fetchSentBookingsProvider);
 
-    return RefreshIndicator.adaptive(
-      edgeOffset: 2,
+    return Scaffold(
       backgroundColor: Colors.white,
-      color: AppColors.primary,
-      onRefresh: () async {
-        ref.invalidate(fetchSentBookingsProvider);
-      },
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight,
+      body: RefreshIndicator.adaptive(
+        onRefresh: () async => ref.invalidate(fetchSentBookingsProvider),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              16.0.height,
+              // Status Cards
+              sentBookingsAsync.when(
+                data: (bookings) => _buildStatusOverview(bookings),
+                loading: () => const _StatusOverviewPlaceholder(),
+                error: (_, __) => const _StatusOverviewPlaceholder(),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                //mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  sentBookings.when(
-                    data: (bookings) {
-                      final filteredBookings = bookings.where((booking) {
-                        final creatorName = booking.creator?.name?.toLowerCase();
-                        final matchesSearch = creatorName?.contains(searchQuery) ?? false;
-                        final matchesStatus =
-                            selectedStatus == null || booking.status == selectedStatus;
-                        return matchesSearch && matchesStatus;
-                      }).toList();
+              24.0.height,
 
-                      return Column(
-                        children: [
-                          // Show filters only when length it's not on Home View
-                          if (widget.length == null) ...[
-                            // Status Filters
-                            _buildStatusFilters(),
-                            12.0.height,
-                          ],
-
-                          // Search
-                          SearchTextInputField(
-                            controller: searchController,
-                          ),
-                          16.0.height,
-
-                          if (filteredBookings.isEmpty) ...[
-                            const Padding(
-                              padding: EdgeInsets.only(top: 48.0),
-                              child: Center(
-                                child: CardAndTextWidget(
-                                  text: 'You do not have any active\nbookings yet',
-                                  illustration: AppImages.calendarIllustration,
-                                ),
-                              ),
-                            )
-                          ] else ...[
-                            ListView.separated(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                final booking = filteredBookings[index];
-                                return BookingsCard(
-                                  bookingDetails: booking,
-                                  isSent: true,
-                                );
-                              },
-                              separatorBuilder: (context, index) => 12.0.height,
-                              itemCount:
-                                  widget.length != null && filteredBookings.length < widget.length!
-                                      ? filteredBookings.length
-                                      : widget.length ?? filteredBookings.length,
+              // Filter Chips
+              SizedBox(
+                height: 36,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: filters.length,
+                  separatorBuilder: (_, __) => 12.0.width,
+                  itemBuilder: (context, index) {
+                    final filter = filters[index];
+                    final isSelected = currentFilter == filter;
+                    return GestureDetector(
+                      onTap: () => setState(() => currentFilter = filter),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFF1B3131) : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: isSelected ? const Color(0xFF1B3131) : AppColors.grey200),
+                        ),
+                        child: Center(
+                          child: Text(
+                            filter,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : AppColors.body,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                              fontSize: 12,
                             ),
-                          ],
-                        ],
-                      );
-                    },
-                    loading: () => Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          24.0.height,
-                          const CircularProgressIndicator.adaptive(
-                            valueColor: AlwaysStoppedAnimation(AppColors.primary),
                           ),
-                          8.0.height,
-                          const Text('Fetching Bookings...'),
-                        ],
+                        ),
                       ),
-                    ),
-                    error: (error, stackTrace) => Padding(
-                      padding: const EdgeInsets.only(top: 48.0),
-                      child: Text(
-                        "An error occurred while fetching sent bookings.".toTitleCase(),
-                        style: context.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ),
-                  24.0.height,
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
-          );
-        },
+              16.0.height,
+
+              // Search Bar
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.grey50,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search Name, Role...',
+                    hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
+                    icon: const Icon(Icons.search, size: 20, color: AppColors.body),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              24.0.height,
+
+              sentBookingsAsync.when(
+                data: (bookings) {
+                  final filtered = bookings.where((b) {
+                    final matchesSearch = b.creator?.name?.toLowerCase().contains(searchQuery) ?? false;
+                    final matchesStatus = currentFilter == 'All' || b.status?.name.toLowerCase() == currentFilter.toLowerCase();
+                    return matchesSearch && matchesStatus;
+                  }).toList();
+
+                  if (filtered.isEmpty) return _buildEmptyState();
+
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, __) => 16.0.height,
+                    itemBuilder: (context, index) => BookingsCard(
+                      bookingDetails: filtered[index],
+                      isSent: true,
+                    ),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+                error: (e, s) => Center(child: Text(e.toString())),
+              ),
+              40.0.height,
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildStatusFilters() {
-    final statuses = [
-      (null, 'All'),
-      (BookingStatus.pending, 'Pending'),
-      (BookingStatus.accepted, 'Accepted'),
-      (BookingStatus.negotiated, 'Renegotiated'),
-      (BookingStatus.completed, 'Completed'),
-      (BookingStatus.cancelled, 'Cancelled'),
-    ];
+  Widget _buildStatusOverview(List<BookingItemDto> bookings) {
+    final pending = bookings.where((b) => b.status == BookingStatus.pending).length;
+    final accepted = bookings.where((b) => b.status == BookingStatus.accepted).length;
+    final completed = bookings.where((b) => b.status == BookingStatus.completed).length;
 
-    return SizedBox(
-      height: 24,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: statuses.length,
-        separatorBuilder: (context, index) => 8.0.width,
-        itemBuilder: (context, index) {
-          final (status, label) = statuses[index];
-          final isSelected = selectedStatus == status;
+    return Row(
+      children: [
+        _buildStatusCard('Pending', pending, const Color(0xFFFEF6EF), const Color(0xFFF4A261), Icons.access_time),
+        12.0.width,
+        _buildStatusCard('Accepted', accepted, const Color(0xFFE8F5E9), const Color(0xFF2E7D32), Icons.check_circle_outline),
+        12.0.width,
+        _buildStatusCard('Completed', completed, const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.calendar_today_outlined),
+      ],
+    );
+  }
 
-          return GestureDetector(
-            onTap: () => _onStatusFilterChanged(status),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-              decoration: BoxDecoration(
-                color: isSelected ? AppColors.primary : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isSelected ? AppColors.primary : AppColors.grey300,
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  label,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: isSelected ? Colors.white : AppColors.subHeading,
-                    fontWeight: isSelected ? FontWeight.w500 : FontWeight.w400,
-                  ),
-                ),
-              ),
+  Widget _buildStatusCard(String label, int count, Color bgColor, Color iconColor, IconData icon) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.grey100),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 18),
             ),
-          );
-        },
+            12.0.width,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body)),
+                Text('$count', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
+              ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Column(
+      children: [
+        40.0.height,
+        Center(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                height: 180,
+                width: 180,
+                decoration: BoxDecoration(color: Colors.teal.shade50.withOpacity(0.3), shape: BoxShape.circle),
+              ),
+              const Icon(Icons.calendar_today_outlined, size: 80, color: Color(0xFF00796B)),
+            ],
+          ),
+        ),
+        24.0.height,
+        const Text('No bookings yet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        8.0.height,
+        const Text(
+          'When you send or receive bookings, they\'ll appear here.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppColors.body, fontSize: 13, height: 1.5),
+        ),
+        32.0.height,
+        MainButton(
+          text: 'Find creators',
+          onPressed: () {}, // Navigate to Search
+        ),
+        16.0.height,
+        MainButton(
+          text: 'Explore jobs',
+          color: Colors.white,
+          textColor: const Color(0xFF00796B),
+          onPressed: () {}, // Navigate to Jobs
+        ),
+      ],
+    );
+  }
+}
+
+class _StatusOverviewPlaceholder extends StatelessWidget {
+  const _StatusOverviewPlaceholder();
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: List.generate(3, (index) => Expanded(
+        child: Container(
+          height: 60,
+          margin: EdgeInsets.only(right: index == 2 ? 0 : 12),
+          decoration: BoxDecoration(
+            color: AppColors.grey50,
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      )),
     );
   }
 }

@@ -25,23 +25,35 @@ class _BookingsViewState extends ConsumerState<BookingsView> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        automaticallyImplyLeading: false,
         title: Text(
           'Bookings',
-          style: context.textTheme.displayMedium?.copyWith(fontSize: 19),
+          style: context.textTheme.displayMedium?.copyWith(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
+        centerTitle: true,
       ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              "Manage your bookings and keep track of your appointments with ease",
-              style: context.textTheme.bodySmall,
+              "Manage your bookings and track your appointments with ease",
+              style: context.textTheme.bodySmall?.copyWith(
+                color: AppColors.body,
+                fontSize: 14,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
-          16.0.height,
+          24.0.height,
           BookingsTabBar(tabController: tabController),
           16.0.height,
           Expanded(
