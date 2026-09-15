@@ -599,7 +599,7 @@ class _UpdateRatesCardSheetState extends ConsumerState<UpdateRatesCardSheet> {
                               ),
                               borderRadius: BorderRadius.circular(8),
                               color: isBeingEdited
-                                  ? AppColors.highlightCoral.withValues(alpha: .05)
+                                  ? AppColors.highlightCoral.withOpacity(.05)
                                   : null,
                             ),
                             child: Column(

@@ -52,7 +52,7 @@ extension Amount on dynamic {
       'idr': 'Rp',
       'myr': 'RM',
       'thb': '฿',
-      'aed': 'د.إ',
+      'aed': 'AED',
     };
     final currencySymbol = currencySymbols[symbol.toLowerCase()] ?? '';
     var formatter = NumberFormat.currency(symbol: currencySymbol, decimalDigits: 2);

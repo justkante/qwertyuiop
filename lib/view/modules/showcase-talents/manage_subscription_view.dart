@@ -42,17 +42,6 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
       }
     });
 
-    ref.listen(makeSubscriptionPaymentProvider, (_, value) {
-      if (value is AsyncData) {
-        final paymentData = value.value!;
-        // Handle payment navigation/web view if needed
-        // For now we assume the VM handles the initialization logic
-      }
-      if (value is AsyncError) {
-        ToastDialog.showError(value.error.toString(), context);
-      }
-    });
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -441,15 +430,14 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
     );
   }
 
-  Widget _buildPlanCard({
-    required String title,
+  Widget _buildPlanCard(
+    {required String title,
     required String subtitle,
     required String price,
     String? badge,
     Color? badgeColor,
     required bool isSelected,
-    required VoidCallback onTap,
-  }) {
+    required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -528,12 +516,11 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
     );
   }
 
-  Widget _buildActionItem({
-    required IconData icon,
+  Widget _buildActionItem(
+    {required IconData icon,
     required String title,
     required String subtitle,
-    required VoidCallback onTap,
-  }) {
+    required VoidCallback onTap}) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -582,65 +569,23 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
     final String country = (userData.countryCode ?? 'NG').toUpperCase();
 
     double monthlyPrice;
-    String symbol;
 
     if (country == 'NG' || currency == 'NGN') {
       monthlyPrice = 10000;
-      symbol = '₦';
     } else if (country == 'GB' || currency == 'GBP') {
       monthlyPrice = 9.99;
-      symbol = '£';
     } else {
-      // Convert £9.99 to local currency
       final rates = {
-        'USD': 1.27,
-        'EUR': 1.18,
-        'CAD': 1.74,
-        'AUD': 1.91,
-        'BRL': 6.50,
-        'AED': 4.66,
-        'SGD': 1.71,
-        'GHS': 18.5,
-        'KES': 165.0,
-        'ZAR': 23.5,
+        'USD': 1.27, 'EUR': 1.18, 'CAD': 1.74, 'AUD': 1.91, 'BRL': 6.50,
+        'AED': 4.66, 'SGD': 1.71, 'GHS': 18.5, 'KES': 165.0, 'ZAR': 23.5,
       };
-
       final rate = rates[currency] ?? 1.27;
       monthlyPrice = 9.99 * rate;
-
-      // Attempt to get the symbol
-      const symbols = {
-        'USD': '$',
-        'EUR': '€',
-        'CAD': 'CA$',
-        'AUD': 'A$',
-        'BRL': 'R$',
-        'AED': 'د.إ',
-        'SGD': 'S$',
-        'GHS': 'GH₵',
-        'KES': 'KSh',
-        'ZAR': 'R',
-      };
-      symbol = symbols[currency] ?? currency;
     }
 
     final price = isAnnual ? monthlyPrice * 10 : monthlyPrice;
-    final formattedAmount = price.amountInt(
-      includeCommas: true,
-      minDecimalPlaces: (price >= 100) ? 0 : 2,
-    );
+    final String unitText = isAnnual ? 'year' : 'month';
 
-    // Check if symbol should be prefixed or suffixed
-    final isSymbolPrefixed = !['kr', 'лв', 'Kč', 'Ft', 'Fr', 'zł', 'lei'].contains(symbol.toLowerCase());
-
-    if (isAnnual) {
-      return isSymbolPrefixed
-          ? "$symbol$formattedAmount / year"
-          : "$formattedAmount $symbol / year";
-    } else {
-      return isSymbolPrefixed
-          ? "$symbol$formattedAmount / month"
-          : "$formattedAmount $symbol / month";
-    }
+    return "${price.amountWithCurrency(currency)} / $unitText";
   }
 }

@@ -198,7 +198,7 @@ class _DocumentViewerWidgetState extends State<DocumentViewerWidget> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: Colors.black.withOpacity(0.5),
             blurRadius: 30,
             spreadRadius: 5,
           ),
@@ -211,7 +211,7 @@ class _DocumentViewerWidgetState extends State<DocumentViewerWidget> {
           Container(
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: AppColors.highlightRed.withValues(alpha: 0.2),
+              color: AppColors.highlightRed.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: SvgPicture.asset(
@@ -248,7 +248,7 @@ class _DocumentViewerWidgetState extends State<DocumentViewerWidget> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.1),
+              color: Colors.white.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(

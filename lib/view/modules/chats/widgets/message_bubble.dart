@@ -223,7 +223,7 @@ class MessageBubble extends StatelessWidget {
                     if (isPending)
                       Positioned.fill(
                         child: Container(
-                          color: Colors.black.withValues(alpha: 0.3),
+                          color: Colors.black.withOpacity(0.3),
                           child: const Center(
                             child: CircularProgressIndicator(
                               strokeWidth: 3,
@@ -284,7 +284,7 @@ class MessageBubble extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: isMe ? Colors.white.withValues(alpha: 0.1) : AppColors.grey50,
+          color: isMe ? Colors.white.withOpacity(0.1) : AppColors.grey50,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -301,7 +301,7 @@ class MessageBubble extends StatelessWidget {
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: (isMe ? Colors.white : AppColors.primary).withValues(alpha: 0.3),
+                        color: (isMe ? Colors.white : AppColors.primary).withOpacity(0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Center(

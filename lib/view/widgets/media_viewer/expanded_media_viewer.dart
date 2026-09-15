@@ -29,11 +29,11 @@ class ExpandedMediaViewer extends StatelessWidget {
           GestureDetector(
             onTap: onClose,
             child: Container(
-              color: Colors.black.withValues(alpha: 0.85),
+              color: Colors.black.withOpacity(0.85),
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  color: Colors.black.withValues(alpha: 0.3),
+                  color: Colors.black.withOpacity(0.3),
                 ),
               ),
             ),
@@ -96,10 +96,10 @@ class ExpandedMediaViewer extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: Colors.white.withOpacity(0.2),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: Colors.white.withOpacity(0.3),
                   width: 1,
                 ),
               ),

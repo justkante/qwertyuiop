@@ -10,7 +10,7 @@ class AppBottomSheet {
     final res = await showModalBottomSheet(
       backgroundColor: Colors.transparent,
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.2),
+      barrierColor: Colors.black.withOpacity(0.2),
       enableDrag: enableDrag,
       isScrollControlled: true,
       isDismissible: isDismissible,

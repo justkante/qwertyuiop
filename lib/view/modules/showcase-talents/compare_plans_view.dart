@@ -5,7 +5,6 @@ import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ComparePlansView extends ConsumerWidget {
@@ -24,9 +23,9 @@ class ComparePlansView extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           'Compare Plans',
-          style: context.textTheme.bodyLarge?.copyWith(
+          style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.black,
             fontSize: 18,
@@ -298,37 +297,20 @@ class ComparePlansView extends ConsumerWidget {
     final String country = (userData.countryCode ?? 'NG').toUpperCase();
 
     double monthlyPrice;
-    String symbol;
 
     if (country == 'NG' || currency == 'NGN') {
       monthlyPrice = 10000;
-      symbol = '₦';
     } else if (country == 'GB' || currency == 'GBP') {
       monthlyPrice = 9.99;
-      symbol = '£';
     } else {
       final rates = {
         'USD': 1.27, 'EUR': 1.18, 'CAD': 1.74, 'AUD': 1.91, 'BRL': 6.50,
         'AED': 4.66, 'SGD': 1.71, 'GHS': 18.5, 'KES': 165.0, 'ZAR': 23.5,
       };
-
       final rate = rates[currency] ?? 1.27;
       monthlyPrice = 9.99 * rate;
-
-      const symbols = {
-        'USD': '$', 'EUR': '€', 'CAD': 'CA$', 'AUD': 'A$', 'BRL': 'R$',
-        'AED': 'د.إ', 'SGD': 'S$', 'GHS': 'GH₵', 'KES': 'KSh', 'ZAR': 'R',
-      };
-      symbol = symbols[currency] ?? currency;
     }
 
-    final formattedAmount = monthlyPrice.amountInt(
-      includeCommas: true,
-      minDecimalPlaces: (monthlyPrice >= 100) ? 0 : 2,
-    );
-
-    final isSymbolPrefixed = !['kr', 'лв', 'Kč', 'Ft', 'Fr', 'zł', 'lei'].contains(symbol.toLowerCase());
-
-    return isSymbolPrefixed ? "$symbol$formattedAmount" : "$formattedAmount $symbol";
+    return monthlyPrice.amountWithCurrency(currency);
   }
 }

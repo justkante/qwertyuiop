@@ -399,7 +399,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
             activeTrackColor: AppColors.spot500,
             inactiveTrackColor: AppColors.grey300,
             thumbColor: AppColors.highlightCoral,
-            overlayColor: AppColors.highlightCoral.withValues(alpha: 0.1),
+            overlayColor: AppColors.highlightCoral.withOpacity(0.1),
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 8),

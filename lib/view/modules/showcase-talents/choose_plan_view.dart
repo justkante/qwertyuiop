@@ -18,7 +18,7 @@ class ChoosePlanView extends ConsumerStatefulWidget {
 
 class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
   late bool _isAnnual;
-  String _selectedTier = 'Pro'; // Default to Pro as per image
+  String _selectedTier = 'Pro';
 
   @override
   void initState() {
@@ -168,12 +168,12 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                             const TextSpan(text: 'You can cancel your subscription at any time. By continuing, you agree to our '),
                             TextSpan(
                               text: 'Terms of Service',
-                              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
                             ),
                             const TextSpan(text: ' and '),
                             TextSpan(
                               text: 'Privacy Policy',
-                              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
                             ),
                             const TextSpan(text: '.'),
                           ],
@@ -241,7 +241,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             ),
             if (showBadge) ...[
               8.0.width,
-              Text(
+              const Text(
                 'Save 17%',
                 style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold),
               ),
@@ -274,7 +274,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFE0F2F1).withOpacity(0.3) : Colors.white,
+                color: isSelected ? const Color(0xFFE0F2F1).withOpacity(0.1) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected ? AppColors.primary : AppColors.grey200,
@@ -399,14 +399,11 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
     final String country = (userData.countryCode ?? 'NG').toUpperCase();
 
     double monthlyPrice;
-    String symbol;
 
     if (country == 'NG' || currency == 'NGN') {
       monthlyPrice = 10000;
-      symbol = '₦';
     } else if (country == 'GB' || currency == 'GBP') {
       monthlyPrice = 9.99;
-      symbol = '£';
     } else {
       final rates = {
         'USD': 1.27, 'EUR': 1.18, 'CAD': 1.74, 'AUD': 1.91, 'BRL': 6.50,
@@ -414,22 +411,9 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
       };
       final rate = rates[currency] ?? 1.27;
       monthlyPrice = 9.99 * rate;
-
-      const symbols = {
-        'USD': '$', 'EUR': '€', 'CAD': 'CA$', 'AUD': 'A$', 'BRL': 'R$',
-        'AED': 'د.إ', 'SGD': 'S$', 'GHS': 'GH₵', 'KES': 'KSh', 'ZAR': 'R',
-      };
-      symbol = symbols[currency] ?? currency;
     }
 
     final price = _isAnnual ? monthlyPrice * 10 : monthlyPrice;
-    final formattedAmount = price.amountInt(
-      includeCommas: true,
-      minDecimalPlaces: (price >= 100) ? 0 : 2,
-    );
-
-    final isSymbolPrefixed = !['kr', 'лв', 'Kč', 'Ft', 'Fr', 'zł', 'lei'].contains(symbol.toLowerCase());
-
-    return isSymbolPrefixed ? "$symbol$formattedAmount" : "$formattedAmount $symbol";
+    return price.amountWithCurrency(currency);
   }
 }

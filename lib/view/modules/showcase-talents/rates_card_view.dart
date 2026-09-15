@@ -549,7 +549,7 @@ class _RatesCardViewState extends ConsumerState<RatesCardView> {
                               ),
                               borderRadius: BorderRadius.circular(8),
                               color: isBeingEdited
-                                  ? AppColors.highlightCoral.withValues(alpha: .05)
+                                  ? AppColors.highlightCoral.withOpacity(.05)
                                   : null,
                             ),
                             child: Column(

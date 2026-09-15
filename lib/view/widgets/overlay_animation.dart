@@ -176,7 +176,7 @@ class _OverLayAnimationState extends State<OverLayAnimation> with SingleTickerPr
                 opacity: widget.opacity,
                 child: ModalBarrier(
                   dismissible: false,
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withOpacity(0.2),
                 ),
               ),
               Center(child: widget.progressIndicator),

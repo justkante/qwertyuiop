@@ -126,7 +126,7 @@ class _TypingIndicatorState extends State<TypingIndicator> with TickerProviderSt
       width: 4,
       height: 4,
       decoration: BoxDecoration(
-        color: AppColors.caption.withValues(alpha: opacity.clamp(0.3, 1.0)),
+        color: AppColors.caption.withOpacity(opacity.clamp(0.3, 1.0)),
         shape: BoxShape.circle,
       ),
     );

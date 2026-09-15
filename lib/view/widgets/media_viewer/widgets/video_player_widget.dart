@@ -88,11 +88,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.9),
+                      color: AppColors.primary.withOpacity(0.9),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.3),
+                          color: Colors.black.withOpacity(0.3),
                           blurRadius: 20,
                           spreadRadius: 2,
                         ),
@@ -212,7 +212,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black.withValues(alpha: 0.7),
+                Colors.black.withOpacity(0.7),
               ],
             ),
             borderRadius: const BorderRadius.only(
@@ -234,9 +234,9 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                     overlayRadius: 12,
                   ),
                   activeTrackColor: AppColors.primary,
-                  inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
+                  inactiveTrackColor: Colors.white.withOpacity(0.3),
                   thumbColor: AppColors.primary,
-                  overlayColor: AppColors.primary.withValues(alpha: 0.2),
+                  overlayColor: AppColors.primary.withOpacity(0.2),
                 ),
                 child: Slider(
                   value: progress.clamp(0.0, 1.0),

@@ -172,7 +172,7 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
                         decoration: BoxDecoration(
                           color: AppColors.highlightBlue50,
                           borderRadius: BorderRadius.circular(8.0),
-                          border: Border.all(color: AppColors.highlightBlue.withValues(alpha: 0.2)),
+                          border: Border.all(color: AppColors.highlightBlue.withOpacity(0.2)),
                         ),
                         child: Row(
                           // crossAxisAlignment: CrossAxisAlignment.end,

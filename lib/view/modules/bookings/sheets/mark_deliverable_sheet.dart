@@ -149,12 +149,12 @@ class _MarkDeliveryCompletedSheetState extends State<MarkDeliveryCompletedSheet>
                                 deliverable.description ?? '',
                                 style: context.textTheme.bodyMedium?.copyWith(
                                   color: deliverable.isCompleted == true
-                                      ? AppColors.body.withValues(alpha: 0.5)
+                                      ? AppColors.body.withOpacity(0.5)
                                       : AppColors.body,
                                   decoration: deliverable.isCompleted == true
                                       ? TextDecoration.lineThrough
                                       : null,
-                                  decorationColor: AppColors.body.withValues(alpha: 0.5),
+                                  decorationColor: AppColors.body.withOpacity(0.5),
                                 ),
                               )
                             ],

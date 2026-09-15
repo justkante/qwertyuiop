@@ -203,7 +203,7 @@ class _AmbassadorReferralViewState extends ConsumerState<AmbassadorReferralView>
                             contentPadding: EdgeInsets.zero,
                             leading: CircleAvatar(
                               radius: 10,
-                              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                              backgroundColor: AppColors.primary.withOpacity(0.1),
                               child: Text(
                                 '${index + 1}',
                                 style: context.textTheme.bodySmall?.copyWith(

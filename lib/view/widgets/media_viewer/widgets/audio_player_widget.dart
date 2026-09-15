@@ -85,7 +85,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: Colors.black.withOpacity(0.5),
             blurRadius: 30,
             spreadRadius: 5,
           ),
@@ -98,7 +98,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
           Container(
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.2),
+              color: AppColors.primary.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: SvgPicture.asset(
@@ -154,9 +154,9 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                             overlayRadius: 16,
                           ),
                           activeTrackColor: AppColors.primary,
-                          inactiveTrackColor: Colors.white.withValues(alpha: 0.2),
+                          inactiveTrackColor: Colors.white.withOpacity(0.2),
                           thumbColor: AppColors.primary,
-                          overlayColor: AppColors.primary.withValues(alpha: 0.2),
+                          overlayColor: AppColors.primary.withOpacity(0.2),
                         ),
                         child: Slider(
                           value: duration.inMilliseconds > 0
@@ -231,7 +231,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.primary.withValues(alpha: 0.4),
+                            color: AppColors.primary.withOpacity(0.4),
                             blurRadius: 20,
                             spreadRadius: 2,
                           ),
@@ -284,7 +284,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
+            color: Colors.black.withOpacity(0.5),
             blurRadius: 30,
             spreadRadius: 5,
           ),
@@ -296,7 +296,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
           Container(
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: AppColors.highlightRed.withValues(alpha: 0.2),
+              color: AppColors.highlightRed.withOpacity(0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(

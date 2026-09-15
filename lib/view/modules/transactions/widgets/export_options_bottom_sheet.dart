@@ -103,7 +103,7 @@ class ExportOptionsBottomSheet extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.primary.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -128,7 +128,7 @@ class ExportOptionsBottomSheet extends StatelessWidget {
                   Text(
                     description,
                     style: context.textTheme.bodySmall?.copyWith(
-                      color: AppColors.subHeading.withValues(alpha: 0.7),
+                      color: AppColors.subHeading.withOpacity(0.7),
                     ),
                   ),
                 ],
@@ -136,7 +136,7 @@ class ExportOptionsBottomSheet extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right,
-              color: AppColors.subHeading.withValues(alpha: 0.5),
+              color: AppColors.subHeading.withOpacity(0.5),
             ),
           ],
         ),
