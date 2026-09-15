@@ -1,5 +1,6 @@
 import 'package:creatify_mobile/data/models/responses/booking_item_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';

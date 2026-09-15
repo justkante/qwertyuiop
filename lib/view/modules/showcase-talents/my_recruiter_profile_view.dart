@@ -11,6 +11,7 @@ import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/modules/home/rating/rating_widgets.dart';
 import 'package:creatify_mobile/view/utils/file_and_image_picker.dart';
+import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/overlay_animation.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +19,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/manage_subscription_view.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
+import 'package:creatify_mobile/view/modules/home/support_view.dart';
 
 class MyRecruiterProfileView extends ConsumerStatefulWidget {
   const MyRecruiterProfileView({super.key});

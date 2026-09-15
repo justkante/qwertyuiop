@@ -2,12 +2,14 @@ import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
+import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../widgets/job_post_card.dart';
 import '../job_details_view.dart';
 import '../vm/job_controller.dart';
+import 'package:creatify_mobile/view/modules/home/support_view.dart';
 
 class AppliedJobsTab extends ConsumerStatefulWidget {
   const AppliedJobsTab({super.key});

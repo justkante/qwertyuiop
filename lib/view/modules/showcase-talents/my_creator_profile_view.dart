@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/share_profile_widget.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_profile_tab.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/expandable_profile_image.dart';
