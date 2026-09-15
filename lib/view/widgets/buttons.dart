@@ -1,4 +1,5 @@
 import 'package:creatify_mobile/view/theme/app_colors.dart';
+import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -13,6 +14,9 @@ class MainButton extends StatelessWidget {
   final double? fontSize, borderRadius;
   final EdgeInsets? padding;
   final Function()? onPressed;
+  final Widget? prefixIcon;
+  final double? width;
+
   const MainButton({
     super.key,
     required this.text,
@@ -25,6 +29,8 @@ class MainButton extends StatelessWidget {
     this.borderRadius,
     this.padding,
     this.fontSize,
+    this.prefixIcon,
+    this.width,
   });
 
   @override
@@ -37,6 +43,7 @@ class MainButton extends StatelessWidget {
               onPressed!();
             },
       child: Container(
+        width: width,
         padding: padding ?? const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: onPressed == null ? AppColors.btnInactive : color,
@@ -50,15 +57,23 @@ class MainButton extends StatelessWidget {
                   size: 20,
                 ),
               )
-            : Center(
-                child: Text(
-                  text,
-                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        fontSize: fontSize ?? 14,
-                        fontWeight: FontWeight.w600,
-                        color: textColor ?? Colors.white,
-                      ),
-                ),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (prefixIcon != null) ...[
+                    prefixIcon!,
+                    8.0.width,
+                  ],
+                  Text(
+                    text,
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          fontSize: fontSize ?? 14,
+                          fontWeight: FontWeight.w600,
+                          color: textColor ?? Colors.white,
+                        ),
+                  ),
+                ],
               ),
       ),
     );

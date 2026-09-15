@@ -1,6 +1,7 @@
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/draft_booking_item_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/book_creator_view.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
@@ -80,12 +81,12 @@ class DraftBookingsCard extends ConsumerWidget {
                   color: const Color(0xFFF3F4F6),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(width: 6, height: 6, decoration: BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
-                    SizedBox(width: 6),
-                    Text('Draft', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
+                    Container(width: 6, height: 6, decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
+                    const SizedBox(width: 6),
+                    const Text('Draft', style: TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
