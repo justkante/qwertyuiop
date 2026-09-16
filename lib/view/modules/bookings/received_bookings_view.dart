@@ -3,13 +3,15 @@ import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart
 import 'package:creatify_mobile/view/modules/bookings/widgets/bookings_card.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
+import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ReceivedBookingsView extends ConsumerStatefulWidget {
-  const ReceivedBookingsView({super.key});
+  final int? length;
+  const ReceivedBookingsView({super.key, this.length});
 
   @override
   ConsumerState<ReceivedBookingsView> createState() => _ReceivedBookingsViewState();
@@ -54,68 +56,71 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
             children: [
               16.0.height,
               // Status Cards
-              receivedBookingsAsync.when(
-                data: (bookings) => _buildStatusOverview(bookings),
-                loading: () => const _StatusOverviewPlaceholder(),
-                error: (_, __) => const _StatusOverviewPlaceholder(),
-              ),
-              24.0.height,
+              if (widget.length == null)
+                receivedBookingsAsync.when(
+                  data: (bookings) => _buildStatusOverview(bookings),
+                  loading: () => const _StatusOverviewPlaceholder(),
+                  error: (_, __) => const _StatusOverviewPlaceholder(),
+                ),
+              if (widget.length == null) 24.0.height,
 
               // Filter Chips
-              SizedBox(
-                height: 36,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: filters.length,
-                  separatorBuilder: (_, __) => 12.0.width,
-                  itemBuilder: (context, index) {
-                    final filter = filters[index];
-                    final isSelected = currentFilter == filter;
-                    return GestureDetector(
-                      onTap: () => setState(() => currentFilter = filter),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF1B3131) : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: isSelected ? const Color(0xFF1B3131) : AppColors.grey200),
-                        ),
-                        child: Center(
-                          child: Text(
-                            filter,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : AppColors.body,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                              fontSize: 12,
+              if (widget.length == null)
+                SizedBox(
+                  height: 36,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: filters.length,
+                    separatorBuilder: (_, __) => 12.0.width,
+                    itemBuilder: (context, index) {
+                      final filter = filters[index];
+                      final isSelected = currentFilter == filter;
+                      return GestureDetector(
+                        onTap: () => setState(() => currentFilter = filter),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF1B3131) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: isSelected ? const Color(0xFF1B3131) : AppColors.grey200),
+                          ),
+                          child: Center(
+                            child: Text(
+                              filter,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : AppColors.body,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              16.0.height,
-
-              // Search Bar
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(
-                  color: AppColors.grey50,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search Name, Role...',
-                    hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
-                    icon: const Icon(Icons.search, size: 20, color: AppColors.body),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      );
+                    },
                   ),
                 ),
-              ),
-              24.0.height,
+              if (widget.length == null) 16.0.height,
+
+              // Search Bar
+              if (widget.length == null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search Name, Role...',
+                      hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
+                      icon: const Icon(Icons.search, size: 20, color: AppColors.body),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              if (widget.length == null) 24.0.height,
 
               receivedBookingsAsync.when(
                 data: (bookings) {
@@ -127,13 +132,17 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
 
                   if (filtered.isEmpty) return _buildEmptyState();
 
+                  final displayList = widget.length != null && filtered.length > widget.length!
+                      ? filtered.take(widget.length!).toList()
+                      : filtered;
+
                   return ListView.separated(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: filtered.length,
+                    itemCount: displayList.length,
                     separatorBuilder: (_, __) => 16.0.height,
                     itemBuilder: (context, index) => BookingsCard(
-                      bookingDetails: filtered[index],
+                      bookingDetails: displayList[index],
                       isSent: false,
                     ),
                   );

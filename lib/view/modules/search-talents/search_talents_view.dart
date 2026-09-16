@@ -1,6 +1,7 @@
 import 'package:creatify_mobile/core/deeplinking/deeplink_provider.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_card.dart';
 import 'package:creatify_mobile/view/modules/home/notifications_view.dart';
 import 'package:creatify_mobile/view/modules/home/search_preferences_sheet.dart';

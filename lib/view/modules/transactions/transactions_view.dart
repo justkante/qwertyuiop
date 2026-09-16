@@ -7,6 +7,7 @@ import 'package:creatify_mobile/view/modules/transactions/all_transactions_view.
 import 'package:creatify_mobile/view/modules/transactions/sheets/fund_wallet_sheet.dart';
 import 'package:creatify_mobile/view/modules/transactions/sheets/set_withdrawal_pin_sheet.dart';
 import 'package:creatify_mobile/view/modules/transactions/sheets/withdrawal_sheet.dart';
+import 'package:creatify_mobile/view/modules/transactions/vm/get_transactions_vm.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/transactions_providers.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/wallet_funding_vm.dart';
 import 'package:creatify_mobile/view/modules/transactions/widgets/incoming_outgoing_card.dart';

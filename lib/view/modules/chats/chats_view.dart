@@ -2,6 +2,7 @@ import 'package:creatify_mobile/view/modules/chats/vm/chat_providers.dart';
 import 'package:creatify_mobile/view/modules/chats/vm/chat_vm.dart';
 import 'package:creatify_mobile/view/modules/chats/widgets/chat_card.dart';
 import 'package:creatify_mobile/view/modules/chats/widgets/empty_chats_widget.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';

@@ -1,6 +1,7 @@
 import 'package:creatify_mobile/view/modules/bookings/received_bookings_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/sent_bookings_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/bookings_tab.dart';
+import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:flutter/material.dart';
