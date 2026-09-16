@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:creatify_mobile/core/di/injector.dart';
 import 'package:creatify_mobile/core/services/mixpanel_service.dart';
+import 'package:creatify_mobile/core/utils/profile_strength_utils.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -15,7 +16,7 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
   }) async {
     state = const AsyncValue.loading();
 
-    state = await AsyncValue.guard(
+    final response = await AsyncValue.guard(
       () => ref.read(creatorRepository).filterCreators(
             name: name,
             priceMin: priceMin?.toString(),
@@ -25,7 +26,16 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           ),
     );
 
-    if (!state.hasError) {
+    if (!response.hasError) {
+      final list = response.value ?? [];
+      // Sort by profile strength descending
+      list.sort((a, b) {
+        final strengthA = ProfileStrengthUtils.calculateStrengthForProfile(a);
+        final strengthB = ProfileStrengthUtils.calculateStrengthForProfile(b);
+        return strengthB.compareTo(strengthA);
+      });
+      state = AsyncValue.data(list);
+
       // Track Login Event
       mixpanel.trackEvent(
         'Search/Filter Performed',
@@ -37,12 +47,20 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           if (location != null) 'location': location,
         },
       );
+    } else {
+      state = response;
     }
   }
 
   @override
-  FutureOr<List<CreatorProfileDto>> build() {
-    return ref.read(creatorRepository).filterCreators();
+  FutureOr<List<CreatorProfileDto>> build() async {
+    final list = await ref.read(creatorRepository).filterCreators();
+    list.sort((a, b) {
+      final strengthA = ProfileStrengthUtils.calculateStrengthForProfile(a);
+      final strengthB = ProfileStrengthUtils.calculateStrengthForProfile(b);
+      return strengthB.compareTo(strengthA);
+    });
+    return list;
   }
 }
 

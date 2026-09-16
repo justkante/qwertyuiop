@@ -9,7 +9,8 @@ import 'tabs/applied_jobs_tab.dart';
 import 'tabs/my_listings_tab.dart';
 
 class JobsMainView extends ConsumerStatefulWidget {
-  const JobsMainView({super.key});
+  final int initialIndex;
+  const JobsMainView({super.key, this.initialIndex = 0});
 
   @override
   ConsumerState<JobsMainView> createState() => _JobsMainViewState();
@@ -21,7 +22,7 @@ class _JobsMainViewState extends ConsumerState<JobsMainView> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this, initialIndex: widget.initialIndex);
   }
 
   @override
