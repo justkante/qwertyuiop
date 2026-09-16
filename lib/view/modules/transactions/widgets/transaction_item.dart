@@ -24,7 +24,7 @@ class TransactionItem extends ConsumerWidget {
     return InkWell(
       onTap: () {
         if (transaction != null) {
-          context.push(TransactionDetailsView(transactionDetails: transaction!));
+          NavigationService.instance.push(TransactionDetailsView(transactionDetails: transaction!));
         }
       },
       child: Padding(

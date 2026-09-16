@@ -13,7 +13,7 @@ class ConversationDto {
   final String? status;
   final bool? isCreator;
   final String? bookingId;
-  final OtherUser? otherUser;
+  final ChatOtherUser? otherUser;
   final LastMessage? lastMessage;
   final int? unreadCount;
   final dynamic lastMessageAt;
@@ -36,7 +36,7 @@ class ConversationDto {
         status: json["status"],
         isCreator: json["is_creator"],
         bookingId: json["booking_id"],
-        otherUser: json["other_user"] == null ? null : OtherUser.fromJson(json["other_user"]),
+        otherUser: json["other_user"] == null ? null : ChatOtherUser.fromJson(json["other_user"]),
         lastMessage:
             json["last_message"] == null ? null : LastMessage.fromJson(json["last_message"]),
         unreadCount: json["unread_count"],
@@ -57,29 +57,32 @@ class ConversationDto {
       };
 }
 
-class OtherUser {
+class ChatOtherUser {
   final String? id;
   final String? name;
   final String? email;
   final String? avatar;
   final bool? isOnline;
+  final bool? isPremium;
   final dynamic lastSeenAt;
 
-  OtherUser({
+  ChatOtherUser({
     this.id,
     this.name,
     this.email,
     this.avatar,
     this.isOnline,
+    this.isPremium,
     this.lastSeenAt,
   });
 
-  factory OtherUser.fromJson(Map<String, dynamic> json) => OtherUser(
+  factory ChatOtherUser.fromJson(Map<String, dynamic> json) => ChatOtherUser(
         id: json["id"],
         name: json["name"],
         email: json["email"],
         avatar: json["profile_image"],
         isOnline: json["is_online"],
+        isPremium: json["is_premium"],
         lastSeenAt: json["last_seen_at"],
       );
 
@@ -89,6 +92,7 @@ class OtherUser {
         "email": email,
         "avatar": avatar,
         "is_online": isOnline,
+        "is_premium": isPremium,
         "last_seen_at": lastSeenAt,
       };
 }

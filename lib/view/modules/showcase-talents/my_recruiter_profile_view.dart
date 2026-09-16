@@ -44,7 +44,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
       setState(() => openingGallery = false);
       if (value != null && value.path.isNotEmpty) {
         if (!mounted) return;
-        context.push(ImagePreviewScreen(imageFile: value, fileName: 'Profile Image'));
+        NavigationService.instance.push(ImagePreviewScreen(imageFile: value, fileName: 'Profile Image'));
       }
     }).catchError((error) => setState(() => openingGallery = false));
   }
@@ -164,7 +164,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
 
   Widget _buildUpgradeBadge() {
     return GestureDetector(
-      onTap: () => context.push(const ManageSubscriptionView()),
+      onTap: () => NavigationService.instance.push(const ManageSubscriptionView()),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(color: const Color(0xFFFFF1EF), borderRadius: BorderRadius.circular(12)),

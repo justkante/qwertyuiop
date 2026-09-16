@@ -111,7 +111,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                   alignment: Alignment.centerLeft,
                   child: GestureDetector(
                     onTap: () {
-                      context.push(const SupportView());
+                      NavigationService.instance.push(const SupportView());
                     },
                     child: Text(
                       '[Change email]',

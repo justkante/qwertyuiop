@@ -116,7 +116,7 @@ class DraftBookingsCard extends ConsumerWidget {
                   borderRadius: 24,
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   onPressed: () {
-                    context.push(
+                    NavigationService.instance.push(
                       BookCreatorView(
                         creatorProfile: CreatorProfileDto(
                           id: creator?.id,

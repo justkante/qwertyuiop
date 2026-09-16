@@ -207,7 +207,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                   children: [
                     const Text('Recent Transactions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
                     GestureDetector(
-                      onTap: () => context.push(const AllTransactionsView()),
+                      onTap: () => NavigationService.instance.push(const AllTransactionsView()),
                       child: const Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 13)),
                     ),
                   ],
@@ -243,7 +243,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    _buildQuickAction(Icons.assignment_outlined, 'Transaction\nhistory', () => context.push(const AllTransactionsView())),
+                    _buildQuickAction(Icons.assignment_outlined, 'Transaction\nhistory', () => NavigationService.instance.push(const AllTransactionsView())),
                     12.0.width,
                     _buildQuickAction(Icons.account_balance_wallet_outlined, 'Payout\naccount', () {}),
                     12.0.width,
@@ -264,7 +264,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
     return IconButton(
       onPressed: () {
         ref.read(getCreatorDashboardProvider.future).then((value) {
-          if (context.mounted) context.push(WebviewScreen(url: value.url ?? '', routeName: "Payout Dashboard"));
+          if (context.mounted) NavigationService.instance.push(WebviewScreen(url: value.url ?? '', routeName: "Payout Dashboard"));
         }).catchError((e) {
           if (context.mounted) ToastDialog.showError(e.toString(), context);
         });

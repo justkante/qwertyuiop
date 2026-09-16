@@ -48,7 +48,7 @@ class _AccountCreatedSheetState extends State<AccountCreatedSheet> {
           text: 'Continue',
           onPressed: () {
             context.pop();
-            context.push(const SelectUserTypeView());
+            NavigationService.instance.push(const SelectUserTypeView());
           },
         ).animate().fadeIn(begin: 0, delay: 700.ms).slideY(begin: .1, end: 0),
         40.0.height,

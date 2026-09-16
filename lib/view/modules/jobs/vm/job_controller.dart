@@ -4,6 +4,7 @@ import 'package:creatify_mobile/data/models/responses/recent_search_dto.dart';
 import 'package:creatify_mobile/data/models/responses/job_application_dto.dart';
 import 'package:creatify_mobile/data/models/responses/fund_wallet_dto.dart';
 import 'package:creatify_mobile/core/error/api_exception.dart';
+import 'package:creatify_mobile/view/modules/jobs/vm/favorite_jobs_vm.dart';
 import 'dart:async';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'job_service.dart';
@@ -42,8 +43,9 @@ class JobState {
 
 class JobController extends StateNotifier<JobState> {
   final JobApiService _apiService;
+  final Ref _ref;
 
-  JobController(this._apiService) : super(JobState()) {
+  JobController(this._apiService, this._ref) : super(JobState()) {
     fetchRecentSearches();
     fetchJobs();
   }
@@ -125,7 +127,7 @@ class JobController extends StateNotifier<JobState> {
         );
 
         // Invalidate favorites provider so it refreshes when user navigates to Favourites screen
-        ref.invalidate(fetchFavoriteJobsProvider);
+        _ref.invalidate(fetchFavoriteJobsProvider);
       }
     } catch (e) {
       // Handle error
@@ -328,7 +330,7 @@ class JobController extends StateNotifier<JobState> {
 }
 
 final jobControllerProvider = StateNotifierProvider<JobController, JobState>((ref) {
-  return JobController(ref.watch(jobApiProvider));
+  return JobController(ref.watch(jobApiProvider), ref);
 });
 
 final initializeJobPaymentProvider =

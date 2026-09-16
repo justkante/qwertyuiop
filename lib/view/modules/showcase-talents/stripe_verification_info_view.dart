@@ -29,7 +29,7 @@ class StripeVerificationInfoView extends ConsumerWidget {
     // Stripe Onboarding
     ref.listen(stripeCreatorOnboardProvider, (_, value) {
       if (value is AsyncData<StripeOnboardDto>) {
-        context.pushReplacement(
+        NavigationService.instance.pushReplacement(
           WebviewScreen(
             url: value.value.onboardingUrl ?? '',
             routeName: 'Creator Onboarding',

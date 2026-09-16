@@ -696,7 +696,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                               widget: const LoginSheet(),
                             );
                           } else {
-                            context.push(
+                            NavigationService.instance.push(
                               BookCreatorView(
                                 creatorProfile: widget.profile ?? CreatorProfileDto(),
                               ),

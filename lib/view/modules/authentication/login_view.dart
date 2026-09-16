@@ -198,7 +198,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
           actions: [
             InkWell(
               onTap: () {
-                context.push(const SearchTalentsView());
+                NavigationService.instance.push(const SearchTalentsView());
               },
               child: Container(
                 margin: const EdgeInsets.only(right: 24),
@@ -295,7 +295,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                       ),
                     ),
                     InkWell(
-                      onTap: () => context.push(const ForgotPasswordEmailView()),
+                      onTap: () => NavigationService.instance.push(const ForgotPasswordEmailView()),
                       child: Text(
                         'Forgot Password?',
                         style: context.textTheme.bodySmall?.copyWith(color: AppColors.primary),

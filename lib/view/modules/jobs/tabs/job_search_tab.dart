@@ -173,7 +173,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                       ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
                     },
                     onTap: () {
-                      context.push(JobDetailView(job: job));
+                      NavigationService.instance.push(JobDetailView(job: job));
                     },
                   );
                 },
@@ -187,7 +187,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
         padding: const EdgeInsets.only(bottom: 100),
         child: FloatingActionButton(
           onPressed: () {
-            context.push(const UploadJobView());
+            NavigationService.instance.push(const UploadJobView());
           },
           backgroundColor: const Color(0xFF009688),
           shape: const CircleBorder(),

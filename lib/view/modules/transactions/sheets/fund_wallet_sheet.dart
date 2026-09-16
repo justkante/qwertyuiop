@@ -49,7 +49,7 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
         if (userData.countryCode == 'NG') {
           context.pop();
 
-          context.push(
+          NavigationService.instance.push(
             WebviewScreen(
               url: next.value.authorizationUrl ?? '',
               routeName: 'Fund Wallet',

@@ -81,7 +81,7 @@ class _EnterVerificationCodeSheetState extends ConsumerState<EnterVerificationCo
 
         context.pop();
 
-        context.push(const ResetPasswordView());
+        NavigationService.instance.push(const ResetPasswordView());
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
@@ -95,7 +95,7 @@ class _EnterVerificationCodeSheetState extends ConsumerState<EnterVerificationCo
         });
 
         context.pop();
-        context.push(const ResetTransactionPinView());
+        NavigationService.instance.push(const ResetTransactionPinView());
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);

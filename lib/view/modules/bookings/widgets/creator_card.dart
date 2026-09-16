@@ -49,7 +49,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
               widget.profile?.categories?.map((category) => category.name).join(', ') ?? '',
         });
 
-        context.push(
+        NavigationService.instance.push(
           CreatorProfileView(
             profile: widget.profile,
             isFavorite: widget.isFavorite,
@@ -208,7 +208,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     borderRadius: 24,
                     color: const Color(0xFF1B3131),
                     onPressed: () {
-                      context.push(
+                      NavigationService.instance.push(
                         CreatorProfileView(
                           profile: widget.profile,
                           isFavorite: widget.isFavorite || widget.profile?.isFavorited == true,
@@ -278,7 +278,7 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
               widget.profile?.categories?.map((category) => category.name).join(', ') ?? '',
         });
 
-        context.push(
+        NavigationService.instance.push(
           CreatorProfileView(
             profile: widget.profile,
             isFavorite: widget.isFavorite,

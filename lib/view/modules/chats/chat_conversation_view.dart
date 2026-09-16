@@ -446,7 +446,7 @@ class _ChatConversationViewState extends ConsumerState<ChatConversationView>
     // Listen to Marking Delivery Completed - Time Based
     ref.listen(timeBasedMarkAsCompletedProvider, (_, value) {
       if (value is AsyncData) {
-        context.push(
+        NavigationService.instance.push(
           BookingCompleteView(bookingId: widget.conversation.bookingId ?? ''),
         );
       }
@@ -471,7 +471,7 @@ class _ChatConversationViewState extends ConsumerState<ChatConversationView>
     ref.listen(deliveryBasedMarkAsCompletedProvider, (_, value) {
       if (value is AsyncData<(bool, bool)>) {
         if (value.value.$1) {
-          context.push(
+          NavigationService.instance.push(
             BookingCompleteView(bookingId: widget.conversation.bookingId ?? ''),
           );
         } else {
@@ -735,7 +735,7 @@ class _ChatConversationViewState extends ConsumerState<ChatConversationView>
               'pending')
           : false,
       viewProfile: () {
-        context.push(
+        NavigationService.instance.push(
           FetchedCreatorProfileView(
             creatorId: widget.conversation.otherUser!.id ?? '',
             creatorName: widget.conversation.otherUser?.name ?? 'Unknown User',
@@ -743,7 +743,7 @@ class _ChatConversationViewState extends ConsumerState<ChatConversationView>
         );
       },
       viewBooking: () {
-        context.push(
+        NavigationService.instance.push(
           BookingDetailsView(
             bookingId: widget.conversation.bookingId,
             isSent: widget.conversation.isCreator == false,
@@ -820,7 +820,7 @@ class _ChatConversationViewState extends ConsumerState<ChatConversationView>
           } else {
             if (!mounted) return;
 
-            context.push(
+            NavigationService.instance.push(
               UpdateCreatorDeliverableSheet(
                 bookingId: widget.conversation.bookingId ?? '',
               ),

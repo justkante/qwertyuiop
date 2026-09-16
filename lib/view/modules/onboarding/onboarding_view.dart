@@ -128,7 +128,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             InkWell(
               onTap: () {
                 SharedPrefManager.isFirstLaunch = false;
-                context.push(const SearchTalentsView());
+                NavigationService.instance.push(const SearchTalentsView());
               },
               child: Text(
                 'Continue as Guest',

@@ -224,14 +224,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           const Spacer(),
                           InkWell(
                             onTap: () {
-                              context.push(const FavoritesView());
+                              NavigationService.instance.push(const FavoritesView());
                             },
                             child: SvgPicture.asset(AppImages.favorite),
                           ),
                           16.0.width,
                           InkWell(
                             onTap: () {
-                              context.push(const NotificationsView());
+                              NavigationService.instance.push(const NotificationsView());
                             },
                             child: Stack(
                               alignment: AlignmentGeometry.topRight,
@@ -266,13 +266,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                               onTap: () async {
                                 final isCreator = userData.roles?.contains('creator') ?? false;
                                 if (isCreator) {
-                                  context.push(const MyCreatorProfileView());
+                                  NavigationService.instance.push(const MyCreatorProfileView());
                                   return;
                                 }
 
                                 final isRecruiter = userData.roles?.contains('recruiter') ?? false;
                                 if (isRecruiter) {
-                                  context.push(const MyRecruiterProfileView());
+                                  NavigationService.instance.push(const MyRecruiterProfileView());
                                   return;
                                 }
 
@@ -282,7 +282,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                     if (status.isOnboarded != true) {
                                       ref.read(startOnboardingProvider.notifier).startOnboarding();
                                     } else {
-                                      context.push(const MyCreatorProfileView());
+                                      NavigationService.instance.push(const MyCreatorProfileView());
                                     }
                                   }
                                 });
@@ -319,7 +319,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         padding: const EdgeInsets.symmetric(horizontal: 22),
                         child: InkWell(
                           onTap: () {
-                            context.push(const ReferralPageView());
+                            NavigationService.instance.push(const ReferralPageView());
                           },
                           child: Container(
                             width: double.infinity,
@@ -592,7 +592,7 @@ class _HomeActivitiesSectionState extends State<HomeActivitiesSection> with Sing
                           ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
                         },
                         onTap: () {
-                          context.push(JobDetailView(job: job));
+                          NavigationService.instance.push(JobDetailView(job: job));
                         },
                       );
                     },

@@ -35,7 +35,7 @@ class _PaymentSuccessfulViewState extends ConsumerState<PaymentSuccessfulView> {
       if (value is AsyncData<ConversationDto>) {
         ref.read(navBarController.notifier).index = 3;
         context.popToFirst();
-        context.push(
+        NavigationService.instance.push(
           ChatConversationView(conversation: value.value),
         );
       }

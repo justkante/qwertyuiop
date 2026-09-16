@@ -106,7 +106,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
       if (value != null && value.path.isNotEmpty) {
         if (!mounted) return;
 
-        context.push(
+        NavigationService.instance.push(
           ImagePreviewScreen(
             imageFile: value,
             fileName: 'Profile Image',
@@ -119,7 +119,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   }
 
   void _onUpgradeAccount() {
-    context.push(const ManageSubscriptionView());
+    NavigationService.instance.push(const ManageSubscriptionView());
   }
 
   void _onEditAvailability() {
@@ -151,7 +151,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
         if (!mounted) return;
         setState(() => dashboardLoading = false);
 
-        context.push(
+        NavigationService.instance.push(
           WebviewScreen(
             url: value.url ?? '',
             routeName: "Payments and Payouts",
@@ -166,7 +166,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   }
 
   void _onUpdateRatesCard() {
-    context.push(
+    NavigationService.instance.push(
       UpdateRatesCardSheet(
         exisitingNiches: ref
             .read(fetchCreatorProfileProvider(ref.read(userControllerProvider).id ?? ''))

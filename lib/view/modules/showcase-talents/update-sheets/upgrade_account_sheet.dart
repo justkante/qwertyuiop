@@ -39,7 +39,7 @@ class _UpgradeAccountSheetState extends ConsumerState<UpgradeAccountSheet> {
     ref.listen(makeSubscriptionPaymentProvider, (_, value) {
       if (value is AsyncData<MakeSubcriptionPaymentDto>) {
         context.pop();
-        context.push(
+        NavigationService.instance.push(
           WebviewScreen(
             url: value.value.authorizationUrl ?? '',
             paymentReference: value.value.paymentReference,

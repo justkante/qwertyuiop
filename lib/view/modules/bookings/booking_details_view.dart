@@ -118,7 +118,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
     // Listen to Marking Delivery Completed - Time Based
     ref.listen(timeBasedMarkAsCompletedProvider, (_, value) {
       if (value is AsyncData) {
-        context.push(
+        NavigationService.instance.push(
           BookingCompleteView(bookingId: widget.bookingId ?? ''),
         );
       }
@@ -143,7 +143,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
     ref.listen(deliveryBasedMarkAsCompletedProvider, (_, value) {
       if (value is AsyncData<(bool, bool)>) {
         if (value.value.$1) {
-          context.push(
+          NavigationService.instance.push(
             BookingCompleteView(bookingId: widget.bookingId ?? ''),
           );
         } else {
@@ -163,7 +163,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
       if (next is AsyncData) {
         if (paymentMethod == 'online') {
           if (next.value?.currency == 'NGN') {
-            context.push(
+            NavigationService.instance.push(
               WebviewScreen(
                 url: next.value?.authorizationUrl ?? '',
                 paymentReference: next.value?.paymentReference,
@@ -206,7 +206,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
 
     ref.listen(verifyPaymentProvider, (_, value) {
       if (value is AsyncData) {
-        context.pushReplacement(
+        NavigationService.instance.pushReplacement(
           PaymentSuccessfulView(
             creatorName: creator,
             creatorId: creatorId,
@@ -225,7 +225,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
       if (value is AsyncData<ConversationDto>) {
         ref.read(navBarController.notifier).index = 3;
         context.popToFirst();
-        context.push(
+        NavigationService.instance.push(
           ChatConversationView(conversation: value.value),
         );
       }
@@ -305,14 +305,14 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
                           child: InkWell(
                             onTap: () {
                               if (widget.isSent) {
-                                context.push(
+                                NavigationService.instance.push(
                                   FetchedCreatorProfileView(
                                     creatorId: creatorId,
                                     creatorName: creator,
                                   ),
                                 );
                               } else {
-                                context.push(
+                                NavigationService.instance.push(
                                   FetchedRecruiterProfileView(
                                     creatorId: data.recruiter?.id ?? '',
                                     creatorName: data.recruiter?.name ?? '',
@@ -760,7 +760,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
                                         ),
                                       );
                                     } else {
-                                      context.push(
+                                      NavigationService.instance.push(
                                         DeliverableBasedRenegotiateBookingView(
                                           bookingId: widget.bookingId,
                                           currency: data.currency ?? '',
@@ -975,7 +975,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
                                         } else {
                                           if (!mounted) return;
 
-                                          context.push(
+                                          NavigationService.instance.push(
                                             UpdateCreatorDeliverableSheet(
                                               bookingId: widget.bookingId ?? '',
                                             ),

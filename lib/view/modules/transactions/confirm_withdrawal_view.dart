@@ -69,7 +69,7 @@ class _ConfirmWithdrawalViewState extends ConsumerState<ConfirmWithdrawalView> {
         if (value.error is StripeOnboardingException) {
           final onboardingData = (value.error as StripeOnboardingException).onboardingData;
           if (onboardingData.onboardingUrl != null) {
-            context.push(
+            NavigationService.instance.push(
               WebviewScreen(
                 url: onboardingData.onboardingUrl!,
                 routeName: 'Stripe Onboarding',

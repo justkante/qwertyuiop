@@ -1,5 +1,6 @@
 import 'package:creatify_mobile/view/modules/bookings/sent_bookings_view.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
@@ -57,7 +58,7 @@ class EmptyChatsWidget extends ConsumerWidget {
           color: Colors.white,
           textColor: const Color(0xFF00796B),
           onPressed: () {
-             context.push(const SentBookingsView());
+             NavigationService.instance.push(const SentBookingsView());
           },
         ),
 

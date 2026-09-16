@@ -109,7 +109,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
               child: InkWell(
                 onTap: () {
                   context.pop();
-                  context.push(const EditProfileView());
+                  NavigationService.instance.push(const EditProfileView());
                 },
                 borderRadius: BorderRadius.circular(24),
                 child: Container(
@@ -168,7 +168,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         icon: AppImages.profileOutline,
                         title: 'Recruiter Profile',
                         onTap: () {
-                          context.push(const MyRecruiterProfileView());
+                          NavigationService.instance.push(const MyRecruiterProfileView());
                         },
                       ),
                     DrawerMenuItem(
@@ -178,7 +178,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                           : 'Become a Creator',
                       onTap: () {
                         if (userData.roles?.contains('creator') == true) {
-                          context.push(const MyCreatorProfileView());
+                          NavigationService.instance.push(const MyCreatorProfileView());
                         } else {
                           // Trigger onboarding/upgrade flow
                           ref.read(tab_providers.navBarController.notifier).index = 0; // Go home
@@ -187,7 +187,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                             if (status.isOnboarded != true) {
                               ref.read(onboarding_providers.startOnboardingProvider.notifier).startOnboarding();
                             } else {
-                              context.push(const MyCreatorProfileView());
+                              NavigationService.instance.push(const MyCreatorProfileView());
                             }
                           });
                         }
@@ -197,7 +197,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       icon: AppImages.editOutline,
                       title: 'Draft Bookings',
                       onTap: () {
-                        context.push(const DraftBookingsView());
+                        NavigationService.instance.push(const DraftBookingsView());
                       },
                     ),
 
@@ -211,14 +211,14 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       icon: AppImages.document,
                       title: 'Search Preferences',
                       onTap: () {
-                        context.push(const SearchPreferencesView());
+                        NavigationService.instance.push(const SearchPreferencesView());
                       },
                     ),
                     DrawerMenuItem(
                       icon: AppImages.favorite,
                       title: 'Favourites',
                       onTap: () {
-                        context.push(const FavoritesView());
+                        NavigationService.instance.push(const FavoritesView());
                       },
                     ),
                     DrawerMenuItem(
@@ -226,7 +226,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       title: 'Notifications',
                       showRedDot: hasUnreadNotifications,
                       onTap: () {
-                        context.push(const NotificationsView());
+                        NavigationService.instance.push(const NotificationsView());
                       },
                     ),
 
@@ -241,7 +241,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         icon: AppImages.padlock,
                         title: 'Change Password',
                         onTap: () {
-                          context.push(const ChangePasswordView());
+                          NavigationService.instance.push(const ChangePasswordView());
                         },
                       ),
                     DrawerMenuItem(
@@ -259,7 +259,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       title: 'Manage Subscription',
                       iconColor: AppColors.primary,
                       onTap: () {
-                        context.push(const ManageSubscriptionView());
+                        NavigationService.instance.push(ManageSubscriptionView());
                       },
                     ),
 
@@ -268,14 +268,14 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       icon: AppImages.personSupport,
                       title: 'Contact Support',
                       onTap: () {
-                        context.push(const SupportView());
+                        NavigationService.instance.push(const SupportView());
                       },
                     ),
                     DrawerMenuItem(
                       icon: AppImages.info,
                       title: 'Help Centre',
                       onTap: () {
-                        // context.push(const HelpCentreView());
+                        // NavigationService.instance.push(const HelpCentreView());
                       },
                     ),
 
@@ -284,7 +284,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       icon: AppImages.secure,
                       title: 'Privacy Policy',
                       onTap: () {
-                        context.push(
+                        NavigationService.instance.push(
                           const WebviewScreen(
                             url: Constants.privacyPolicyUrl,
                             routeName: 'Privacy Policy',
@@ -296,7 +296,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       icon: AppImages.document,
                       title: 'Terms & Conditions',
                       onTap: () {
-                        context.push(
+                        NavigationService.instance.push(
                           const WebviewScreen(
                             url: Constants.termsAndConditionsUrl,
                             routeName: 'Terms & Conditions',

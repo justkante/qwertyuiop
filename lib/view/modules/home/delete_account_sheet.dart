@@ -52,7 +52,7 @@ class _LogoutSheetState extends ConsumerState<DeleteAccountSheet> {
                 color: AppColors.highlightRed,
                 onPressed: () {
                   context.pop();
-                  context.push(const DeleteAccountView());
+                  NavigationService.instance.push(const DeleteAccountView());
                 },
               ).animate().fadeIn(begin: 0, delay: 700.ms).slideY(begin: .1, end: 0),
             ),

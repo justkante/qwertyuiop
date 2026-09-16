@@ -33,7 +33,7 @@ class JobPaymentConfirmationSheet extends ConsumerWidget {
       if (next is AsyncData<FundWalletDto>) {
         if (userData.countryCode == 'NG') {
           context.pop(); // Pop sheet
-          context.push(
+          NavigationService.instance.push(
             WebviewScreen(
               url: next.value.authorizationUrl ?? '',
               routeName: 'Job Payment',
@@ -42,7 +42,7 @@ class JobPaymentConfirmationSheet extends ConsumerWidget {
             ),
           ).then((value) {
             if (value == true && context.mounted) {
-              context.pushReplacement(PaymentSuccessView(
+              NavigationService.instance.pushReplacement(PaymentSuccessView(
                 creatorName: application.user?.name ?? 'Creator',
                 creatorId: application.userId ?? '',
               ));
@@ -68,7 +68,7 @@ class JobPaymentConfirmationSheet extends ConsumerWidget {
 
               if (success && context.mounted) {
                 context.pop(); // Pop sheet
-                context.pushReplacement(PaymentSuccessView(
+                NavigationService.instance.pushReplacement(PaymentSuccessView(
                   creatorName: application.user?.name ?? 'Creator',
                   creatorId: application.userId ?? '',
                 ));

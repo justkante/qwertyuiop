@@ -490,7 +490,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
       });
 
       if (error == null && mounted) {
-        context.pushReplacement(const PostJobSuccessView());
+        NavigationService.instance.pushReplacement(const PostJobSuccessView());
       } else if (mounted) {
         ToastDialog.showError(error ?? 'Failed to post job. Please try again.', context);
       }

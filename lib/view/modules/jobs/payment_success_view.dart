@@ -75,7 +75,7 @@ class PaymentSuccessView extends ConsumerWidget {
                       // Logic to start chat
                       final result = await ref.read(chatRepository).createChat(creatorId, '');
                       if (context.mounted) {
-                        context.pushReplacement(ChatConversationView(conversation: result));
+                        NavigationService.instance.pushReplacement(ChatConversationView(conversation: result));
                       }
                     } catch (e) {
                       if (context.mounted) {

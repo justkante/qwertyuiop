@@ -168,7 +168,7 @@ class ComparePlansView extends ConsumerWidget {
                   style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
                 ),
                 GestureDetector(
-                  onTap: () => context.push(const SupportView()),
+                  onTap: () => NavigationService.instance.push(const SupportView()),
                   child: Text(
                     "Contact Support",
                     style: context.textTheme.bodySmall?.copyWith(

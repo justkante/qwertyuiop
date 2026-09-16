@@ -117,7 +117,7 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                             dateRange: job.createdAt?.toFormattedDate() ?? '',
                             status: 'Sent', // From application
                             initialFavorite: job.isFavorited ?? false,
-                            onTap: () => context.push(JobDetailView(job: job, status: JobStatus.viewed)),
+                            onTap: () => NavigationService.instance.push(JobDetailView(job: job, status: JobStatus.viewed)),
                           );
                         },
                       ),

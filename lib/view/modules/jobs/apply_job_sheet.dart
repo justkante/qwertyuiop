@@ -192,7 +192,7 @@ class _ApplyJobSheetState extends ConsumerState<ApplyJobSheet> {
                 if (error == null) {
                   if (context.mounted) {
                     Navigator.pop(context);
-                    context.push(const ApplicationSuccessView());
+                    NavigationService.instance.push(const ApplicationSuccessView());
                   }
                 } else {
                   if (context.mounted) {

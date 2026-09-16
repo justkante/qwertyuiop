@@ -69,7 +69,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
 
     ref.listen(deliveryBasedCreatorBookingProvider, (_, value) {
       if (value is AsyncData) {
-        context.pushReplacement(
+        NavigationService.instance.pushReplacement(
           isTransparent: true,
           RequestSentView(
             creatorName: widget.creatorProfile.name,

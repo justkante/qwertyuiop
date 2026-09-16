@@ -271,7 +271,7 @@ class _JobDetailCreatorViewState extends ConsumerState<JobDetailCreatorView> wit
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => context.push(ApplicantProfileView(application: app)),
+                  onPressed: () => NavigationService.instance.push(ApplicantProfileView(application: app)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF4A261),
                     elevation: 0,

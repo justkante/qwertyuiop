@@ -33,7 +33,7 @@ class ApplicantProfileView extends ConsumerWidget {
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'view_profile') {
-                context.push(FetchedCreatorProfileView(
+                NavigationService.instance.push(FetchedCreatorProfileView(
                   creatorId: application.userId ?? '',
                   creatorName: application.user?.name ?? '',
                 ));

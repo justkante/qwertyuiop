@@ -74,14 +74,14 @@ class ChatAppBarTitle extends ConsumerWidget {
               InkWell(
                 onTap: () {
                   if (conversation.isCreator == true) {
-                    context.push(
+                    NavigationService.instance.push(
                       FetchedCreatorProfileView(
                         creatorId: conversation.otherUser!.id ?? '',
                         creatorName: conversation.otherUser?.name ?? 'Unknown User',
                       ),
                     );
                   } else {
-                    context.push(
+                    NavigationService.instance.push(
                       FetchedRecruiterProfileView(
                         creatorId: conversation.otherUser!.id ?? '',
                         creatorName: conversation.otherUser?.name ?? 'Unknown User',

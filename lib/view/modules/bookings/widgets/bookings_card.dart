@@ -157,7 +157,7 @@ class BookingsCard extends ConsumerWidget {
                 textColor: AppColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 onPressed: () {
-                  context.push(
+                  NavigationService.instance.push(
                     BookingDetailsView(
                       bookingId: bookingDetails?.id,
                       isSent: isSent,

@@ -167,7 +167,7 @@ class _JobDetailViewState extends ConsumerState<JobDetailView> {
                     textColor: const Color(0xFF009688),
                     onPressed: () {
                       if (widget.job?.userId != null) {
-                        context.push(FetchedRecruiterProfileView(
+                        NavigationService.instance.push(FetchedRecruiterProfileView(
                           creatorId: widget.job!.userId!,
                           creatorName: widget.job?.user?.name ?? '',
                         ));

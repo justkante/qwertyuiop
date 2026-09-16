@@ -167,7 +167,7 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
                       'Payout Details',
                       data.steps?.payout ?? 'not_started',
                       () {
-                        context.push(const PayoutDetailsView());
+                        NavigationService.instance.push(const PayoutDetailsView());
                       }
                     ),
                   ] else ...[
@@ -176,7 +176,7 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
                       'KYC and Payout Setup',
                       data.steps?.kyc ?? 'not_started',
                       () {
-                        context.push(const StripeVerificationInfoView());
+                        NavigationService.instance.push(const StripeVerificationInfoView());
                       },
                     ),
                   ],
@@ -185,7 +185,7 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
                     'Rates Card',
                     data.steps?.categories ?? 'not_started',
                     () {
-                      context.push(const RatesCardView());
+                      NavigationService.instance.push(const RatesCardView());
                     }
                   ),
                   (
@@ -193,7 +193,7 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
                     'Portfolio',
                     data.steps?.portfolio ?? 'not_started',
                     () {
-                      context.push(const PortfolioUploadView());
+                      NavigationService.instance.push(const PortfolioUploadView());
                     }
                   ),
                   (
@@ -201,7 +201,7 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
                     'Availability',
                     data.steps?.availability ?? 'not_started',
                     () {
-                      context.push(const SetAvailabilityView());
+                      NavigationService.instance.push(const SetAvailabilityView());
                     }
                   ),
                 ])
@@ -222,7 +222,7 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
                       await ref.read(userControllerProvider.notifier).refreshUser();
                       if (context.mounted) {
                         context.pop();
-                        context.push(const MyCreatorProfileView());
+                        NavigationService.instance.push(const MyCreatorProfileView());
                       }
                     },
                   ),

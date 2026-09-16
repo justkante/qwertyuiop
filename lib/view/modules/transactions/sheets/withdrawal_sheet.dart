@@ -330,7 +330,7 @@ class _WithdrawalSheetState extends ConsumerState<WithdrawalSheet> {
                         ? () {
                             context.pop();
 
-                            context.push(
+                            NavigationService.instance.push(
                               ConfirmWithdrawalView(
                                 amount: num.tryParse(amount.text.replaceAll(',', '')),
                                 selectedBank: selectedBank,

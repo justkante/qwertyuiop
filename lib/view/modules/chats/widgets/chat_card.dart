@@ -43,7 +43,7 @@ class ChatCard extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        context.push(ChatConversationView(conversation: conversation));
+        NavigationService.instance.push(ChatConversationView(conversation: conversation));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),

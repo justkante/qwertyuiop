@@ -359,7 +359,7 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
             title: 'Compare Plans',
             subtitle: 'See what\'s included in each plan',
             onTap: () {
-              context.push(const ComparePlansView());
+              NavigationService.instance.push(const ComparePlansView());
             },
           ),
           32.0.height,
@@ -372,7 +372,7 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
                 ? null
                 : () {
                     final selectedInterval = _selectedPlanIndex == 0 ? 'monthly' : 'annually';
-                    context.push(ChoosePlanView(initialIsAnnual: selectedInterval == 'annually'));
+                    NavigationService.instance.push(ChoosePlanView(initialIsAnnual: selectedInterval == 'annually'));
                   },
           ),
           24.0.height,
@@ -386,7 +386,7 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
                 style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
               ),
               GestureDetector(
-                onTap: () => context.push(const SupportView()),
+                onTap: () => NavigationService.instance.push(const SupportView()),
                 child: Text(
                   "Contact Support",
                   style: context.textTheme.bodySmall?.copyWith(

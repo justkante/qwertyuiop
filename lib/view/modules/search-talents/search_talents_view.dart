@@ -100,7 +100,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
         ),
         actions: [
           IconButton(
-            onPressed: () => context.push(const NotificationsView()),
+            onPressed: () => NavigationService.instance.push(const NotificationsView()),
             icon: Stack(
               children: [
                 const Icon(Icons.notifications_none_outlined, color: Colors.black, size: 28),

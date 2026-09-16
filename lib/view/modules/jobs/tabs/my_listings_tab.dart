@@ -80,7 +80,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                   ),
                   12.0.width,
                   InkWell(
-                    onTap: () => context.push(const UploadJobView()),
+                    onTap: () => NavigationService.instance.push(const UploadJobView()),
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
@@ -127,8 +127,8 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                       applicationCount: job.applicationsCount ?? 0,
                       postedDate: job.createdAt?.toFormattedDate() ?? '',
                       status: job.status ?? 'Active',
-                      onTap: () => context.push(JobDetailCreatorView(job: job)),
-                      onViewApplicants: () => context.push(JobDetailCreatorView(job: job)),
+                      onTap: () => NavigationService.instance.push(JobDetailCreatorView(job: job)),
+                      onViewApplicants: () => NavigationService.instance.push(JobDetailCreatorView(job: job)),
                       onEdit: () {
                         // TODO: Handle Edit
                       },

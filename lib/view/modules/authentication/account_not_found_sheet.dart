@@ -49,7 +49,7 @@ class _AccountNotFoundSheetState extends State<AccountNotFoundSheet> {
           text: 'Create Account',
           onPressed: () {
             context.pop();
-            context.push(const SignupView());
+            NavigationService.instance.push(const SignupView());
           },
         ).animate().fadeIn(begin: 0, delay: 700.ms).slideY(begin: .1, end: 0),
         40.0.height,
