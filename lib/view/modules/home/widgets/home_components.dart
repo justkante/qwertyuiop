@@ -25,65 +25,91 @@ class ProfileStrengthWidget extends StatelessWidget {
       onboardingStatus: onboardingStatus,
       creatorProfile: creatorProfile,
     );
-    final label = ProfileStrengthUtils.getStrengthLabel(strength);
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1FDFB),
-        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.grey100),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: CircularProgressIndicator(
-                  value: strength / 100,
-                  strokeWidth: 6,
-                  backgroundColor: AppColors.grey200,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-                ),
-              ),
-              Text(
-                '${strength.toInt()}%',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                  color: AppColors.primary,
-                ),
-              ),
-            ],
-          ),
-          16.0.width,
           Expanded(
+            flex: 6,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Profile Strength',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: Color(0xFF1B3131),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Profile strength',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131)),
+                    ),
+                    Text(
+                      '${strength.toInt()}%',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AppColors.primary),
+                    ),
+                  ],
+                ),
+                12.0.height,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: strength / 100,
+                    minHeight: 10,
+                    backgroundColor: AppColors.grey100,
+                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                   ),
                 ),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.body,
-                  ),
+                12.0.height,
+                const Text(
+                  'A complete profile gets 3x more views!',
+                  style: TextStyle(fontSize: 11, color: AppColors.body),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.body),
+          16.0.width,
+          Expanded(
+            flex: 4,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildCheckItem('Portfolio uploaded', onboardingStatus?.steps?.portfolio == 'completed'),
+                8.0.height,
+                _buildCheckItem('Availability set', onboardingStatus?.steps?.availability == 'completed'),
+                8.0.height,
+                _buildCheckItem('KYC verified', onboardingStatus?.steps?.kyc == 'completed'),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right, color: AppColors.body, size: 20),
         ],
       ),
+    );
+  }
+
+  Widget _buildCheckItem(String label, bool completed) {
+    return Row(
+      children: [
+        Icon(
+          completed ? Icons.check_circle : Icons.radio_button_unchecked,
+          color: completed ? const Color(0xFF00BFA5) : AppColors.grey300,
+          size: 14,
+        ),
+        6.0.width,
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 10, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -111,39 +137,46 @@ class MetricCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.grey100),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: bgColor,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: iconColor, size: 14),
+              child: Icon(icon, color: iconColor, size: 18),
             ),
-            8.0.height,
-            Text(
-              label,
-              style: const TextStyle(fontSize: 10, color: AppColors.body),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF1B3131),
+            12.0.width,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1B3131),
+                    ),
+                  ),
+                ],
               ),
             ),
+            const Icon(Icons.chevron_right, color: AppColors.grey300, size: 16),
           ],
         ),
       ),
@@ -153,12 +186,12 @@ class MetricCard extends StatelessWidget {
 
 class SectionHeader extends StatelessWidget {
   final String title;
-  final Widget? trailing;
+  final VoidCallback? onSeeAll;
 
   const SectionHeader({
     super.key,
     required this.title,
-    this.trailing,
+    this.onSeeAll,
   });
 
   @override
@@ -170,11 +203,24 @@ class SectionHeader extends StatelessWidget {
           title,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 16,
+            fontSize: 18,
             color: Color(0xFF1B3131),
           ),
         ),
-        if (trailing != null) trailing!,
+        if (onSeeAll != null)
+          InkWell(
+            onTap: onSeeAll,
+            child: Row(
+              children: [
+                const Text(
+                  'See all',
+                  style: TextStyle(color: Color(0xFF00BFA5), fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+                4.0.width,
+                const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
+              ],
+            ),
+          ),
       ],
     );
   }
