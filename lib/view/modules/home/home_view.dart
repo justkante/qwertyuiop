@@ -14,12 +14,12 @@ import 'package:creatify_mobile/view/modules/home/vm/presence_vm.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/home_components.dart';
-import 'package:creatify_mobile/view/modules/jobs/jobs_main_view.dart';
+import 'package:creatify_mobile/view/modules/jobs/jobs_main_view.dart' as jobs_view;
 import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/onboarding_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart' as filter_vm;
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/start_onboarding_vm.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart' as custom_nav;
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -130,7 +130,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final onboardingStatus = ref.watch(getOnboardingStatusProvider);
     final myCreatorProfile = ref.watch(fetchCreatorProfileProvider(userData.id ?? ''));
     final jobState = ref.watch(jobControllerProvider);
-    final recommendedCreators = ref.watch(getRecommendedCreatorsProvider);
+    final recommendedCreators = ref.watch(filter_vm.getRecommendedCreatorsProvider);
     final transactions = ref.watch(getTransactionsProvider);
     final bookings = ref.watch(fetchReceivedBookingsProvider);
 
@@ -147,7 +147,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ref.invalidate(userControllerProvider);
             ref.invalidate(getOnboardingStatusProvider);
             ref.invalidate(jobControllerProvider);
-            ref.invalidate(getRecommendedCreatorsProvider);
+            ref.invalidate(filter_vm.getRecommendedCreatorsProvider);
             ref.invalidate(getTransactionsProvider);
             ref.invalidate(fetchReceivedBookingsProvider);
           },
@@ -196,7 +196,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Row(
                     children: [
                       Expanded(child: _buildSmallBanner('Post a job advert', AppImages.editOutline, const Color(0xFFE0F2F1), const Color(0xFF00BFA5), () {
-                        NavigationService.instance.push(JobsMainView(initialIndex: 2));
+                        NavigationService.instance.push(jobs_view.JobsMainView(initialIndex: 2));
                       })),
                       12.0.width,
                       Expanded(child: _buildSmallBanner('Find talent', AppImages.search, const Color(0xFFE3F2FD), const Color(0xFF2196F3), () {
@@ -224,7 +224,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Row(
                     children: [
                       Expanded(child: _buildSmallBanner('Post a job advert', AppImages.editOutline, AppColors.grey50, AppColors.subHeading, () {
-                         NavigationService.instance.push(JobsMainView(initialIndex: 2));
+                         NavigationService.instance.push(jobs_view.JobsMainView(initialIndex: 2));
                       })),
                       12.0.width,
                       Expanded(child: _buildSmallBanner('Find talent', AppImages.search, AppColors.grey50, AppColors.subHeading, () {
@@ -253,7 +253,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         childAspectRatio: 1.6,
                         children: [
                           MetricCard(label: 'Open jobs', value: '${jobState.jobs.length}', icon: Icons.work_outline, bgColor: const Color(0xFFE0F2F1), iconColor: const Color(0xFF00BFA5), onTap: () => ref.read(custom_nav.navBarController.notifier).index = 2),
-                          MetricCard(label: 'Applications', value: '0', icon: Icons.assignment_outlined, bgColor: const Color(0xFFE3F2FD), iconColor: const Color(0xFF2196F3), onTap: () => NavigationService.instance.push(JobsMainView(initialIndex: 1))),
+                          MetricCard(label: 'Applications', value: '0', icon: Icons.assignment_outlined, bgColor: const Color(0xFFE3F2FD), iconColor: const Color(0xFF2196F3), onTap: () => NavigationService.instance.push(jobs_view.JobsMainView(initialIndex: 1))),
                           MetricCard(label: 'Profile Views', value: '${myCreatorProfile.value?.analytics?.totalBookings ?? 0}', icon: Icons.remove_red_eye_outlined, bgColor: const Color(0xFFFFFDE7), iconColor: const Color(0xFFF9A825), onTap: () {}),
                           MetricCard(label: 'Bookings', value: '${bookings.value?.length ?? 0}', icon: Icons.calendar_today_outlined, bgColor: const Color(0xFFF3E5F5), iconColor: const Color(0xFF7B1FA2), onTap: () => ref.read(custom_nav.navBarController.notifier).index = 3),
                         ],
