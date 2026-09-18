@@ -448,21 +448,62 @@ class _HomeViewState extends ConsumerState<HomeView> {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(24)),
-        child: Row(
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Stack(
           children: [
-            Expanded(
+            Padding(
+              padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20, height: 1.2)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: const Color(0xFF00BFA5), borderRadius: BorderRadius.circular(8)),
+                    child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                  12.0.height,
+                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24, height: 1.2)),
                   8.0.height,
-                  Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11)),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.45,
+                    child: Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11)),
+                  ),
+                  20.0.height,
+                  ElevatedButton(
+                    onPressed: onTap,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00796B),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Browse jobs', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                        Icon(Icons.chevron_right, color: Colors.white, size: 16),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            SvgPicture.asset(icon, width: 60, color: Colors.white.withOpacity(0.2)),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              top: 0,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0), // Padding towards the right as requested
+                child: Image.asset(
+                  AppImages.homeBanner,
+                  fit: BoxFit.contain,
+                  alignment: Alignment.centerRight,
+                  errorBuilder: (_, __, ___) => SvgPicture.asset(icon, width: 60, color: Colors.white.withOpacity(0.2)),
+                ),
+              ),
+            ),
           ],
         ),
       ),
