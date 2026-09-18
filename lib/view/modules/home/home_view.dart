@@ -1,4 +1,5 @@
 import 'package:creatify_mobile/core/storage/share_pref.dart';
+import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/recommended_creators_dto.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/bookings/received_bookings_view.dart';
