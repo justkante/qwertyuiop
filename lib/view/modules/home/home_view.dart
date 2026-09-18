@@ -267,7 +267,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  child: _buildLargeBanner('Apply directly to\ncreative jobs', 'Find and apply for top creative opportunities.', const Color(0xFF1B3131), AppImages.suitcase, () {
+                  child: _buildLargeBanner('Apply directly to\ncreative jobs', 'Find and apply for top creative opportunities.', const Color(0xFFE0F2F1), AppImages.suitcase, () {
                     ref.read(custom_nav.navBarController.notifier).index = 2;
                   }),
                 ),
@@ -465,11 +465,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                   ),
                   12.0.height,
-                  Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 24, height: 1.2)),
+                  Text(title, style: const TextStyle(color: Color(0xFF1B3131), fontWeight: FontWeight.bold, fontSize: 24, height: 1.2)),
                   8.0.height,
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.45,
-                    child: Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 11)),
+                    child: Text(subtitle, style: TextStyle(color: const Color(0xFF1B3131).withOpacity(0.7), fontSize: 11)),
                   ),
                   20.0.height,
                   ElevatedButton(
