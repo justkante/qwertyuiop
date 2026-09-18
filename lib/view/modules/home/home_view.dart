@@ -34,7 +34,6 @@ import 'package:creatify_mobile/view/utils/app_dialog.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/utils/tour/tour_dialog.dart';
-import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -249,7 +248,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // MARK: Post Job & Find Talent Banners (One Line)
+              // MARK: Post Job & Find Talent Banners (One Line) - Moved below Search Bar
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -387,7 +386,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Recent Activity
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 100), // Extra padding for floating bar
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
