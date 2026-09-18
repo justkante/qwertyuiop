@@ -157,7 +157,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           Container(
                             width: 10,
                             height: 10,
-                            decoration: const BoxDecoration(color: Color(0xFF00BFA5), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
+                            decoration: BoxDecoration(color: const Color(0xFF00BFA5), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
                           ),
                         ],
                       ),
