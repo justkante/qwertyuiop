@@ -44,7 +44,7 @@ class MainButton extends StatelessWidget {
             },
       child: Container(
         width: width,
-        padding: padding ?? const EdgeInsets.symmetric(vertical: 16),
+        padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
           color: onPressed == null ? AppColors.btnInactive : color,
           borderRadius: BorderRadius.circular(borderRadius ?? 48.r),
