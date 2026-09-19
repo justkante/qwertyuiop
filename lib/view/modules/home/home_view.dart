@@ -252,7 +252,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // Large Banner - "Apply directly to creative jobs"
+              // MARK: Promo Banner (Stretched) - Re-ordered as Step 2
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -266,7 +266,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // MARK: Post Job & Find Talent Banners (One Line) - Moved below Large Banner
+              // MARK: Small Action Banners - Re-ordered as Step 3 below Promo Banner
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -410,7 +410,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Recent Activity
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 140), // Large padding for floating bar
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 180), // Increased padding for floating bar
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -509,7 +509,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 180,
+      height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -521,7 +521,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill, // Force stretch to fill as requested
               errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),
@@ -534,69 +534,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLargeBanner(String title, String subtitle, Color bgColor, String imagePath, VoidCallback onTap) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            right: 0,
-            bottom: 0,
-            top: 0,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.contain,
-                alignment: Alignment.centerRight,
-                errorBuilder: (_, __, ___) => Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: SvgPicture.asset(AppImages.suitcase, width: 60, color: Colors.black.withOpacity(0.05)),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: const Color(0xFF00BFA5), borderRadius: BorderRadius.circular(8)),
-                  child: const Text('NEW', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
-                ),
-                12.0.height,
-                Text(title, style: const TextStyle(color: Color(0xFF1B3131), fontWeight: FontWeight.bold, fontSize: 24, height: 1.2)),
-                8.0.height,
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.45,
-                  child: Text(subtitle, style: TextStyle(color: const Color(0xFF1B3131).withOpacity(0.7), fontSize: 11)),
-                ),
-                20.0.height,
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: MainButton(
-                    text: 'Browse jobs',
-                    width: 140,
-                    borderRadius: 24,
-                    color: const Color(0xFF00796B),
-                    onPressed: onTap,
-                  ),
-                ),
-              ],
             ),
           ),
         ],

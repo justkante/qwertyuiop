@@ -25,7 +25,7 @@ import 'package:creatify_mobile/view/modules/home/rating/rating_widgets.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:creatify_mobile/core/services/tour_service.dart';
@@ -149,7 +149,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            "${widget.profile?.name?.split(" ").first}'s Profile",
+            "${widget.profile?.name?.split(" ").first ?? 'User'}'s Profile",
             style: context.textTheme.bodyLarge?.copyWith(
               fontWeight: FontWeight.w500,
               color: AppColors.subHeading,
@@ -166,40 +166,63 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center, // Centered
             children: [
-              ExpandableProfileImage(
-                imageUrl: widget.profile?.profileImage,
-                initials: widget.profile?.initials ?? '',
-                size: 72,
-                initialsFallback: Center(
-                  child: InitialAvatar(
-                    initials: widget.profile?.initials ?? '',
-                    padding: const EdgeInsets.all(20),
-                    size: 26,
-                  ),
-                ),
-              ),
-              8.0.height,
+               // MARK: Centered Profile Picture with Upgrade Badge
+               Center(
+                 child: Stack(
+                   clipBehavior: Clip.none,
+                   alignment: Alignment.topRight,
+                   children: [
+                     Container(
+                       padding: const EdgeInsets.all(4),
+                       decoration: BoxDecoration(
+                         shape: BoxShape.circle,
+                         border: Border.all(color: AppColors.primary, width: 2),
+                       ),
+                       child: ExpandableProfileImage(
+                         imageUrl: widget.profile?.profileImage,
+                         initials: widget.profile?.initials ?? '',
+                         size: 100,
+                         initialsFallback: Center(
+                           child: InitialAvatar(
+                             initials: widget.profile?.initials ?? '',
+                             padding: const EdgeInsets.all(24),
+                             size: 32,
+                           ),
+                         ),
+                       ),
+                     ),
+                     if (widget.profile?.isPremium == true)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: SvgPicture.asset(AppImages.premiumBadge, height: 32),
+                        ),
+                   ],
+                 ),
+               ),
+              16.0.height,
+
               Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      widget.profile?.name ?? "Akomolafe Kindness",
+                      widget.profile?.name ?? "User",
                       textAlign: TextAlign.center,
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     if (widget.profile?.isPremium == true) ...[
                       4.0.width,
                       SvgPicture.asset(
                         AppImages.blueTick,
-                        width: 16,
-                        height: 16,
+                        width: 18,
+                        height: 18,
                       ),
                     ],
                   ],
@@ -210,8 +233,8 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                 child: Text(
                   'Creator Profile',
                   style: context.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.highlightBlue,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -231,7 +254,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
               if (widget.profile?.lastSeenAt != null) ...[
                 Center(
                   child: Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: const BoxDecoration(
                       color: AppColors.highlightYellow50,
                       borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -248,7 +271,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 10,
                             color: AppColors.highlightYellow,
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -264,7 +287,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                 children: [
                   QuickDetail(
                     icon: AppImages.locationOutline,
-                    text: widget.profile?.location ?? 'Lagos',
+                    text: widget.profile?.location ?? 'Global',
                   ),
                   14.0.width,
                   QuickDetail(
@@ -287,49 +310,49 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                   ? Center(
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
+                          horizontal: 12,
+                          vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(16),
-                          color: AppColors.grey150,
+                          borderRadius: BorderRadius.circular(20),
+                          color: AppColors.grey50,
                         ),
                         child: Text(
-                          'No Creator Niches Added',
+                          'No Niches Added',
                           style: context.textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w500,
+                            color: AppColors.body,
                           ),
                         ),
                       ),
                     )
                   : Center(
                       child: Wrap(
-                        spacing: 4,
+                        spacing: 8,
                         alignment: WrapAlignment.center,
-                        runSpacing: 6,
-                        runAlignment: WrapAlignment.start,
-                        children: widget.profile?.categories
-                                ?.map((categories) => categories.name ?? '')
+                        runSpacing: 8,
+                        children: widget.profile!.categories!
                                 .map(
                                   (skill) => Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
+                                      horizontal: 12,
                                       vertical: 6,
                                     ),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      color: AppColors.grey150,
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: AppColors.grey50,
+                                      border: Border.all(color: AppColors.grey100),
                                     ),
                                     child: Text(
-                                      skill,
+                                      skill.name ?? '',
                                       style: context.textTheme.bodySmall?.copyWith(
                                         fontWeight: FontWeight.w500,
+                                        fontSize: 11,
                                       ),
                                     ),
                                   ),
                                 )
-                                .toList() ??
-                            [],
+                                .toList(),
                       ),
                     ),
               24.0.height,
@@ -640,7 +663,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                             .toList() ??
                         [],
               ),
-              16.0.height,
+              150.0.height, // Added scrolling padding
             ],
           ),
         ),

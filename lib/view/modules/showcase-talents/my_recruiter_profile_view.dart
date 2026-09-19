@@ -18,6 +18,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/manage_subscription_view.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
+import 'package:creatify_mobile/view/modules/home/edit_profile_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/fetched_recruiter_profile_view.dart';
 
 class MyRecruiterProfileView extends ConsumerStatefulWidget {
   const MyRecruiterProfileView({super.key});
@@ -65,7 +67,17 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
             onPressed: () => Navigator.of(context).pop(),
           ),
           actions: [
-            IconButton(icon: const Icon(Icons.more_vert, color: AppColors.icons), onPressed: () {}),
+            PopupMenuButton<int>(
+              icon: const Icon(Icons.more_vert, color: AppColors.icons),
+              onSelected: (val) {
+                 if (val == 0) _onEditProfileImage();
+                 if (val == 1) NavigationService.instance.push(const ManageSubscriptionView());
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 0, child: Text('Edit Profile Image')),
+                const PopupMenuItem(value: 1, child: Text('Manage Subscription')),
+              ],
+            ),
           ],
         ),
         body: RefreshIndicator.adaptive(
@@ -131,8 +143,10 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                                4.0.width,
-                                const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
+                                if (data.ratingsAndReviews?.averageRating != null && data.ratingsAndReviews!.averageRating! >= 4.5) ...[
+                                  4.0.width,
+                                  const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
+                                ],
                               ],
                             ),
                             Text('Recruiter Profile', style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600)),
@@ -148,22 +162,26 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                           children: [
                             _buildSmallInfoChip(Icons.location_on_outlined, 'Lagos, Nigeria'),
                             12.0.width,
-                            _buildSmallInfoChip(Icons.business_center_outlined, 'Company'),
+                            _buildSmallInfoChip(Icons.business_center_outlined, 'Agency'),
                           ],
                         ),
                         24.0.height,
                         Row(
                           children: [
-                            Expanded(child: MainButton(text: 'Edit Profile', color: const Color(0xFFE0F2F1), textColor: AppColors.primary, onPressed: () {})),
+                            Expanded(child: MainButton(text: 'Edit Profile', color: const Color(0xFFE0F2F1), textColor: AppColors.primary, onPressed: () {
+                               NavigationService.instance.push(const EditProfileView());
+                            })),
                             12.0.width,
-                            Expanded(child: MainButton(text: 'View Public', color: AppColors.grey50, textColor: const Color(0xFF1B3131), onPressed: () {})),
+                            Expanded(child: MainButton(text: 'View Public', color: AppColors.grey50, textColor: const Color(0xFF1B3131), onPressed: () {
+                               NavigationService.instance.push(FetchedRecruiterProfileView(creatorId: userData.id ?? '', creatorName: userData.name ?? ''));
+                            })),
                           ],
                         ),
                         32.0.height,
                         _buildProfileTabs(),
                         24.0.height,
                         _buildOverviewTab(data),
-                        150.0.height, // Scrolling Padding
+                        180.0.height, // Increased Scrolling Padding
                       ],
                     );
                   },
@@ -253,10 +271,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           children: [
             Column(
               children: [
-                Text(
-                  '${data.ratingsAndReviews?.averageRating ?? 0.0}',
-                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
-                ),
+                Text('${data.ratingsAndReviews?.averageRating ?? 0.0}', style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
                 StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 14),
               ],
             ),
@@ -274,6 +289,8 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
             ),
           ],
         ),
+        24.0.height,
+        _buildNoReviewsState(),
       ],
     );
   }

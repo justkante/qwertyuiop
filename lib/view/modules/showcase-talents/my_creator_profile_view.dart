@@ -16,7 +16,6 @@ import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/upgr
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/uploaded_image_with_cancel.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/widgets/profile_menu_popup.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
@@ -28,9 +27,9 @@ import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/modules/home/rating/rating_widgets.dart';
 import 'package:creatify_mobile/view/utils/file_and_image_picker.dart';
-import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/overlay_animation.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
+import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -50,7 +49,6 @@ class MyCreatorProfileView extends ConsumerStatefulWidget {
 class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
-  final GlobalKey _menuButtonKey = GlobalKey();
 
   bool openingGallery = false;
   bool dashboardLoading = false;
@@ -72,25 +70,6 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   void dispose() {
     _showcaseView.unregister();
     super.dispose();
-  }
-
-  void _showProfileMenu() {
-    final menuItems = ProfileMenuController.createDefaultMenuItems(
-      onEditProfileImage: _onEditProfileImage,
-      onUpgradeAccount: _onUpgradeAccount,
-      onEditAvailability: _onEditAvailability,
-      onManagePortfolio: _onManagePortfolio,
-      onPaymentPayouts: _onPaymentPayouts,
-      onUpdateRatesCard: _onUpdateRatesCard,
-      onUpdateWorkMode: _onUpdateWorkMode,
-      onShareProfile: _onShareProfile,
-    );
-
-    ProfileMenuController.showProfileMenu(
-      context: context,
-      buttonKey: _menuButtonKey,
-      menuItems: menuItems,
-    );
   }
 
   void _onEditProfileImage() async {
@@ -240,12 +219,28 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
               description:
                   'Tap here to edit your profile, manage your subscription and also share your profile with friends.',
               targetBorderRadius: BorderRadius.circular(8),
-              child: IconButton(
-                key: _menuButtonKey,
+              child: PopupMenuButton<int>(
                 icon: const Icon(Icons.more_vert, color: AppColors.icons),
-                onPressed: () {
-                  _showProfileMenu();
+                onSelected: (item) {
+                   switch (item) {
+                     case 0: _onEditProfileImage(); break;
+                     case 1: _onUpgradeAccount(); break;
+                     case 2: _onPaymentPayouts(); break;
+                     case 3: _onUpdateRatesCard(); break;
+                     case 4: _onManagePortfolio(); break;
+                     case 5: _onEditAvailability(); break;
+                     case 6: _onShareProfile(); break;
+                   }
                 },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 0, child: Text('Edit Profile Image')),
+                  const PopupMenuItem(value: 1, child: Text('Manage Subscriptions')),
+                  const PopupMenuItem(value: 2, child: Text('Payment & Payouts')),
+                  const PopupMenuItem(value: 3, child: Text('My Rates Card')),
+                  const PopupMenuItem(value: 4, child: Text('Manage Portfolio')),
+                  const PopupMenuItem(value: 5, child: Text('Edit Availability')),
+                  const PopupMenuItem(value: 6, child: Text('Share Profile')),
+                ],
               ),
             ),
           ],
@@ -410,7 +405,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                           // Dynamic Content
                           _buildTabContent(data, userData),
                         ],
-                        150.0.height, // Scrolling Padding
+                        180.0.height, // Increased Scrolling Padding
                       ],
                     );
                   },

@@ -182,14 +182,16 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                                 style: const TextStyle(fontSize: 12, color: AppColors.body),
                               ),
                               4.0.width,
-                              ...List.generate(5, (index) => const Icon(Icons.star, size: 12, color: AppColors.grey200)),
+                              StarRating(rating: widget.creatorProfile.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 12),
                             ],
                           ),
                         ],
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                         NavigationService.instance.pop();
+                      },
                       child: Row(
                         children: [
                           const Text('View Profile', style: TextStyle(color: Color(0xFF00796B), fontSize: 12, fontWeight: FontWeight.bold)),
@@ -274,7 +276,16 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                 isLoading: bookingCreatorLoading,
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // Logic to send booking request
+                    ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
+                      BookCreatorReq(
+                        creatorId: widget.creatorProfile.id,
+                        title: projectTitleController.text,
+                        description: projectDescriptionController.text,
+                        location: locationController.text,
+                        budget: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
+                        bookingType: 'delivery_based', // Defaulting to delivery based as per provider
+                      )
+                    );
                   }
                 },
               ),

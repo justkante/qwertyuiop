@@ -36,7 +36,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 2, vsync: this);
+    tabController = TabController(length: 3, vsync: this);
   }
 
   void _showProfileMenu() {
@@ -65,46 +65,79 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          ' ${widget.creatorName.split(' ')[0]}\'s Recruiter Profile',
+          "${widget.creatorName.split(' ')[0]}'s Profile",
           style: context.textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.w500,
             color: AppColors.subHeading,
           ),
         ),
+        actions: [
+            IconButton(
+              key: _menuButtonKey,
+              icon: const Icon(Icons.more_vert, color: AppColors.icons),
+              onPressed: _showProfileMenu,
+            ),
+          ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center, // Centered
           children: [
             myRecruiterProfile.when(
               data: (data) {
                 return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // MARK: Profile Image and Name
-                    ExpandableProfileImage(
-                      imageUrl: data.profileImage,
-                      initials: data.initials,
-                      size: 72,
-                      initialsFallback: Center(
-                        child: InitialAvatar(
-                          initials: data.initials,
-                          padding: const EdgeInsets.all(20),
-                          size: 26,
-                        ),
+                    // MARK: Centered Profile Picture with Upgrade Badge
+                    Center(
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.topRight,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: AppColors.primary, width: 2),
+                            ),
+                            child: ExpandableProfileImage(
+                              imageUrl: data.profileImage,
+                              initials: data.initials,
+                              size: 100,
+                              initialsFallback: Center(
+                                child: InitialAvatar(
+                                  initials: data.initials,
+                                  padding: const EdgeInsets.all(24),
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: SvgPicture.asset(AppImages.premiumBadge, height: 32),
+                          ),
+                        ],
                       ),
                     ),
-                    8.0.height,
+                    16.0.height,
+
                     Center(
-                      child: Text(
-                        data.name ?? 'John Doe',
-                        textAlign: TextAlign.center,
-                        style: context.textTheme.bodyMedium?.copyWith(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            data.name ?? widget.creatorName,
+                            textAlign: TextAlign.center,
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: Colors.black,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     4.0.height,
@@ -112,8 +145,8 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                       child: Text(
                         'Recruiter Profile',
                         style: context.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.highlightBlue,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.primary,
                         ),
                       ),
                     ),
@@ -133,7 +166,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                     if (data.lastSeenAt != null) ...[
                       Center(
                         child: Container(
-                          padding: const EdgeInsets.all(6),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: const BoxDecoration(
                             color: AppColors.highlightYellow50,
                             borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -150,7 +183,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                                 style: context.textTheme.bodySmall?.copyWith(
                                   fontSize: 10,
                                   color: AppColors.highlightYellow,
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -248,14 +281,19 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                     ),
                     16.0.height,
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // Ratings Summary
-                        RatingSummary(
-                          rating: data.ratingsAndReviews?.averageRating ?? 0.0,
-                          totalReviews: data.ratingsAndReviews?.totalReviews ?? 0,
+                         Column(
+                          children: [
+                            Text(
+                              '${data.ratingsAndReviews?.averageRating ?? 0.0}',
+                              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                            ),
+                            StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 14),
+                          ],
                         ),
-                        32.0.width,
+                        40.0.width,
 
                         // Ratings Metrics
                         Expanded(
@@ -329,7 +367,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                                   .toList() ??
                               [],
                     ),
-                    16.0.height,
+                    160.0.height, // Padding for floating bar
                   ],
                 );
               },

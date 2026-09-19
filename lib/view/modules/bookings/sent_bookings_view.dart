@@ -8,6 +8,8 @@ import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart' as custom_nav;
+import 'package:creatify_mobile/view/modules/jobs/jobs_main_view.dart' as jobs_view;
 
 class SentBookingsView extends ConsumerStatefulWidget {
   const SentBookingsView({super.key});
@@ -223,14 +225,19 @@ class _SentBookingsViewState extends ConsumerState<SentBookingsView> {
         32.0.height,
         MainButton(
           text: 'Find creators',
-          onPressed: () {}, // Navigate to Search
+          onPressed: () {
+             ref.read(custom_nav.navBarController.notifier).index = 1; // Search Talents
+          },
         ),
         16.0.height,
         MainButton(
           text: 'Explore jobs',
           color: Colors.white,
           textColor: const Color(0xFF00796B),
-          onPressed: () {}, // Navigate to Jobs
+          onPressed: () {
+             ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0;
+             ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
+          },
         ),
       ],
     );
