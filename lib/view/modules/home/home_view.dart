@@ -221,7 +221,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Search Bar
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                   child: Row(
                     children: [
                       Expanded(
@@ -250,27 +250,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // Large Banner - "Apply directly to creative jobs"
+              // MARK: Post Job & Find Talent Banners (One Line) - Under Search Bar
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: _buildLargeBanner(
-                    'Apply directly to\ncreative jobs',
-                    'Find opportunities, connect with brands, and do what you love.',
-                    const Color(0xFFE0F2F1),
-                    AppImages.suitcase,
-                    () {
-                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
-                       ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
-                    },
-                  ),
-                ),
-              ),
-
-              // Post Job & Find Talent Banners (One Line) - Moved below Large Banner
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   child: Row(
                     children: [
                       Expanded(
@@ -281,7 +264,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           const Color(0xFF00BFA5),
                           Icons.add_circle_outline,
                           () {
-                            ref.read(jobTabIndexProvider.notifier).state = 2; // My Listings tab
+                            ref.read(jobs_view.jobTabIndexProvider.notifier).state = 2; // My Listings tab
                             ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
                           },
                         ),
@@ -302,6 +285,23 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
+              // Large Banner - "Apply directly to creative jobs"
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  child: _buildLargeBanner(
+                    'Apply directly to\ncreative jobs',
+                    'Find opportunities, connect with brands, and do what you love.',
+                    const Color(0xFFE0F2F1),
+                    AppImages.homeBanner,
+                    () {
+                       ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0; // Search tab
+                       ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
+                    },
+                  ),
+                ),
+              ),
+
               // Metrics Row (Scrollable)
               SliverToBoxAdapter(
                 child: SingleChildScrollView(
@@ -310,12 +310,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Row(
                     children: [
                       _buildFixedMiniMetric('Open jobs', '${jobState.jobs.length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () {
-                        ref.read(jobTabIndexProvider.notifier).state = 0;
+                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0;
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
                       _buildFixedMiniMetric('Applications', '4', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () {
-                        ref.read(jobTabIndexProvider.notifier).state = 1; // Applied tab
+                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 1; // Applied tab
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
@@ -480,7 +480,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     );
   }
 
-  Widget _buildLargeBanner(String title, String subtitle, Color bgColor, String icon, VoidCallback onTap) {
+  Widget _buildLargeBanner(String title, String subtitle, Color bgColor, String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -490,6 +490,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
+          Positioned(
+            right: 0,
+            bottom: 0,
+            top: 0,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.contain,
+                alignment: Alignment.centerRight,
+                errorBuilder: (_, __, ___) => SvgPicture.asset(AppImages.suitcase, width: 60, color: Colors.white.withOpacity(0.2)),
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -516,20 +530,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   onPressed: onTap,
                 ),
               ],
-            ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            top: 0,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Image.asset(
-                AppImages.homeBanner,
-                fit: BoxFit.contain,
-                alignment: Alignment.centerRight,
-                errorBuilder: (_, __, ___) => SvgPicture.asset(icon, width: 60, color: Colors.white.withOpacity(0.2)),
-              ),
             ),
           ),
         ],
@@ -581,7 +581,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return recommendedAsync.when(
       data: (data) {
         final list = data.data ?? [];
-        if (list.isEmpty) return const Center(child: Text('No recommended creators found', style: TextStyle(fontSize: 12, color: AppColors.body)));
+        if (list.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommended creators found', style: TextStyle(fontSize: 12, color: AppColors.body))));
         return SizedBox(
           height: 180,
           child: ListView.separated(
