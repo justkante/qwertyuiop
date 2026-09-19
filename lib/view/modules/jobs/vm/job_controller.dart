@@ -333,6 +333,9 @@ final jobControllerProvider = StateNotifierProvider<JobController, JobState>((re
   return JobController(ref.watch(jobApiProvider), ref);
 });
 
+// Provider to control the internal tab index of JobsMainView
+final jobTabIndexProvider = StateProvider<int>((ref) => 0);
+
 final initializeJobPaymentProvider =
     AutoDisposeAsyncNotifierProvider<InitializeJobPaymentNotifier, FundWalletDto>(
   InitializeJobPaymentNotifier.new,

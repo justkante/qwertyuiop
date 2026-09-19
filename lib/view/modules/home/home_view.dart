@@ -221,7 +221,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Search Bar
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                   child: Row(
                     children: [
                       Expanded(
@@ -250,10 +250,27 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // MARK: Post Job & Find Talent Banners (One Line) - Moved below Search Bar
+              // Large Banner - "Apply directly to creative jobs"
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _buildLargeBanner(
+                    'Apply directly to\ncreative jobs',
+                    'Find opportunities, connect with brands, and do what you love.',
+                    const Color(0xFFE0F2F1),
+                    AppImages.suitcase,
+                    () {
+                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
+                       ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
+                    },
+                  ),
+                ),
+              ),
+
+              // Post Job & Find Talent Banners (One Line) - Moved below Large Banner
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   child: Row(
                     children: [
                       Expanded(
@@ -263,7 +280,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           const Color(0xFFE0F2F1),
                           const Color(0xFF00BFA5),
                           Icons.add_circle_outline,
-                          () => NavigationService.instance.push(jobs_view.JobsMainView(initialIndex: 2)),
+                          () {
+                            ref.read(jobTabIndexProvider.notifier).state = 2; // My Listings tab
+                            ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
+                          },
                         ),
                       ),
                       12.0.width,
@@ -282,20 +302,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // Large Banner
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  child: _buildLargeBanner(
-                    'Apply directly to\ncreative jobs',
-                    'Find opportunities, connect with brands, and do what you love.',
-                    const Color(0xFFE0F2F1),
-                    AppImages.suitcase,
-                    () => ref.read(custom_nav.navBarController.notifier).index = 2,
-                  ),
-                ),
-              ),
-
               // Metrics Row (Scrollable)
               SliverToBoxAdapter(
                 child: SingleChildScrollView(
@@ -303,9 +309,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Row(
                     children: [
-                      _buildFixedMiniMetric('Open jobs', '${jobState.jobs.length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () => ref.read(custom_nav.navBarController.notifier).index = 2),
+                      _buildFixedMiniMetric('Open jobs', '${jobState.jobs.length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () {
+                        ref.read(jobTabIndexProvider.notifier).state = 0;
+                        ref.read(custom_nav.navBarController.notifier).index = 2;
+                      }),
                       12.0.width,
-                      _buildFixedMiniMetric('Applications', '4', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () => NavigationService.instance.push(jobs_view.JobsMainView(initialIndex: 1))),
+                      _buildFixedMiniMetric('Applications', '4', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () {
+                        ref.read(jobTabIndexProvider.notifier).state = 1; // Applied tab
+                        ref.read(custom_nav.navBarController.notifier).index = 2;
+                      }),
                       12.0.width,
                       _buildFixedMiniMetric('Profile views', '18', const Color(0xFFFFFDE7), const Color(0xFFF9A825), Icons.remove_red_eye_outlined, () {}),
                       12.0.width,
@@ -388,7 +400,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Recent Activity
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 100), // Extra padding for floating bar
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 120), // More padding for floating bar
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -476,6 +488,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         borderRadius: BorderRadius.circular(24),
       ),
       child: Stack(
+        clipBehavior: Clip.none,
         children: [
           Padding(
             padding: const EdgeInsets.all(24),
@@ -541,14 +554,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildToggleItem(0, current == 0, onChanged),
-          _buildToggleItem(1, current == 1, onChanged),
+          _buildToggleItem(0, current == 0, onChanged, '1'),
+          _buildToggleItem(1, current == 1, onChanged, '2'),
         ],
       ),
     );
   }
 
-  Widget _buildToggleItem(int index, bool active, Function(int) onTap) {
+  Widget _buildToggleItem(int index, bool active, Function(int) onTap, String label) {
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
@@ -559,6 +572,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           borderRadius: BorderRadius.circular(15),
           boxShadow: active ? [const BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))] : null
         ),
+        child: Center(child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: active ? AppColors.primary : AppColors.body))),
       ),
     );
   }
@@ -579,7 +593,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         );
       },
       loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-      error: (_, __) => const Center(child: Text('Error loading creators')),
+      error: (e, s) => Center(child: Text('Error loading creators: $e')),
     );
   }
 

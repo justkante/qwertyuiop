@@ -1,3 +1,4 @@
+import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
@@ -23,6 +24,11 @@ class _JobsMainViewState extends ConsumerState<JobsMainView> with SingleTickerPr
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this, initialIndex: widget.initialIndex);
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        ref.read(jobTabIndexProvider.notifier).state = _tabController.index;
+      }
+    });
   }
 
   @override
@@ -33,6 +39,12 @@ class _JobsMainViewState extends ConsumerState<JobsMainView> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    // Sync tab controller with provider
+    ref.listen(jobTabIndexProvider, (previous, next) {
+      if (_tabController.index != next) {
+        _tabController.animateTo(next);
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
