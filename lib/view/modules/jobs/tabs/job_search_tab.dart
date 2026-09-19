@@ -179,7 +179,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                 },
               ),
             ],
-          ),
+          ],
         ),
       ),
       floatingActionButton: Padding(

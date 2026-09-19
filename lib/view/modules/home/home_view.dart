@@ -414,7 +414,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildTitledHeader('Recent activity', TextButton(onPressed: () => NavigationService.instance.push(const AllTransactionsView()), child: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)))),
+                      _buildTitledHeader(
+                        'Recent activity',
+                        TextButton(
+                          onPressed: () => NavigationService.instance.push(const AllTransactionsView()),
+                          child: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
+                        ),
+                      ),
                       16.0.height,
                       transactions.when(
                         data: (data) {
