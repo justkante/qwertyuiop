@@ -11,6 +11,7 @@ import 'package:creatify_mobile/view/modules/bookings/vm/delivery_based_booking_
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 
+import 'package:creatify_mobile/view/modules/home/rating/star_rating.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -279,8 +280,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
                         creatorId: widget.creatorProfile.id,
-                        title: projectTitleController.text,
-                        description: projectDescriptionController.text,
+                        jobDescription: "${projectTitleController.text}\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         budget: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
                         bookingType: 'delivery_based', // Defaulting to delivery based as per provider

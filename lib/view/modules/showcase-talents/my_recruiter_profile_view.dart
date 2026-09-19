@@ -95,41 +95,38 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // MARK: Centered Profile Picture with Upgrade Badge
-                        SizedBox(
-                          width: 120,
-                          height: 120,
+                        // MARK: Centered Profile Picture with Upgrade Badge at Top Right
+                        Center(
                           child: Stack(
                             clipBehavior: Clip.none,
+                            alignment: Alignment.topRight,
                             children: [
-                              Center(
-                                child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 2)),
-                                      child: ExpandableProfileImage(
-                                        imageUrl: data.profileImage,
-                                        initials: data.initials,
-                                        size: 100,
-                                        initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 32, padding: const EdgeInsets.all(24))),
-                                      ),
+                              Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 2)),
+                                    child: ExpandableProfileImage(
+                                      imageUrl: data.profileImage,
+                                      initials: data.initials,
+                                      size: 100,
+                                      initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 32, padding: const EdgeInsets.all(24))),
                                     ),
-                                    GestureDetector(
-                                      onTap: _onEditProfileImage,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-                                        child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
-                                      ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: _onEditProfileImage,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+                                      child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                               Positioned(
                                 top: 0,
-                                right: 0,
+                                right: -12,
                                 child: _buildUpgradeBadge(),
                               ),
                             ],

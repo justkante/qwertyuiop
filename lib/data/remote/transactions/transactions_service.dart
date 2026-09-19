@@ -160,8 +160,15 @@ class TransactionsService {
         },
       );
 
-      return FundWalletDto.fromJson(response.data['data']);
+      final data = response.data['data'];
+      if (data == null) {
+        throw 'Failed to initialize payment: No data received from server';
+      }
+      return FundWalletDto.fromJson(data);
     } catch (e) {
+      if (e is ApiException) {
+         throw e.message;
+      }
       throw e.toString();
     }
   }
