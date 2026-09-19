@@ -20,6 +20,7 @@ import 'package:creatify_mobile/view/modules/showcase-talents/widgets/profile_me
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
+import 'package:creatify_mobile/view/theme/app_theme.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
 import 'package:creatify_mobile/view/utils/app_dialog.dart';
@@ -257,60 +258,63 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center, // Centered alignment
               children: [
                 myCreatorProfile.when(
                   data: (data) {
                     final isOnboarded = onboardingStatus.value?.isOnboarded ?? false;
 
                     return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // MARK: Profile Image Header (Centered)
-                        Center(
+                        // MARK: Centered Profile Picture with Upgrade Badge at Top Right
+                        SizedBox(
+                          width: 120,
+                          height: 120,
                           child: Stack(
                             clipBehavior: Clip.none,
-                            alignment: Alignment.topRight,
                             children: [
-                              Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: AppColors.primary, width: 2),
-                                    ),
-                                    child: ExpandableProfileImage(
-                                      imageUrl: data.profileImage,
-                                      initials: data.initials,
-                                      size: 100,
-                                      initialsFallback: Center(
-                                        child: InitialAvatar(
-                                          initials: data.initials,
-                                          padding: const EdgeInsets.all(24),
-                                          size: 32,
+                              Center(
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: AppColors.primary, width: 2),
+                                      ),
+                                      child: ExpandableProfileImage(
+                                        imageUrl: data.profileImage,
+                                        initials: data.initials,
+                                        size: 100,
+                                        initialsFallback: Center(
+                                          child: InitialAvatar(
+                                            initials: data.initials,
+                                            padding: const EdgeInsets.all(24),
+                                            size: 32,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: _onEditProfileImage,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                                    GestureDetector(
+                                      onTap: _onEditProfileImage,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                                        ),
+                                        child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
                                       ),
-                                      child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               Positioned(
                                 top: 0,
-                                right: -12,
+                                right: 0,
                                 child: _buildUpgradeBadge(data),
                               ),
                             ],
@@ -319,46 +323,44 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                         24.0.height,
 
                         // Name and verification
-                        Center(
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    userData.name ?? 'User',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                                  ),
-                                  if (data.isPremium == true) ...[
-                                    4.0.width,
-                                    const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
-                                  ],
+                        Column(
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  userData.name ?? 'User',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                                ),
+                                if (data.isPremium == true) ...[
+                                  4.0.width,
+                                  const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
                                 ],
+                              ],
+                            ),
+                            Text(
+                              'Creator Profile',
+                              style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600),
+                            ),
+                            8.0.height,
+                            if (isOnboarded) ...[
+                              StarRating(
+                                rating: data.ratingsAndReviews?.averageRating ?? 0.0,
+                                starCount: 5,
+                                starSize: 16,
                               ),
                               Text(
-                                'Creator Profile',
-                                style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600),
+                                '${data.ratingsAndReviews?.averageRating ?? 0.0} (${data.ratingsAndReviews?.totalReviews ?? 0} reviews)',
+                                style: const TextStyle(color: AppColors.body, fontSize: 11),
                               ),
-                              8.0.height,
-                              if (isOnboarded) ...[
-                                StarRating(
-                                  rating: data.ratingsAndReviews?.averageRating ?? 0.0,
-                                  starCount: 5,
-                                  starSize: 16,
-                                ),
-                                Text(
-                                  '${data.ratingsAndReviews?.averageRating ?? 0.0} (${data.ratingsAndReviews?.totalReviews ?? 0} reviews)',
-                                  style: const TextStyle(color: AppColors.body, fontSize: 11),
-                                ),
-                              ] else ...[
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(color: const Color(0xFFFFF1EF), borderRadius: BorderRadius.circular(20)),
-                                  child: const Text('Inactive Profile', style: TextStyle(color: Color(0xFFFF6F61), fontSize: 11, fontWeight: FontWeight.bold)),
-                                ),
-                              ],
+                            ] else ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(color: const Color(0xFFFFF1EF), borderRadius: BorderRadius.circular(20)),
+                                child: const Text('Inactive Profile', style: TextStyle(color: Color(0xFFFF6F61), fontSize: 11, fontWeight: FontWeight.bold)),
+                              ),
                             ],
-                          ),
+                          ],
                         ),
                         24.0.height,
 
@@ -377,26 +379,24 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                           ),
                           16.0.height,
 
-                          Center(
-                            child: GestureDetector(
-                              onTap: _onUpdateRatesCard,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: AppColors.grey50,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      data.categories?.isEmpty == true ? 'No Niches Added' : data.categories!.map((e) => e.name).join(', '),
-                                      style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500),
-                                    ),
-                                    8.0.width,
-                                    const Icon(Icons.edit_outlined, size: 14, color: AppColors.body),
-                                  ],
-                                ),
+                          GestureDetector(
+                            onTap: _onUpdateRatesCard,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: AppColors.grey50,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    data.categories?.isEmpty == true ? 'No Niches Added' : data.categories!.map((e) => e.name).join(', '),
+                                    style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500),
+                                  ),
+                                  8.0.width,
+                                  const Icon(Icons.edit_outlined, size: 14, color: AppColors.body),
+                                ],
                               ),
                             ),
                           ),
@@ -426,6 +426,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
 
   Widget _buildOnboardingChecklist() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.grey50,
@@ -433,10 +434,9 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
         border: Border.all(color: AppColors.grey100),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Complete Onboarding', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const Text('Finish these steps to make your profile live.', style: TextStyle(color: AppColors.body, fontSize: 12)),
+          const Text('Finish these steps to make your profile live.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.body, fontSize: 12)),
           24.0.height,
           MainButton(
             text: 'Finish Setup Now',

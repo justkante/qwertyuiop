@@ -41,7 +41,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
           await ref.read(jobControllerProvider.notifier).fetchMyListings();
         },
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 150),
           child: Column(
             children: [
               16.0.height,
@@ -138,7 +138,6 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                     );
                   },
                 ),
-              150.0.height, // Increased padding
             ],
           ),
         ),

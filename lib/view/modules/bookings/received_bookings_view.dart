@@ -51,7 +51,7 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
         onRefresh: () async => ref.invalidate(fetchReceivedBookingsProvider),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 150),
           child: Column(
             children: [
               16.0.height,
@@ -150,7 +150,6 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
                 loading: () => const Center(child: CircularProgressIndicator.adaptive()),
                 error: (e, s) => Center(child: Text(e.toString())),
               ),
-              150.0.height, // Increased padding
             ],
           ),
         ),

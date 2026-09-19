@@ -103,7 +103,7 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                 : jobState.jobs.isEmpty
                     ? _buildEmptyState()
                     : ListView.separated(
-                        padding: const EdgeInsets.all(24),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 140),
                         itemCount: jobState.jobs.length,
                         separatorBuilder: (_, __) => 16.0.height,
                         itemBuilder: (context, index) {
@@ -122,7 +122,6 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                         },
                       ),
           ),
-          140.0.height, // Added padding for floating nav bar
         ],
       ),
       floatingActionButton: Padding(

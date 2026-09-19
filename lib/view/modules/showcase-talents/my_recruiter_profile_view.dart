@@ -76,44 +76,48 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 myRecruiterProfile.when(
                   data: (data) {
                     return Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge
-                        Center(
+                        SizedBox(
+                          width: 120,
+                          height: 120,
                           child: Stack(
                             clipBehavior: Clip.none,
-                            alignment: Alignment.topRight,
                             children: [
-                              Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 2)),
-                                    child: ExpandableProfileImage(
-                                      imageUrl: data.profileImage,
-                                      initials: data.initials,
-                                      size: 100,
-                                      initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 32, padding: const EdgeInsets.all(24))),
+                              Center(
+                                child: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 2)),
+                                      child: ExpandableProfileImage(
+                                        imageUrl: data.profileImage,
+                                        initials: data.initials,
+                                        size: 100,
+                                        initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 32, padding: const EdgeInsets.all(24))),
+                                      ),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: _onEditProfileImage,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-                                      child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
+                                    GestureDetector(
+                                      onTap: _onEditProfileImage,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+                                        child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                               Positioned(
                                 top: 0,
-                                right: -12,
+                                right: 0,
                                 child: _buildUpgradeBadge(),
                               ),
                             ],
@@ -121,25 +125,21 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                         ),
                         24.0.height,
 
-                        Center(
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-                                  if (data.isPremium == true) ...[
-                                    4.0.width,
-                                    const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
-                                  ],
-                                ],
-                              ),
-                              Text('Recruiter Profile', style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600)),
-                              8.0.height,
-                              StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 16),
-                              Text('${data.ratingsAndReviews?.averageRating ?? 0.0} (0 reviews)', style: const TextStyle(color: AppColors.body, fontSize: 11)),
-                            ],
-                          ),
+                        Column(
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                                4.0.width,
+                                const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
+                              ],
+                            ),
+                            Text('Recruiter Profile', style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600)),
+                            8.0.height,
+                            StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 16),
+                            Text('${data.ratingsAndReviews?.averageRating ?? 0.0} (${data.ratingsAndReviews?.totalReviews ?? 0} reviews)', style: const TextStyle(color: AppColors.body, fontSize: 11)),
+                          ],
                         ),
                         16.0.height,
 
@@ -148,7 +148,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                           children: [
                             _buildSmallInfoChip(Icons.location_on_outlined, 'Lagos, Nigeria'),
                             12.0.width,
-                            _buildSmallInfoChip(Icons.business_center_outlined, 'Agency'),
+                            _buildSmallInfoChip(Icons.business_center_outlined, 'Company'),
                           ],
                         ),
                         24.0.height,
@@ -240,9 +240,9 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           crossAxisSpacing: 12,
           childAspectRatio: 1.1,
           children: [
-            _buildMetricItem('Bookings', '0', Icons.shopping_bag_outlined, const Color(0xFFE3F2FD), const Color(0xFF2196F3)),
-            _buildMetricItem('Repeat Rate', '0%', Icons.refresh_outlined, const Color(0xFFF3E5F5), const Color(0xFF7B1FA2)),
-            _buildMetricItem('Resp. Time', '0h', Icons.bolt, const Color(0xFFE0F2F1), const Color(0xFF00897B)),
+            _buildMetricItem('Bookings', data.analytics?.totalBookings?.toString() ?? '0', Icons.shopping_bag_outlined, const Color(0xFFE3F2FD), const Color(0xFF2196F3)),
+            _buildMetricItem('Repeat Rate', '${data.analytics?.repeatHireRate ?? 0}%', Icons.refresh_outlined, const Color(0xFFF3E5F5), const Color(0xFF7B1FA2)),
+            _buildMetricItem('Resp. Time', '${data.analytics?.averageResponseTime ?? 0}h', Icons.bolt, const Color(0xFFE0F2F1), const Color(0xFF00897B)),
           ],
         ),
         32.0.height,
@@ -253,16 +253,27 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           children: [
             Column(
               children: [
-                const Text('0.0', style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
-                const StarRating(rating: 0, starCount: 5, starSize: 14),
+                Text(
+                  '${data.ratingsAndReviews?.averageRating ?? 0.0}',
+                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                ),
+                StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 14),
               ],
             ),
             40.0.width,
-            const Expanded(child: RatingMetrics(ratings: [])),
+            Expanded(
+              child: RatingMetrics(
+                ratings: [
+                  RatingData(stars: 5, count: data.ratingsAndReviews?.ratingBreakdown?.the5Star ?? 0),
+                  RatingData(stars: 4, count: data.ratingsAndReviews?.ratingBreakdown?.the4Star ?? 0),
+                  RatingData(stars: 3, count: data.ratingsAndReviews?.ratingBreakdown?.the3Star ?? 0),
+                  RatingData(stars: 2, count: data.ratingsAndReviews?.ratingBreakdown?.the2Star ?? 0),
+                  RatingData(stars: 1, count: data.ratingsAndReviews?.ratingBreakdown?.the1Star ?? 0),
+                ],
+              ),
+            ),
           ],
         ),
-        24.0.height,
-        _buildNoReviewsState(),
       ],
     );
   }
