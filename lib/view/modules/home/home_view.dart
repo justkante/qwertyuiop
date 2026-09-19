@@ -28,6 +28,7 @@ import 'package:creatify_mobile/view/modules/jobs/widgets/job_post_card.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_card.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/get_transactions_vm.dart';
 import 'package:creatify_mobile/view/modules/transactions/widgets/transaction_item.dart';
+import 'package:creatify_mobile/view/modules/transactions/all_transactions_view.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
@@ -265,7 +266,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           const Color(0xFF00BFA5),
                           Icons.add_circle_outline,
                           () {
-                            ref.read(jobs_view.jobTabIndexProvider.notifier).state = 2; // My Listings tab
+                            ref.read(jobTabIndexProvider.notifier).state = 2; // My Listings tab
                             ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
                           },
                         ),
@@ -296,7 +297,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     const Color(0xFFE0F2F1),
                     AppImages.homeBanner,
                     () {
-                       ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0; // Search tab
+                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
                        ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
                     },
                   ),
@@ -311,12 +312,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Row(
                     children: [
                       _buildFixedMiniMetric('Open jobs', '${jobState.jobs.length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () {
-                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0;
+                        ref.read(jobTabIndexProvider.notifier).state = 0;
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
                       _buildFixedMiniMetric('Applications', '${jobState.applications.length}', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () {
-                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 1; // Applied tab
+                        ref.read(jobTabIndexProvider.notifier).state = 1; // Applied tab
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
@@ -732,7 +733,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           }),
           12.0.width,
           _buildQuickActionCard('View applications', Icons.assignment_outlined, const Color(0xFFFCEBEC), const Color(0xFFFF6F61), () {
-               ref.read(jobs_view.jobTabIndexProvider.notifier).state = 1;
+               ref.read(jobTabIndexProvider.notifier).state = 1;
                ref.read(custom_nav.navBarController.notifier).index = 2;
           }),
         ],
