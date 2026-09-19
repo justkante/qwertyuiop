@@ -1,6 +1,8 @@
 import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/payout_details_view.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/payout_details_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/stripe_verification_info_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/transactions/all_transactions_view.dart';
@@ -255,7 +257,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                     }),
                     12.0.width,
                     _buildQuickAction(Icons.download_outlined, 'Download\nstatement', () {
-                         ToastDialog.showInfo('Download statement feature coming soon', context);
+                         ToastDialog.showSuccess('Download statement feature coming soon', context);
                     }),
                   ],
                 ),

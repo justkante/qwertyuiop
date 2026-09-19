@@ -150,7 +150,7 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
                 loading: () => const Center(child: CircularProgressIndicator.adaptive()),
                 error: (e, s) => Center(child: Text(e.toString())),
               ),
-              40.0.height,
+              140.0.height, // Added extra padding for floating navigation bar
             ],
           ),
         ),

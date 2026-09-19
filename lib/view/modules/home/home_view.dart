@@ -57,7 +57,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   int _recommendedToggle = 0; // 0 for Creators, 1 for Jobs
-  int _listingToggle = 0; // 0 for Active Listings, 1 for Quick Actions
 
   void _initSequence() async {
     ref.read(presenceProvider.notifier).setPresence(true);
@@ -130,6 +129,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final recommendedCreatorsAsync = ref.watch(filter_vm.getRecommendedCreatorsProvider);
     final transactions = ref.watch(getTransactionsProvider);
     final bookings = ref.watch(fetchReceivedBookingsProvider);
+    final sentBookings = ref.watch(fetchSentBookingsProvider);
 
     final hasUnreadNotifications = ref.watch(fetchNotificationsProvider).hasValue &&
         ((ref.watch(fetchNotificationsProvider).value?.unreadCount ?? 0) > 0);
@@ -147,6 +147,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ref.invalidate(filter_vm.getRecommendedCreatorsProvider);
             ref.invalidate(getTransactionsProvider);
             ref.invalidate(fetchReceivedBookingsProvider);
+            ref.invalidate(fetchSentBookingsProvider);
           },
           child: CustomScrollView(
             slivers: [
@@ -250,7 +251,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // MARK: Post Job & Find Talent Banners (One Line) - Under Search Bar
+              // MARK: Post Job & Find Talent Banners (One Line) - Moved below Search Bar
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -264,7 +265,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           const Color(0xFF00BFA5),
                           Icons.add_circle_outline,
                           () {
-                            ref.read(jobTabIndexProvider.notifier).state = 2; // My Listings tab
+                            ref.read(jobs_view.jobTabIndexProvider.notifier).state = 2; // My Listings tab
                             ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
                           },
                         ),
@@ -295,7 +296,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     const Color(0xFFE0F2F1),
                     AppImages.homeBanner,
                     () {
-                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
+                       ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0; // Search tab
                        ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
                     },
                   ),
@@ -310,16 +311,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Row(
                     children: [
                       _buildFixedMiniMetric('Open jobs', '${jobState.jobs.length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () {
-                        ref.read(jobTabIndexProvider.notifier).state = 0;
+                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0;
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
-                      _buildFixedMiniMetric('Applications', '4', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () {
-                        ref.read(jobTabIndexProvider.notifier).state = 1; // Applied tab
+                      _buildFixedMiniMetric('Applications', '${jobState.applications.length}', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () {
+                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 1; // Applied tab
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
-                      _buildFixedMiniMetric('Profile views', '18', const Color(0xFFFFFDE7), const Color(0xFFF9A825), Icons.remove_red_eye_outlined, () {}),
+                      _buildFixedMiniMetric('Profile views', '${myCreatorProfile.value?.analytics?.totalBookings ?? 0}', const Color(0xFFFFFDE7), const Color(0xFFF9A825), Icons.remove_red_eye_outlined, () {}),
                       12.0.width,
                       _buildFixedMiniMetric('Bookings', '${bookings.value?.length ?? 0}', const Color(0xFFFCEBEC), const Color(0xFFFF6F61), Icons.calendar_today_outlined, () => ref.read(custom_nav.navBarController.notifier).index = 3),
                     ],
@@ -368,30 +369,38 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // Listings / Quick Actions Section
+              // Listings Section
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                   child: Column(
                     children: [
-                      _buildTitledHeader(
-                        _listingToggle == 0 ? 'Your active listings' : 'Quick actions',
-                        _buildToggleSwitch(_listingToggle, (val) => setState(() => _listingToggle = val)),
-                      ),
+                      _buildTitledHeader('Your active listings', const SizedBox.shrink()),
                       16.0.height,
-                      if (_listingToggle == 0)
-                        _buildActiveListings(jobState)
-                      else
-                        _buildQuickActionsRow(),
-                      if (_listingToggle == 0)
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton.icon(
-                            onPressed: () => ref.read(custom_nav.navBarController.notifier).index = 2,
-                            icon: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
-                            label: const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 18),
-                          ),
+                      _buildActiveListings(jobState),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: () => ref.read(custom_nav.navBarController.notifier).index = 2,
+                          icon: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
+                          label: const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 18),
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Quick Actions Section (Standalone)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTitledHeader('Quick actions', const SizedBox.shrink()),
+                      16.0.height,
+                      _buildQuickActionsRow(),
                     ],
                   ),
                 ),
@@ -400,13 +409,23 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Recent Activity
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 120), // More padding for floating bar
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 140), // Large padding for floating bar
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildTitledHeader('Recent activity', TextButton(onPressed: () {}, child: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)))),
+                      _buildTitledHeader('Recent activity', TextButton(onPressed: () => NavigationService.instance.push(const AllTransactionsView()), child: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)))),
                       16.0.height,
-                      _buildRecentActivityItem('Your application was sent', 'Birthday Photographer · Lagos', '2h ago', Icons.image_outlined, const Color(0xFFE0F2F1), const Color(0xFF00BFA5)),
+                      transactions.when(
+                        data: (data) {
+                           final list = data.data ?? [];
+                           if (list.isEmpty) return const Center(child: Text('No recent activity', style: TextStyle(fontSize: 12, color: AppColors.body)));
+                           return Column(
+                             children: list.take(3).map((t) => TransactionItem(transaction: t)).toList(),
+                           );
+                        },
+                        loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+                        error: (_, __) => const Text('Error loading activity'),
+                      ),
                     ],
                   ),
                 ),
@@ -500,7 +519,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 imagePath,
                 fit: BoxFit.contain,
                 alignment: Alignment.centerRight,
-                errorBuilder: (_, __, ___) => SvgPicture.asset(AppImages.suitcase, width: 60, color: Colors.white.withOpacity(0.2)),
+                errorBuilder: (_, __, ___) => Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: SvgPicture.asset(AppImages.suitcase, width: 60, color: Colors.black.withOpacity(0.05)),
+                ),
               ),
             ),
           ),
@@ -522,12 +544,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Text(subtitle, style: TextStyle(color: const Color(0xFF1B3131).withOpacity(0.7), fontSize: 11)),
                 ),
                 20.0.height,
-                MainButton(
-                  text: 'Browse jobs',
-                  width: 140,
-                  borderRadius: 24,
-                  color: const Color(0xFF00796B),
-                  onPressed: onTap,
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: MainButton(
+                    text: 'Browse jobs',
+                    width: 140,
+                    borderRadius: 24,
+                    color: const Color(0xFF00796B),
+                    onPressed: onTap,
+                  ),
                 ),
               ],
             ),
@@ -696,11 +721,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildQuickActionCard('Update portfolio', Icons.image_outlined, const Color(0xFFE9F4FE), const Color(0xFF2196F3), () {}),
+          _buildQuickActionCard('Update portfolio', Icons.image_outlined, const Color(0xFFE9F4FE), const Color(0xFF2196F3), () {
+               ref.read(custom_nav.navBarController.notifier).index = 0; // Go home
+               NavigationService.instance.push(const MyCreatorProfileView());
+          }),
           12.0.width,
-          _buildQuickActionCard('Set availability', Icons.calendar_month_outlined, const Color(0xFFFFFDE7), const Color(0xFFF9A825), () {}),
+          _buildQuickActionCard('Set availability', Icons.calendar_month_outlined, const Color(0xFFFFFDE7), const Color(0xFFF9A825), () {
+               ref.read(custom_nav.navBarController.notifier).index = 0;
+               NavigationService.instance.push(const MyCreatorProfileView());
+          }),
           12.0.width,
-          _buildQuickActionCard('View applications', Icons.assignment_outlined, const Color(0xFFFCEBEC), const Color(0xFFFF6F61), () {}),
+          _buildQuickActionCard('View applications', Icons.assignment_outlined, const Color(0xFFFCEBEC), const Color(0xFFFF6F61), () {
+               ref.read(jobs_view.jobTabIndexProvider.notifier).state = 1;
+               ref.read(custom_nav.navBarController.notifier).index = 2;
+          }),
         ],
       ),
     );
