@@ -509,7 +509,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 220,
+      height: 180, // Slightly reduced height to ensure the whole image fits better
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -521,7 +521,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill, // Stretched to fill exactly as requested
               errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),

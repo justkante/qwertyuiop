@@ -282,7 +282,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         creatorId: widget.creatorProfile.id,
                         jobDescription: "${projectTitleController.text}\n\n${projectDescriptionController.text}",
                         location: locationController.text,
-                        budget: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
+                        price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
                         bookingType: 'delivery_based', // Defaulting to delivery based as per provider
                       )
                     );

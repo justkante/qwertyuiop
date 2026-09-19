@@ -9,8 +9,8 @@ import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
+import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart' as custom_nav;
-import 'package:creatify_mobile/view/modules/jobs/jobs_main_view.dart' as jobs_view;
 
 class ReceivedBookingsView extends ConsumerStatefulWidget {
   final int? length;

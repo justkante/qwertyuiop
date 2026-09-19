@@ -37,6 +37,8 @@ import 'package:showcaseview/showcaseview.dart';
 import 'package:creatify_mobile/core/services/tour_service.dart';
 import 'package:creatify_mobile/view/utils/tour/guarded_showcase.dart';
 import 'package:creatify_mobile/view/utils/tour/tour_keys.dart';
+import 'package:creatify_mobile/view/modules/home/edit_profile_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/creator_profile_view.dart';
 import 'onboarding_sheet.dart';
 
 class MyCreatorProfileView extends ConsumerStatefulWidget {
@@ -395,6 +397,19 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                                 ],
                               ),
                             ),
+                          ),
+                          24.0.height,
+
+                          Row(
+                            children: [
+                              Expanded(child: MainButton(text: 'Edit Profile', color: const Color(0xFFE0F2F1), textColor: AppColors.primary, onPressed: () {
+                                 NavigationService.instance.push(const EditProfileView());
+                              })),
+                              12.0.width,
+                              Expanded(child: MainButton(text: 'View Public', color: AppColors.grey50, textColor: const Color(0xFF1B3131), onPressed: () {
+                                 NavigationService.instance.push(CreatorProfileView(profile: data));
+                              })),
+                            ],
                           ),
                           24.0.height,
 

@@ -8,6 +8,8 @@ import 'package:creatify_mobile/view/modules/home/notifications_view.dart';
 import 'package:creatify_mobile/view/modules/home/search_preferences_sheet.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/search-talents/talent_filter_sheet.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/favorite_creators_vm.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart';
@@ -119,13 +121,22 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 24, left: 8),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundImage: userData.profileImage != null
-                  ? NetworkImage(userData.profileImage!)
-                  : const AssetImage(AppImages.dummyAvatar) as ImageProvider,
+          GestureDetector(
+            onTap: () {
+               if (userData.roles?.contains('recruiter') == true) {
+                 NavigationService.instance.push(const MyRecruiterProfileView());
+               } else {
+                 NavigationService.instance.push(const MyCreatorProfileView());
+               }
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 24, left: 8),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundImage: userData.profileImage != null
+                    ? NetworkImage(userData.profileImage!)
+                    : const AssetImage(AppImages.dummyAvatar) as ImageProvider,
+              ),
             ),
           ),
         ],

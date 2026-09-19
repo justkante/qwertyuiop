@@ -1,6 +1,7 @@
 import 'package:creatify_mobile/core/extensions/country_extensions.dart';
 import 'package:creatify_mobile/core/services/mixpanel_service.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
+import 'package:creatify_mobile/view/modules/bookings/book_creator_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/home/rating/star_rating.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
