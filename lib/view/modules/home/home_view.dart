@@ -252,10 +252,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // MARK: Post Job & Find Talent Banners (One Line) - Moved below Search Bar
+              // Large Banner - "Apply directly to creative jobs"
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: _buildStretchedBanner(
+                    AppImages.homeBanner,
+                    () {
+                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
+                       ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
+                    },
+                  ),
+                ),
+              ),
+
+              // MARK: Post Job & Find Talent Banners (One Line) - Moved below Large Banner
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   child: Row(
                     children: [
                       Expanded(
@@ -283,23 +297,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ),
-
-              // Large Banner - "Apply directly to creative jobs"
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                  child: _buildLargeBanner(
-                    'Apply directly to\ncreative jobs',
-                    'Find opportunities, connect with brands, and do what you love.',
-                    const Color(0xFFE0F2F1),
-                    AppImages.homeBanner,
-                    () {
-                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
-                       ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
-                    },
                   ),
                 ),
               ),
@@ -382,7 +379,10 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton.icon(
-                          onPressed: () => ref.read(custom_nav.navBarController.notifier).index = 2,
+                          onPressed: () {
+                             ref.read(jobTabIndexProvider.notifier).state = 2;
+                             ref.read(custom_nav.navBarController.notifier).index = 2;
+                          },
                           icon: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
                           label: const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 18),
                         ),
@@ -496,6 +496,41 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
+    return Container(
+      width: double.infinity,
+      height: 180,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.asset(
+              imagePath,
+              width: double.infinity,
+              height: double.infinity,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
+            ),
+          ),
+          Positioned(
+            left: 20,
+            bottom: 20,
+            child: MainButton(
+              text: 'Browse jobs',
+              width: 130,
+              borderRadius: 24,
+              color: const Color(0xFF00796B),
+              onPressed: onTap,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -164,6 +164,13 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const DrawerHeading(title: 'WORKSPACE'),
+                    DrawerMenuItem(
+                      icon: AppImages.profileOutline,
+                      title: 'View my Creator Profile',
+                      onTap: () {
+                        NavigationService.instance.push(const MyCreatorProfileView());
+                      },
+                    ),
                     if (userData.roles?.contains('recruiter') == true)
                       DrawerMenuItem(
                         icon: AppImages.profileOutline,
@@ -172,28 +179,6 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                           NavigationService.instance.push(const MyRecruiterProfileView());
                         },
                       ),
-                    DrawerMenuItem(
-                      icon: AppImages.profileOutline,
-                      title: (userData.roles?.contains('creator') == true)
-                          ? 'Creator Profile'
-                          : 'Become a Creator',
-                      onTap: () {
-                        if (userData.roles?.contains('creator') == true) {
-                          NavigationService.instance.push(const MyCreatorProfileView());
-                        } else {
-                          // Trigger onboarding/upgrade flow
-                          ref.read(tab_providers.navBarController.notifier).index = 0; // Go home
-                          ref.invalidate(creator_providers.getOnboardingStatusProvider);
-                          ref.read(creator_providers.getOnboardingStatusProvider.future).then((status) {
-                            if (status.isOnboarded != true) {
-                              ref.read(onboarding_providers.startOnboardingProvider.notifier).startOnboarding();
-                            } else {
-                              NavigationService.instance.push(const MyCreatorProfileView());
-                            }
-                          });
-                        }
-                      },
-                    ),
                     DrawerMenuItem(
                       icon: AppImages.editOutline,
                       title: 'Draft Bookings',

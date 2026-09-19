@@ -179,12 +179,12 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                 },
               ),
             ],
-            100.0.height, // Space for floating bar
+            150.0.height, // Increased space for floating bar
           ],
         ),
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 100),
+        padding: const EdgeInsets.only(bottom: 120), // Adjusted to be above nav bar
         child: FloatingActionButton(
           onPressed: () {
             NavigationService.instance.push(const UploadJobView());

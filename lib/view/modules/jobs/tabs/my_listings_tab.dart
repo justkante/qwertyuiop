@@ -138,7 +138,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                     );
                   },
                 ),
-              40.0.height,
+              150.0.height, // Increased padding
             ],
           ),
         ),

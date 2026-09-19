@@ -2,9 +2,7 @@ import 'dart:developer';
 
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/share_profile_widget.dart';
-import 'package:creatify_mobile/view/modules/bookings/widgets/creator_profile_tab.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/expandable_profile_image.dart';
-import 'package:creatify_mobile/view/modules/bookings/widgets/most_recent_card.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/image_preview.dart';
@@ -14,17 +12,14 @@ import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/edit
 import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/payment_payout_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/update_rates_card_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/update_work_mode_sheet.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/upgrade_account_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/upgrade_account_successful_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/widgets/metrics_card.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/uploaded_image_with_cancel.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/profile_menu_popup.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
-import 'package:creatify_mobile/view/theme/app_theme.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
 import 'package:creatify_mobile/view/utils/app_dialog.dart';
@@ -35,13 +30,13 @@ import 'package:creatify_mobile/view/utils/file_and_image_picker.dart';
 import 'package:creatify_mobile/view/widgets/overlay_animation.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:creatify_mobile/core/services/tour_service.dart';
 import 'package:creatify_mobile/view/utils/tour/guarded_showcase.dart';
 import 'package:creatify_mobile/view/utils/tour/tour_keys.dart';
+import 'onboarding_sheet.dart';
 
 class MyCreatorProfileView extends ConsumerStatefulWidget {
   const MyCreatorProfileView({super.key});
@@ -100,7 +95,6 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
     setState(() => openingGallery = true);
 
     await pickImageFromGallery().then((value) {
-      log('here');
       setState(() => openingGallery = false);
 
       if (value != null && value.path.isNotEmpty) {
@@ -203,6 +197,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
     final myCreatorProfile = ref.watch(fetchCreatorProfileProvider(userData.id ?? ''));
+    final onboardingStatus = ref.watch(getOnboardingStatusProvider);
 
     ref.listen(verifySubscriptionPaymentProvider, (_, value) {
       if (value is AsyncData) {
@@ -253,155 +248,203 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              myCreatorProfile.when(
-                data: (data) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // MARK: Profile Image, Badge and Upgrade
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Spacer(),
-                          Stack(
-                            alignment: Alignment.bottomRight,
+        body: RefreshIndicator.adaptive(
+          onRefresh: () async {
+            ref.invalidate(fetchCreatorProfileProvider(userData.id ?? ''));
+            ref.invalidate(getOnboardingStatusProvider);
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                myCreatorProfile.when(
+                  data: (data) {
+                    final isOnboarded = onboardingStatus.value?.isOnboarded ?? false;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // MARK: Profile Image Header (Centered)
+                        Center(
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.topRight,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.primary, width: 2),
-                                ),
-                                child: ExpandableProfileImage(
-                                  imageUrl: data.profileImage,
-                                  initials: data.initials,
-                                  size: 80,
-                                  initialsFallback: Center(
-                                    child: InitialAvatar(
+                              Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: AppColors.primary, width: 2),
+                                    ),
+                                    child: ExpandableProfileImage(
+                                      imageUrl: data.profileImage,
                                       initials: data.initials,
-                                      padding: const EdgeInsets.all(20),
-                                      size: 28,
+                                      size: 100,
+                                      initialsFallback: Center(
+                                        child: InitialAvatar(
+                                          initials: data.initials,
+                                          padding: const EdgeInsets.all(24),
+                                          size: 32,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: _onEditProfileImage,
-                                child: Container(
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                                  GestureDetector(
+                                    onTap: _onEditProfileImage,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                                      ),
+                                      child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
+                                    ),
                                   ),
-                                  child: const Icon(Icons.camera_alt_outlined, size: 16, color: AppColors.primary),
-                                ),
+                                ],
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: -12,
+                                child: _buildUpgradeBadge(data),
                               ),
                             ],
                           ),
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.topRight,
-                              child: _buildUpgradeBadge(data),
-                            ),
-                          ),
-                        ],
-                      ),
-                      12.0.height,
+                        ),
+                        24.0.height,
 
-                      // Name and verification
-                      Center(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  userData.name ?? 'Unknown',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                                ),
-                                if (data.isPremium == true) ...[
-                                  4.0.width,
-                                  const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
+                        // Name and verification
+                        Center(
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    userData.name ?? 'User',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                                  ),
+                                  if (data.isPremium == true) ...[
+                                    4.0.width,
+                                    const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
+                                  ],
                                 ],
-                              ],
-                            ),
-                            Text(
-                              'Creator Profile',
-                              style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w500),
-                            ),
-                            8.0.height,
-                            StarRating(
-                              rating: data.ratingsAndReviews?.averageRating ?? 0.0,
-                              starCount: 5,
-                              starSize: 16,
-                            ),
-                            Text(
-                              '${data.ratingsAndReviews?.averageRating ?? 0.0} (${data.ratingsAndReviews?.totalReviews ?? 0} reviews)',
-                              style: const TextStyle(color: AppColors.body, fontSize: 11),
-                            ),
-                          ],
-                        ),
-                      ),
-                      16.0.height,
-
-                      // Location and Niche
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildSmallInfoChip(Icons.location_on_outlined, data.location ?? 'Unknown'),
-                          12.0.width,
-                          _buildSmallInfoChip(Icons.work_outline, data.workMode?.toTitleCase() ?? 'Freelance'),
-                        ],
-                      ),
-                      16.0.height,
-
-                      Center(
-                        child: GestureDetector(
-                          onTap: _onUpdateRatesCard,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: AppColors.grey50,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  data.categories?.isEmpty == true ? 'No Creator Niches Added' : data.categories!.map((e) => e.name).join(', '),
-                                  style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500),
+                              ),
+                              Text(
+                                'Creator Profile',
+                                style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600),
+                              ),
+                              8.0.height,
+                              if (isOnboarded) ...[
+                                StarRating(
+                                  rating: data.ratingsAndReviews?.averageRating ?? 0.0,
+                                  starCount: 5,
+                                  starSize: 16,
                                 ),
-                                8.0.width,
-                                const Icon(Icons.edit_outlined, size: 14, color: AppColors.body),
+                                Text(
+                                  '${data.ratingsAndReviews?.averageRating ?? 0.0} (${data.ratingsAndReviews?.totalReviews ?? 0} reviews)',
+                                  style: const TextStyle(color: AppColors.body, fontSize: 11),
+                                ),
+                              ] else ...[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(color: const Color(0xFFFFF1EF), borderRadius: BorderRadius.circular(20)),
+                                  child: const Text('Inactive Profile', style: TextStyle(color: Color(0xFFFF6F61), fontSize: 11, fontWeight: FontWeight.bold)),
+                                ),
                               ],
-                            ),
+                            ],
                           ),
                         ),
-                      ),
-                      24.0.height,
+                        24.0.height,
 
-                      // MARK: Tabs
-                      _buildProfileTabs(),
-                      24.0.height,
+                        if (!isOnboarded) ...[
+                           _buildOnboardingChecklist(),
+                           40.0.height,
+                        ] else ...[
+                          // Location and Niche
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildSmallInfoChip(Icons.location_on_outlined, data.location ?? 'Global'),
+                              12.0.width,
+                              _buildSmallInfoChip(Icons.work_outline, data.workMode?.toTitleCase() ?? 'Remote'),
+                            ],
+                          ),
+                          16.0.height,
 
-                      // Dynamic Content
-                      _buildTabContent(data, userData),
+                          Center(
+                            child: GestureDetector(
+                              onTap: _onUpdateRatesCard,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: AppColors.grey50,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      data.categories?.isEmpty == true ? 'No Niches Added' : data.categories!.map((e) => e.name).join(', '),
+                                      style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500),
+                                    ),
+                                    8.0.width,
+                                    const Icon(Icons.edit_outlined, size: 14, color: AppColors.body),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          24.0.height,
 
-                    ],
-                  );
-                },
-                error: (error, stacktrace) => Center(child: Text(error.toString())),
-                loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-              ),
-            ],
+                          // MARK: Tabs
+                          _buildProfileTabs(),
+                          24.0.height,
+
+                          // Dynamic Content
+                          _buildTabContent(data, userData),
+                        ],
+                        150.0.height, // Scrolling Padding
+                      ],
+                    );
+                  },
+                  error: (error, stacktrace) => Center(child: Text(error.toString())),
+                  loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOnboardingChecklist() {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.grey50,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.grey100),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Complete Onboarding', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text('Finish these steps to make your profile live.', style: TextStyle(color: AppColors.body, fontSize: 12)),
+          24.0.height,
+          MainButton(
+            text: 'Finish Setup Now',
+            onPressed: () {
+              AppBottomSheet.showBottomSheet(context, widget: const OnboardingSheet());
+            },
+          ),
+        ],
       ),
     );
   }
@@ -413,19 +456,13 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
     return GestureDetector(
       onTap: _onUpgradeAccount,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF1EF),
-          borderRadius: BorderRadius.circular(12),
+        padding: const EdgeInsets.all(4),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          shape: BoxShape.circle,
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-             const Icon(Icons.workspace_premium_outlined, color: Color(0xFFFF6F61), size: 14),
-             4.0.width,
-             const Text('Upgrade', style: TextStyle(color: Color(0xFFFF6F61), fontWeight: FontWeight.bold, fontSize: 11)),
-          ],
-        ),
+        child: const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 24),
       ),
     );
   }
@@ -494,12 +531,6 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                 const Icon(Icons.info_outline, size: 14, color: AppColors.body),
               ],
             ),
-            Row(
-              children: [
-                const Text('Last 30 days', style: TextStyle(fontSize: 11, color: AppColors.body)),
-                const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.body),
-              ],
-            ),
           ],
         ),
         16.0.height,
@@ -509,34 +540,29 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
           crossAxisCount: 3,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.2,
+          childAspectRatio: 1.1,
           children: [
-            _buildMetricItem('Jobs Completed', data.analytics?.totalBookings?.toString() ?? '0', Icons.check_circle_outline, const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
-            _buildMetricItem('Acceptance Rate', '${data.analytics?.completionRate ?? 0}%', Icons.check_circle_outline, const Color(0xFFE3F2FD), const Color(0xFF2196F3)),
-            _buildMetricItem('Cancellation Rate', '${data.analytics?.cancellationRate ?? 0}%', Icons.cancel_outlined, const Color(0xFFFFF1EF), const Color(0xFFFF6F61)),
-            _buildMetricItem('Repeat Hire Rate', '${data.analytics?.repeatHireRate ?? 0}%', Icons.refresh_outlined, const Color(0xFFF3E5F5), const Color(0xFF7B1FA2)),
-            _buildMetricItem('Average Response', '${data.analytics?.averageResponseTime ?? 0} hrs', Icons.access_time, const Color(0xFFE0F2F1), const Color(0xFF00897B)),
-            _buildMetricItem('Member Since', data.analytics?.memberSince?.timeNoAgo() ?? '1 week', Icons.calendar_today_outlined, const Color(0xFFFFFDE7), const Color(0xFFF9A825)),
+            _buildMetricItem('Jobs Done', data.analytics?.totalBookings?.toString() ?? '0', Icons.check_circle_outline, const Color(0xFFE8F5E9), const Color(0xFF2E7D32)),
+            _buildMetricItem('Success Rate', '${data.analytics?.completionRate ?? 0}%', Icons.trending_up, const Color(0xFFE3F2FD), const Color(0xFF2196F3)),
+            _buildMetricItem('Resp. Time', '${data.analytics?.averageResponseTime ?? 0}h', Icons.bolt, const Color(0xFFFFFDE7), const Color(0xFFF9A825)),
           ],
         ),
         32.0.height,
         const Text('Ratings & Reviews', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
         16.0.height,
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   '${data.ratingsAndReviews?.averageRating ?? 0.0}',
-                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                  style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
                 ),
-                StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 12),
-                Text('(${data.ratingsAndReviews?.totalReviews ?? 0} Reviews)', style: const TextStyle(color: AppColors.body, fontSize: 10)),
+                StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 14),
               ],
             ),
-            32.0.width,
+            40.0.width,
             Expanded(
               child: RatingMetrics(
                 ratings: [
@@ -550,8 +576,6 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
             ),
           ],
         ),
-        24.0.height,
-        _buildNoReviewsState(),
       ],
     );
   }
@@ -564,44 +588,16 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-                child: Icon(icon, color: iconColor, size: 12),
-              ),
-            ],
-          ),
-          4.0.height,
-          Text(label, style: const TextStyle(fontSize: 8, color: AppColors.body)),
-          Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoReviewsState() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.grey50,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
           Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(color: Color(0xFFE3F2FD), shape: BoxShape.circle),
-            child: const Icon(Icons.chat_bubble_outline, color: Color(0xFF2196F3), size: 24),
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+            child: Icon(icon, color: iconColor, size: 14),
           ),
-          12.0.height,
-          const Text('No reviews yet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          const Text('Complete a job to receive reviews.', style: TextStyle(color: AppColors.body, fontSize: 11)),
+          6.0.height,
+          Text(label, style: const TextStyle(fontSize: 8, color: AppColors.body, fontWeight: FontWeight.w600)),
+          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
         ],
       ),
     );
@@ -609,7 +605,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
 
   Widget _buildPortfolioTab(CreatorProfileDto data) {
      return data.portfolio?.isEmpty ?? true
-        ? Center(child: Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Text('No Media Uploaded', style: context.textTheme.bodyMedium)))
+        ? const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Text('No media uploaded yet.')))
         : GridView.builder(
             padding: EdgeInsets.zero,
             shrinkWrap: true,
@@ -622,29 +618,33 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   }
 
   Widget _buildRatesCardTab(CreatorProfileDto data) {
+    if (data.categories?.isEmpty ?? true) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Text('Rates card not set up.')));
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.grey300), color: AppColors.grey50),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey200), color: AppColors.grey50),
       child: ListView.separated(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        itemCount: data.categories?.length ?? 0,
-        separatorBuilder: (_, __) => 12.0.height,
+        itemCount: data.categories!.length,
+        separatorBuilder: (_, __) => 16.0.height,
         itemBuilder: (context, index) {
-          var category = data.categories?[index];
+          var category = data.categories![index];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(category?.name ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
-              const Divider(color: Color(0xFF1B3131), thickness: 2),
+              Text(category.name ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131), fontSize: 14)),
+              const Divider(color: AppColors.grey200),
               8.0.height,
-              ...category?.services?.map((pricing) => Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(pricing.serviceName ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                  Text("${pricing.price.amountWithCurrency(data.primaryCurrency ?? '')}/${pricing.pricingType?.split('_').last.toTitleCase()}",
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF6F61), fontFamily: 'Inter')),
-                ],
+              ...category.services?.map((pricing) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(pricing.serviceName ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                    Text("${pricing.price.amountWithCurrency(data.primaryCurrency ?? 'NGN')}/${pricing.pricingType?.split('_').last.toTitleCase()}",
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF6F61), fontSize: 13)),
+                  ],
+                ),
               )) ?? [],
             ],
           );

@@ -122,10 +122,11 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                         },
                       ),
           ),
+          140.0.height, // Added padding for floating nav bar
         ],
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 120), // Adjusted
         child: FloatingActionButton(
           onPressed: () {},
           backgroundColor: AppColors.primary,
