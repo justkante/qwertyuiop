@@ -246,13 +246,21 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                   children: [
                     _buildQuickAction(Icons.assignment_outlined, 'Transaction\nhistory', () => NavigationService.instance.push(const AllTransactionsView())),
                     12.0.width,
-                    _buildQuickAction(Icons.account_balance_wallet_outlined, 'Payout\naccount', () {}),
+                    _buildQuickAction(Icons.account_balance_wallet_outlined, 'Payout\naccount', () {
+                        if (userData.primaryCurrency == 'NGN') {
+                             NavigationService.instance.push(const PayoutDetailsView());
+                        } else {
+                             _openStripeDashboard();
+                        }
+                    }),
                     12.0.width,
-                    _buildQuickAction(Icons.download_outlined, 'Download\nstatement', () {}),
+                    _buildQuickAction(Icons.download_outlined, 'Download\nstatement', () {
+                         ToastDialog.showInfo('Download statement feature coming soon', context);
+                    }),
                   ],
                 ),
               ),
-              40.0.height,
+              120.0.height, // Extra padding for scrolling above nav bar
             ],
           ),
         ),
@@ -263,13 +271,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
   Widget _buildStripeRedirect(dynamic userData) {
     if (userData.primaryCurrency == 'NGN') return const SizedBox.shrink();
     return IconButton(
-      onPressed: () {
-        ref.read(getCreatorDashboardProvider.future).then((value) {
-          if (context.mounted) NavigationService.instance.push(WebviewScreen(url: value.url ?? '', routeName: "Payout Dashboard"));
-        }).catchError((e) {
-          if (context.mounted) ToastDialog.showError(e.toString(), context);
-        });
-      },
+      onPressed: _openStripeDashboard,
       icon: Row(
         children: [
           const Text('stripe', style: TextStyle(color: Color(0xFF6772E5), fontWeight: FontWeight.bold, fontSize: 16)),
@@ -280,15 +282,24 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
     );
   }
 
+  void _openStripeDashboard() {
+     ref.read(getCreatorDashboardProvider.future).then((value) {
+          if (context.mounted) NavigationService.instance.push(WebviewScreen(url: value.url ?? '', routeName: "Payout Dashboard"));
+        }).catchError((e) {
+          if (context.mounted) ToastDialog.showError(e.toString(), context);
+        });
+  }
+
   Widget _buildQuickAction(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 120,
+        width: 140, // Increased width to ensure 2-line labels fit
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.grey100),
           borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
         ),
         child: Row(
           children: [
@@ -297,14 +308,14 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
               decoration: BoxDecoration(color: const Color(0xFFE0F2F1), borderRadius: BorderRadius.circular(8)),
               child: Icon(icon, color: AppColors.primary, size: 20),
             ),
-            8.0.width,
+            12.0.width,
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF1B3131), height: 1.2),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1B3131), height: 1.2),
               ),
             ),
-            const Icon(Icons.chevron_right, size: 14, color: AppColors.body),
+            const Icon(Icons.chevron_right, size: 14, color: AppColors.grey300),
           ],
         ),
       ),
