@@ -264,7 +264,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           const Color(0xFF00BFA5),
                           Icons.add_circle_outline,
                           () {
-                            ref.read(jobs_view.jobTabIndexProvider.notifier).state = 2; // My Listings tab
+                            ref.read(jobTabIndexProvider.notifier).state = 2; // My Listings tab
                             ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
                           },
                         ),
@@ -295,7 +295,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     const Color(0xFFE0F2F1),
                     AppImages.homeBanner,
                     () {
-                       ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0; // Search tab
+                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
                        ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
                     },
                   ),
@@ -310,12 +310,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Row(
                     children: [
                       _buildFixedMiniMetric('Open jobs', '${jobState.jobs.length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () {
-                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 0;
+                        ref.read(jobTabIndexProvider.notifier).state = 0;
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
                       _buildFixedMiniMetric('Applications', '4', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () {
-                        ref.read(jobs_view.jobTabIndexProvider.notifier).state = 1; // Applied tab
+                        ref.read(jobTabIndexProvider.notifier).state = 1; // Applied tab
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
