@@ -1,4 +1,7 @@
+import 'package:creatify_mobile/data/models/responses/subcriptions_plans_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
@@ -218,6 +221,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                 },
               ),
             ),
+
             // Footer
             16.0.height,
             Center(

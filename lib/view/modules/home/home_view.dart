@@ -256,21 +256,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // MARK: Promo Banner (Stretched) - Re-ordered as Step 2
+              // Promo Banner
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: _buildStretchedBanner(
                     AppImages.homeBanner,
                     () {
-                       ref.read(jobTabIndexProvider.notifier).state = 0; // Search tab
-                       ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
+                       ref.read(jobTabIndexProvider.notifier).state = 0;
+                       ref.read(custom_nav.navBarController.notifier).index = 2;
                     },
                   ),
                 ),
               ),
 
-              // MARK: Small Action Banners - Re-ordered as Step 3 below Promo Banner
+              // Small Action Banners
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -284,8 +284,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           const Color(0xFF00BFA5),
                           Icons.add_circle_outline,
                           () {
-                            ref.read(jobTabIndexProvider.notifier).state = 2; // My Listings tab
-                            ref.read(custom_nav.navBarController.notifier).index = 2; // Jobs tab
+                            ref.read(jobTabIndexProvider.notifier).state = 2;
+                            ref.read(custom_nav.navBarController.notifier).index = 2;
                           },
                         ),
                       ),
@@ -305,7 +305,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // Metrics Row (Scrollable)
+              // Metrics Row
               SliverToBoxAdapter(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -318,7 +318,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       }),
                       12.0.width,
                       _buildFixedMiniMetric('Applications', '${jobState.applications.length}', const Color(0xFFE3F2FD), const Color(0xFF2196F3), Icons.assignment_outlined, () {
-                        ref.read(jobTabIndexProvider.notifier).state = 1; // Applied tab
+                        ref.read(jobTabIndexProvider.notifier).state = 1;
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),
                       12.0.width,
@@ -396,7 +396,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // Quick Actions Section (Standalone)
+              // Quick Actions
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
@@ -414,7 +414,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Recent Activity
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 180), // Increased padding for floating bar
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 180),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -513,7 +513,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 250, // Increased breadth as requested
+      height: 250,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -525,7 +525,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.fill, // Stretched to fill as requested
+              fit: BoxFit.fill,
               errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),
@@ -534,7 +534,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             bottom: 12,
             child: MainButton(
               text: 'Browse jobs',
-              width: 180, // Increased width
+              width: 180,
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,
@@ -747,3 +747,33 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+
+  Widget _buildRecentActivityItem(String title, String subtitle, String time, IconData icon, Color bgColor, Color iconColor) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
+      child: Row(
+        children: [
+          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: iconColor, size: 20)),
+          16.0.width,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))),
+                Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.body)),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(time, style: const TextStyle(fontSize: 10, color: AppColors.body)),
+              const Icon(Icons.chevron_right, size: 16, color: AppColors.body),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}

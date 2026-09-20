@@ -23,6 +23,7 @@ import 'package:creatify_mobile/view/modules/showcase-talents/manage_subscriptio
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/modules/home/edit_profile_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/fetched_recruiter_profile_view.dart';
+import 'package:creatify_mobile/view/modules/home/support_view.dart';
 
 class MyRecruiterProfileView extends ConsumerStatefulWidget {
   const MyRecruiterProfileView({super.key});
@@ -55,6 +56,12 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
   void initState() {
     super.initState();
     tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
   }
 
   void _onEditProfileImage() async {
@@ -148,7 +155,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(5),
+                                    padding: const EdgeInsets.all(4),
                                     decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
                                     child: const Icon(Icons.camera_alt_outlined, size: 10, color: AppColors.primary),
                                   ),
@@ -202,7 +209,14 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                         32.0.height,
                         _buildProfileTabs(),
                         24.0.height,
-                        _buildOverviewTab(data),
+                        AnimatedBuilder(
+                          animation: tabController,
+                          builder: (context, _) {
+                            if (tabController.index == 0) return _buildOverviewTab(data);
+                            if (tabController.index == 1) return _buildCompanyTab(data);
+                            return _buildPreferencesTab(data);
+                          },
+                        ),
                         180.0.height, // Scrolling Padding
                       ],
                     );
@@ -213,6 +227,38 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpgradeBadge(bool isPremium) {
+    return GestureDetector(
+      onTap: () => NavigationService.instance.push(const ManageSubscriptionView()),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isPremium ? const Color(0xFFE0F2F1) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isPremium)
+              SvgPicture.asset(AppImages.premiumBadge, height: 16)
+            else
+              const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 16),
+            4.0.width,
+            Text(
+              isPremium ? 'Premium' : 'Upgrade',
+              style: TextStyle(
+                color: isPremium ? AppColors.primary : const Color(0xFF1B3131),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );

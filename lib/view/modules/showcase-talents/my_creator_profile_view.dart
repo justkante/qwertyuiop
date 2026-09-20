@@ -518,14 +518,14 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
     return AnimatedBuilder(
       animation: tabController,
       builder: (context, _) {
-        if (tabController.index == 0) return _buildOverviewTab(data);
+        if (tabController.index == 0) return _buildOverviewTab(data, userData);
         if (tabController.index == 1) return _buildPortfolioTab(data);
         return _buildRatesCardTab(data);
       },
     );
   }
 
-  Widget _buildOverviewTab(CreatorProfileDto data) {
+  Widget _buildOverviewTab(CreatorProfileDto data, dynamic userData) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -539,7 +539,6 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                     selectedTimeframeValue = val;
                  });
                  ref.invalidate(fetchCreatorProfileProvider);
-                 ref.read(fetchCreatorProfileProvider((userData.id ?? '', selectedTimeframeValue)));
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
