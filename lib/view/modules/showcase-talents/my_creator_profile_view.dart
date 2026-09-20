@@ -39,6 +39,7 @@ import 'package:creatify_mobile/view/utils/tour/guarded_showcase.dart';
 import 'package:creatify_mobile/view/utils/tour/tour_keys.dart';
 import 'package:creatify_mobile/view/modules/home/edit_profile_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/widgets/most_recent_card.dart';
 import 'onboarding_sheet.dart';
 
 class MyCreatorProfileView extends ConsumerStatefulWidget {
@@ -216,34 +217,9 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
             onPressed: () => Navigator.of(context).pop(),
           ),
           actions: [
-            GuardedShowcase(
-              showcaseKey: TourKeys.myCreatorMenu,
-              description:
-                  'Tap here to edit your profile, manage your subscription and also share your profile with friends.',
-              targetBorderRadius: BorderRadius.circular(8),
-              child: PopupMenuButton<int>(
-                icon: const Icon(Icons.more_vert, color: AppColors.icons),
-                onSelected: (item) {
-                   switch (item) {
-                     case 0: _onEditProfileImage(); break;
-                     case 1: _onUpgradeAccount(); break;
-                     case 2: _onPaymentPayouts(); break;
-                     case 3: _onUpdateRatesCard(); break;
-                     case 4: _onManagePortfolio(); break;
-                     case 5: _onEditAvailability(); break;
-                     case 6: _onShareProfile(); break;
-                   }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(value: 0, child: Text('Edit Profile Image')),
-                  const PopupMenuItem(value: 1, child: Text('Manage Subscriptions')),
-                  const PopupMenuItem(value: 2, child: Text('Payment & Payouts')),
-                  const PopupMenuItem(value: 3, child: Text('My Rates Card')),
-                  const PopupMenuItem(value: 4, child: Text('Manage Portfolio')),
-                  const PopupMenuItem(value: 5, child: Text('Edit Availability')),
-                  const PopupMenuItem(value: 6, child: Text('Share Profile')),
-                ],
-              ),
+            IconButton(
+              icon: const Icon(Icons.share_outlined, color: AppColors.icons),
+              onPressed: _onShareProfile,
             ),
           ],
         ),
@@ -267,52 +243,50 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
                         SizedBox(
-                          width: 120,
-                          height: 120,
+                          width: 80,
+                          height: 80,
                           child: Stack(
                             clipBehavior: Clip.none,
+                            alignment: Alignment.center,
                             children: [
-                              Center(
-                                child: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(color: AppColors.primary, width: 2),
-                                      ),
-                                      child: ExpandableProfileImage(
-                                        imageUrl: data.profileImage,
-                                        initials: data.initials,
-                                        size: 100,
-                                        initialsFallback: Center(
-                                          child: InitialAvatar(
-                                            initials: data.initials,
-                                            padding: const EdgeInsets.all(24),
-                                            size: 32,
-                                          ),
-                                        ),
-                                      ),
+                              Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: AppColors.primary, width: 1.5),
+                                ),
+                                child: ExpandableProfileImage(
+                                  imageUrl: data.profileImage,
+                                  initials: data.initials,
+                                  size: 64,
+                                  initialsFallback: Center(
+                                    child: InitialAvatar(
+                                      initials: data.initials,
+                                      padding: const EdgeInsets.all(16),
+                                      size: 24,
                                     ),
-                                    GestureDetector(
-                                      onTap: _onEditProfileImage,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-                                        ),
-                                        child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                               Positioned(
-                                top: 0,
-                                right: 0,
+                                bottom: -2,
+                                right: -2,
+                                child: GestureDetector(
+                                  onTap: _onEditProfileImage,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                                    ),
+                                    child: const Icon(Icons.camera_alt_outlined, size: 12, color: AppColors.primary),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: -5,
+                                right: -50,
                                 child: _buildUpgradeBadge(data),
                               ),
                             ],
@@ -328,7 +302,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                               children: [
                                 Text(
                                   userData.name ?? 'User',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                                 ),
                                 if (data.isPremium == true) ...[
                                   4.0.width,
@@ -420,7 +394,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                           // Dynamic Content
                           _buildTabContent(data, userData),
                         ],
-                        180.0.height, // Increased Scrolling Padding
+                        180.0.height, // Scrolling Padding
                       ],
                     );
                   },
@@ -461,19 +435,33 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   }
 
   Widget _buildUpgradeBadge(CreatorProfileDto data) {
-    if (data.isPremium == true) {
-      return SvgPicture.asset(AppImages.premiumBadge, height: 32);
-    }
     return GestureDetector(
       onTap: _onUpgradeAccount,
       child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: data.isPremium == true ? const Color(0xFFE0F2F1) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
         ),
-        child: const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 24),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (data.isPremium == true)
+              SvgPicture.asset(AppImages.premiumBadge, height: 16)
+            else
+              const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 16),
+            4.0.width,
+            Text(
+              data.isPremium == true ? 'Premium' : 'Upgrade',
+              style: TextStyle(
+                color: data.isPremium == true ? AppColors.primary : const Color(0xFF1B3131),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -535,11 +523,25 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                const Text('Creator Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                4.0.width,
-                const Icon(Icons.info_outline, size: 14, color: AppColors.body),
+            const Text('Creator Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            PopupMenuButton<String>(
+              onSelected: (val) {},
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(20)),
+                child: Row(
+                  children: [
+                    const Text('Last 30 days', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
+                    4.0.width,
+                    const Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.body),
+                  ],
+                ),
+              ),
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'day', child: Text('Current day')),
+                const PopupMenuItem(value: 'last_day', child: Text('Last day')),
+                const PopupMenuItem(value: 'last_week', child: Text('Last week')),
+                const PopupMenuItem(value: 'last_month', child: Text('Last 30 days')),
               ],
             ),
           ],
@@ -586,6 +588,22 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
               ),
             ),
           ],
+        ),
+        24.0.height,
+        const Text("Most Recent", style: TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500)),
+        12.0.height,
+        Column(
+          children: data.ratingsAndReviews?.reviews?.isEmpty == true
+              ? [const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Text('No Reviews Yet')))]
+              : data.ratingsAndReviews!.reviews!.take(3).map((review) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: MostRecentCard(
+                    reviewerName: review.reviewerName ?? 'User',
+                    rating: review.rating ?? 0.0,
+                    reviewDate: review.createdAt?.toLocal().toFormattedDateWithYear() ?? 'Unknown',
+                    reviewText: review.review ?? '',
+                  ),
+                )).toList(),
         ),
       ],
     );

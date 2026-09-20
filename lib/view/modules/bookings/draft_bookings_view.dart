@@ -164,7 +164,10 @@ class _DraftBookingsViewState extends ConsumerState<DraftBookingsView> {
           32.0.height,
           MainButton(
             text: '+ Create a new booking',
-            onPressed: () => ref.read(navBarController.notifier).index = 1, // Go to Discover
+            onPressed: () {
+               ref.read(navBarController.notifier).index = 1; // Go to Discover
+               Navigator.pop(context); // Go back to main screen to see the change
+            },
           ),
           40.0.height,
           // Tip Section

@@ -1,3 +1,5 @@
+import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
+import 'package:creatify_mobile/view/modules/bookings/share_profile_widget.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/expandable_profile_image.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
@@ -6,6 +8,7 @@ import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_provide
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
+import 'package:creatify_mobile/view/utils/app_dialog.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/modules/home/rating/rating_widgets.dart';
@@ -49,6 +52,27 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
     }).catchError((error) => setState(() => openingGallery = false));
   }
 
+  void _onShareProfile() {
+    ref.watch(fetchRecruiterProfileProvider(ref.watch(userControllerProvider).id ?? '')).whenData((profile) {
+      AppDialog.showAppDialog(
+        context,
+        widget: ShareProfileWidget(
+          profile: CreatorProfileDto(
+            id: profile.id,
+            name: profile.name,
+            profileId: profile.id,
+            profileImage: profile.profileImage,
+            ratingsAndReviews: RatingsAndReviews(
+               averageRating: profile.ratingsAndReviews?.averageRating,
+               totalReviews: profile.ratingsAndReviews?.totalReviews,
+            ),
+          ),
+          self: true,
+        ),
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
@@ -67,16 +91,9 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
             onPressed: () => Navigator.of(context).pop(),
           ),
           actions: [
-            PopupMenuButton<int>(
-              icon: const Icon(Icons.more_vert, color: AppColors.icons),
-              onSelected: (val) {
-                 if (val == 0) _onEditProfileImage();
-                 if (val == 1) NavigationService.instance.push(const ManageSubscriptionView());
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(value: 0, child: Text('Edit Profile Image')),
-                const PopupMenuItem(value: 1, child: Text('Manage Subscription')),
-              ],
+            IconButton(
+              icon: const Icon(Icons.share_outlined, color: AppColors.icons),
+              onPressed: _onShareProfile,
             ),
           ],
         ),
@@ -96,38 +113,39 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
-                        Center(
+                        SizedBox(
+                          width: 80,
+                          height: 80,
                           child: Stack(
                             clipBehavior: Clip.none,
-                            alignment: Alignment.topRight,
+                            alignment: Alignment.center,
                             children: [
-                              Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 2)),
-                                    child: ExpandableProfileImage(
-                                      imageUrl: data.profileImage,
-                                      initials: data.initials,
-                                      size: 100,
-                                      initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 32, padding: const EdgeInsets.all(24))),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: _onEditProfileImage,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-                                      child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
-                                    ),
-                                  ),
-                                ],
+                              Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 1.5)),
+                                child: ExpandableProfileImage(
+                                  imageUrl: data.profileImage,
+                                  initials: data.initials,
+                                  size: 64,
+                                  initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 24, padding: const EdgeInsets.all(16))),
+                                ),
                               ),
                               Positioned(
-                                top: 0,
-                                right: -12,
-                                child: _buildUpgradeBadge(),
+                                bottom: -2,
+                                right: -2,
+                                child: GestureDetector(
+                                  onTap: _onEditProfileImage,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+                                    child: const Icon(Icons.camera_alt_outlined, size: 12, color: AppColors.primary),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: -5,
+                                right: -50,
+                                child: _buildUpgradeBadge(data.isPremium ?? false),
                               ),
                             ],
                           ),
@@ -139,7 +157,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                                Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                                 if (data.ratingsAndReviews?.averageRating != null && data.ratingsAndReviews!.averageRating! >= 4.5) ...[
                                   4.0.width,
                                   const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
@@ -178,7 +196,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                         _buildProfileTabs(),
                         24.0.height,
                         _buildOverviewTab(data),
-                        180.0.height, // Increased Scrolling Padding
+                        180.0.height, // Scrolling Padding
                       ],
                     );
                   },
@@ -193,17 +211,34 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
     );
   }
 
-  Widget _buildUpgradeBadge() {
+  Widget _buildUpgradeBadge(bool isPremium) {
     return GestureDetector(
       onTap: () => NavigationService.instance.push(const ManageSubscriptionView()),
       child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: isPremium ? const Color(0xFFE0F2F1) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
         ),
-        child: const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 24),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isPremium)
+              SvgPicture.asset(AppImages.premiumBadge, height: 16)
+            else
+              const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 16),
+            4.0.width,
+            Text(
+              isPremium ? 'Premium' : 'Upgrade',
+              style: TextStyle(
+                color: isPremium ? AppColors.primary : const Color(0xFF1B3131),
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -243,7 +278,27 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(children: [const Text('Recruiter Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), 4.0.width, const Icon(Icons.info_outline, size: 14, color: AppColors.body)]),
+            const Text('Recruiter Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            PopupMenuButton<String>(
+              onSelected: (val) {},
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(20)),
+                child: Row(
+                  children: [
+                    const Text('Last 30 days', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
+                    4.0.width,
+                    const Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.body),
+                  ],
+                ),
+              ),
+              itemBuilder: (context) => [
+                const PopupMenuItem(value: 'day', child: Text('Current day')),
+                const PopupMenuItem(value: 'last_day', child: Text('Last day')),
+                const PopupMenuItem(value: 'last_week', child: Text('Last week')),
+                const PopupMenuItem(value: 'last_month', child: Text('Last 30 days')),
+              ],
+            ),
           ],
         ),
         16.0.height,

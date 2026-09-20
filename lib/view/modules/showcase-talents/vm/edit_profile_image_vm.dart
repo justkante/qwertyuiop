@@ -12,8 +12,10 @@ class EditProfileImageNotifier extends AutoDisposeAsyncNotifier<String> {
     state = await AsyncValue.guard(() => ref.read(creatorRepository).uploadProfileImage(filePath));
 
     if (!state.hasError) {
-      ref.invalidate(fetchCreatorProfileProvider);
-      ref.invalidate(fetchRecruiterProfileProvider);
+      final userId = ref.read(userControllerProvider).id ?? '';
+      ref.invalidate(fetchCreatorProfileProvider(userId));
+      ref.invalidate(fetchRecruiterProfileProvider(userId));
+      ref.read(userControllerProvider.notifier).refreshUser();
       ref.read(filterCreatorsProvider.notifier).filterCreators();
     }
   }

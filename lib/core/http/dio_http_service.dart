@@ -84,7 +84,6 @@ class NetworkService implements HttpService {
   @override
   Map<String, String> get headers => {
         'accept': 'application/json',
-        'content-type': 'application/json',
       };
 
   @override
