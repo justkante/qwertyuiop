@@ -41,6 +41,8 @@ import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:creatify_mobile/data/models/responses/job_dto.dart';
+import 'package:creatify_mobile/view/modules/jobs/job_details_view.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({
@@ -130,7 +132,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
     final recommendedCreatorsAsync = ref.watch(filter_vm.getRecommendedCreatorsProvider);
     final transactions = ref.watch(getTransactionsProvider);
     final bookings = ref.watch(fetchReceivedBookingsProvider);
-    final sentBookings = ref.watch(fetchSentBookingsProvider);
 
     final hasUnreadNotifications = ref.watch(fetchNotificationsProvider).hasValue &&
         ((ref.watch(fetchNotificationsProvider).value?.unreadCount ?? 0) > 0);
@@ -443,7 +444,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildSmallActionBanner(String title, String subtitle, Color bgColor, Color iconColor, IconData icon, VoidCallback onTap) {
     return InkWell(
@@ -475,7 +475,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildFixedMiniMetric(String label, String value, Color bgColor, Color iconColor, IconData icon, VoidCallback onTap) {
     return InkWell(
@@ -507,7 +506,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
@@ -543,7 +541,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildTitledHeader(String title, Widget trailing) {
     return Row(
@@ -554,7 +551,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ],
     );
   }
-}
 
   Widget _buildToggleSwitch(int current, Function(int) onChanged) {
     return Container(
@@ -569,7 +565,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildToggleItem(int index, bool active, Function(int) onTap, String label) {
     return GestureDetector(
@@ -586,7 +581,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildCreatorsList(AsyncValue<RecommendedCreatorsDto> recommendedAsync) {
     return recommendedAsync.when(
@@ -607,7 +601,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       error: (e, s) => Center(child: Text('Error loading creators: $e')),
     );
   }
-}
 
   Widget _buildRecommendationsList(JobState state) {
     if (state.jobs.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommendations found', style: TextStyle(fontSize: 12, color: AppColors.body))));
@@ -621,68 +614,71 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildRecommendationCard(dynamic job) {
-    return Container(
-      width: 240,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.network('https://picsum.photos/seed/${job.id}/400/250', height: 120, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(height: 120, color: AppColors.grey50)),
-              ),
-              const Positioned(top: 8, right: 8, child: Icon(Icons.favorite_border, color: Colors.white)),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return InkWell(
+      onTap: () {
+        NavigationService.instance.push(JobDetailView(job: JobDto.fromJson(job.toJson())));
+      },
+      child: Container(
+        width: 240,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
               children: [
-                Text(job.title ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131)), maxLines: 1, overflow: TextOverflow.ellipsis),
-                8.0.height,
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 12, color: AppColors.body),
-                    4.0.width,
-                    Text(job.location ?? '', style: const TextStyle(fontSize: 10, color: AppColors.body)),
-                    const Spacer(),
-                    const Icon(Icons.account_balance_wallet_outlined, size: 12, color: Color(0xFF00BFA5)),
-                    4.0.width,
-                    Text(num.parse(job.price.toString()).amountWithCurrency(job.currency ?? 'NGN'), style: const TextStyle(fontSize: 10, color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
-                  ],
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: Image.network('https://picsum.photos/seed/${job.id}/400/250', height: 120, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(height: 120, color: AppColors.grey50)),
                 ),
-                12.0.height,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.body),
-                        4.0.width,
-                        const Text('12/07/26 - 14/07/26', style: TextStyle(fontSize: 10, color: AppColors.body)),
-                      ],
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(color: Color(0xFF00796B), shape: BoxShape.circle),
-                      child: const Icon(Icons.chevron_right, color: Colors.white, size: 14),
-                    ),
-                  ],
-                ),
+                const Positioned(top: 8, right: 8, child: Icon(Icons.favorite_border, color: Colors.white)),
               ],
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(job.title ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131)), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  8.0.height,
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 12, color: AppColors.body),
+                      4.0.width,
+                      Text(job.location ?? '', style: const TextStyle(fontSize: 10, color: AppColors.body)),
+                      const Spacer(),
+                      const Icon(Icons.account_balance_wallet_outlined, size: 12, color: Color(0xFF00BFA5)),
+                      4.0.width,
+                      Text(num.parse(job.price.toString()).amountWithCurrency(job.currency ?? 'NGN'), style: const TextStyle(fontSize: 10, color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  12.0.height,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.body),
+                          4.0.width,
+                          const Text('12/07/26 - 14/07/26', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(color: Color(0xFF00796B), shape: BoxShape.circle),
+                        child: const Icon(Icons.chevron_right, color: Colors.white, size: 14),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
-}
 
   Widget _buildActiveListings(JobState state) {
     final active = state.jobs.where((j) => j.status?.toLowerCase() == 'active').toList();
@@ -704,7 +700,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildQuickActionsRow() {
     return SingleChildScrollView(
@@ -729,7 +724,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
 
   Widget _buildQuickActionCard(String title, IconData icon, Color bgColor, Color iconColor, VoidCallback onTap) {
     return InkWell(
@@ -750,35 +744,4 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}
-
-  Widget _buildRecentActivityItem(String title, String subtitle, String time, IconData icon, Color bgColor, Color iconColor) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
-      child: Row(
-        children: [
-          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: iconColor, size: 20)),
-          16.0.width,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))),
-                Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.body)),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(time, style: const TextStyle(fontSize: 10, color: AppColors.body)),
-              const Icon(Icons.chevron_right, size: 16, color: AppColors.body),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
 }

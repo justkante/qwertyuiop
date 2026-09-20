@@ -215,17 +215,6 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                    }
                 },
               ),
-            ),
-                     (p) => p.name?.toLowerCase() == _selectedTier.toLowerCase().replaceAll('+', ''),
-                     orElse: () => plans.isNotEmpty ? plans.first : SubscriptionsPlanDto(),
-                   );
-                   if (plan.id != null) {
-                     ref.read(makeSubscriptionPaymentProvider.notifier).makeSubscriptionPayment(plan.id!);
-                   }
-                },
-              ),
-            ),
-
             // Footer
             16.0.height,
             Center(
