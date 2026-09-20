@@ -114,8 +114,8 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
                         SizedBox(
-                          width: 80,
-                          height: 80,
+                          width: 70,
+                          height: 70,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
@@ -126,8 +126,8 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                                 child: ExpandableProfileImage(
                                   imageUrl: data.profileImage,
                                   initials: data.initials,
-                                  size: 64,
-                                  initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 24, padding: const EdgeInsets.all(16))),
+                                  size: 56,
+                                  initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 20, padding: const EdgeInsets.all(12))),
                                 ),
                               ),
                               Positioned(
@@ -136,15 +136,15 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(5),
+                                    padding: const EdgeInsets.all(4),
                                     decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-                                    child: const Icon(Icons.camera_alt_outlined, size: 12, color: AppColors.primary),
+                                    child: const Icon(Icons.camera_alt_outlined, size: 10, color: AppColors.primary),
                                   ),
                                 ),
                               ),
                               Positioned(
                                 top: -5,
-                                right: -50,
+                                right: -60,
                                 child: _buildUpgradeBadge(data.isPremium ?? false),
                               ),
                             ],
@@ -158,7 +158,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                                if (data.ratingsAndReviews?.averageRating != null && data.ratingsAndReviews!.averageRating! >= 4.5) ...[
+                                if (data.isPremium == true || (data.ratingsAndReviews?.averageRating != null && data.ratingsAndReviews!.averageRating! >= 4.5)) ...[
                                   4.0.width,
                                   const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
                                 ],

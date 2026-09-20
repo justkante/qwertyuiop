@@ -117,8 +117,8 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             _buildPlanOption(
               'Pro',
               'For greater opportunities',
-              _isAnnual ? '₦30,000' : '₦3,000',
-              _isAnnual ? '/ year' : '/ month',
+              '₦3,000',
+              '/ month',
               [
                 'Higher profile visibility',
                 'Apply directly to job adverts',
@@ -133,8 +133,8 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             _buildPlanOption(
               'Pro+',
               'For serious growth',
-              _isAnnual ? '₦30,000' : '₦3,000', // Dummy for now, actual pricing logic would be better
-              _isAnnual ? '/ year' : '/ month',
+              '₦30,000',
+              '/ year',
               [
                 'Everything in Pro',
                 'Advanced insights',

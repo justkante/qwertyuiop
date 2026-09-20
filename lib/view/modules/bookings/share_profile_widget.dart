@@ -12,7 +12,6 @@ import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart' as snackbar;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ShareProfileWidget extends StatefulWidget {
   const ShareProfileWidget({
@@ -125,24 +124,23 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         ),
         24.0.height,
 
-        // Social Media Icons
+        // Social Media Icons - Using standard Icons for build reliability
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSocialIcon(FontAwesomeIcons.whatsapp, const Color(0xFF25D366), 'WhatsApp', () {
+            _buildSocialIcon(Icons.chat_bubble_outline, const Color(0xFF25D366), 'WhatsApp', () {
               AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
             }),
             20.0.width,
-            _buildSocialIcon(FontAwesomeIcons.instagram, const Color(0xFFE4405F), 'Instagram', () {
-               // Instagram usually needs direct link share
+            _buildSocialIcon(Icons.camera_alt_outlined, const Color(0xFFE4405F), 'Instagram', () {
                AppUtils.shareLink(profileUrl, context);
             }),
             20.0.width,
-            _buildSocialIcon(FontAwesomeIcons.xTwitter, Colors.black, 'X', () {
+            _buildSocialIcon(Icons.alternate_email, Colors.black, 'X', () {
                AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
             }),
             20.0.width,
-            _buildSocialIcon(FontAwesomeIcons.facebook, const Color(0xFF1877F2), 'Facebook', () {
+            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook', () {
                AppUtils.shareLink(profileUrl, context);
             }),
           ],
@@ -173,7 +171,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
               color: color.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: FaIcon(icon, color: color, size: 24),
+            child: Icon(icon, color: color, size: 24),
           ),
         ),
         4.0.height,

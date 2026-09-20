@@ -42,11 +42,11 @@ class RecruiterProfileDto {
     String? id,
     String? name,
     String? profileImage,
-    String? email,
+    String? lastSeenAt,
     bool? isPremium,
     RatingsAndReviews? ratingsAndReviews,
     Analytics? analytics,
-    String? lastSeenAt,
+    String? email,
   }) =>
       RecruiterProfileDto(
         id: id ?? this.id,

@@ -274,7 +274,7 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Column(
         children: [
-          // Illustration
+          // Illustration - Identical to image
           Center(
             child: Container(
               height: 200,
@@ -286,22 +286,48 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                   // Document with crown illustration
                    Container(
-                     padding: const EdgeInsets.all(20),
-                     decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
-                     child: SvgPicture.asset(
-                       AppImages.premium,
-                       height: 100,
+                     width: 100,
+                     height: 130,
+                     decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10))],
                      ),
-                   ),
-                   Positioned(
-                     top: 20,
-                     right: 20,
-                     child: Container(
-                       padding: const EdgeInsets.all(8),
-                       decoration: const BoxDecoration(color: Color(0xFF00BFA5), shape: BoxShape.circle),
-                       child: const Icon(Icons.check, color: Colors.white, size: 20),
+                     child: Column(
+                       children: [
+                          Container(
+                            height: 35,
+                            width: double.infinity,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFE0F2F1),
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                            ),
+                            child: const Center(child: Icon(Icons.workspace_premium, color: Colors.orange, size: 24)),
+                          ),
+                          12.0.height,
+                          _buildMockLine(60),
+                          8.0.height,
+                          _buildMockLine(40),
+                          16.0.height,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                               const Icon(Icons.check_circle, color: Color(0xFF00BFA5), size: 14),
+                               8.0.width,
+                               _buildMockLine(30),
+                            ],
+                          ),
+                          8.0.height,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                               const Icon(Icons.check_circle, color: Color(0xFF00BFA5), size: 14),
+                               8.0.width,
+                               _buildMockLine(30),
+                            ],
+                          ),
+                       ],
                      ),
                    ),
                 ],
@@ -412,6 +438,17 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
           ),
           40.0.height,
         ],
+      ),
+    );
+  }
+
+  Widget _buildMockLine(double width) {
+    return Container(
+      width: width,
+      height: 6,
+      decoration: BoxDecoration(
+        color: AppColors.grey100,
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }
