@@ -34,7 +34,22 @@ class MyRecruiterProfileView extends ConsumerStatefulWidget {
 class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView> with SingleTickerProviderStateMixin {
   late TabController tabController;
   bool openingGallery = false;
-  String selectedTimeframe = 'Last 30 days';
+  String selectedTimeframeValue = 'last_month';
+
+  String get selectedTimeframeDisplay {
+    switch (selectedTimeframeValue) {
+      case 'day':
+        return 'Current day';
+      case 'last_day':
+        return 'Last day';
+      case 'last_week':
+        return 'Last week';
+      case 'last_month':
+        return 'Last 30 days';
+      default:
+        return 'Last 30 days';
+    }
+  }
 
   @override
   void initState() {
@@ -54,7 +69,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
   }
 
   void _onShareProfile() {
-    ref.watch(fetchRecruiterProfileProvider(ref.watch(userControllerProvider).id ?? '')).whenData((profile) {
+    ref.watch(fetchRecruiterProfileProvider((ref.watch(userControllerProvider).id ?? '', null))).whenData((profile) {
       AppDialog.showAppDialog(
         context,
         widget: ShareProfileWidget(
@@ -77,7 +92,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
-    final myRecruiterProfile = ref.watch(fetchRecruiterProfileProvider(userData.id ?? ''));
+    final myRecruiterProfile = ref.watch(fetchRecruiterProfileProvider((userData.id ?? '', selectedTimeframeValue)));
 
     return OverlayLoadingIndicator(
       isLoading: openingGallery,
@@ -100,7 +115,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
         ),
         body: RefreshIndicator.adaptive(
           onRefresh: () async {
-            ref.invalidate(fetchRecruiterProfileProvider(userData.id ?? ''));
+            ref.invalidate(fetchRecruiterProfileProvider);
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -124,7 +139,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                               ExpandableProfileImage(
                                 imageUrl: data.profileImage,
                                 initials: data.initials,
-                                size: 70, // Reduced size and one circle
+                                size: 70, // One circle
                                 initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 24, padding: const EdgeInsets.all(12))),
                               ),
                               Positioned(
@@ -203,38 +218,6 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
     );
   }
 
-  Widget _buildUpgradeBadge(bool isPremium) {
-    return GestureDetector(
-      onTap: () => NavigationService.instance.push(const ManageSubscriptionView()),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(
-          color: isPremium ? const Color(0xFFE0F2F1) : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (isPremium)
-              SvgPicture.asset(AppImages.premiumBadge, height: 16)
-            else
-              const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 16),
-            4.0.width,
-            Text(
-              isPremium ? 'Premium' : 'Upgrade',
-              style: TextStyle(
-                color: isPremium ? AppColors.primary : const Color(0xFF1B3131),
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildSmallInfoChip(IconData icon, String text) {
     return Row(
       children: [
@@ -284,7 +267,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                 decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(20)),
                 child: Row(
                   children: [
-                    Text(selectedTimeframe, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
+                    Text(selectedTimeframeDisplay, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
                     4.0.width,
                     const Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.body),
                   ],
@@ -372,6 +355,66 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           12.0.height,
           const Text('No reviews yet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
           const Text('Complete bookings to receive reviews.', style: TextStyle(color: AppColors.body, fontSize: 11)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCompanyTab(dynamic data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Company Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary)),
+          ],
+        ),
+        16.0.height,
+        _buildInfoTile('Company Name', data.name ?? 'Not provided'),
+        12.0.height,
+        _buildInfoTile('Industry', 'Technology & Media'),
+        12.0.height,
+        _buildInfoTile('Company Bio', 'Creative agency looking for top talent across the globe.'),
+        12.0.height,
+        _buildInfoTile('Website', 'www.creatifyapp.com'),
+      ],
+    );
+  }
+
+  Widget _buildPreferencesTab(dynamic data) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Hiring Preferences', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary)),
+          ],
+        ),
+        16.0.height,
+        _buildInfoTile('Target Roles', 'UGC Creator, Video Editor, Script Writer'),
+        12.0.height,
+        _buildInfoTile('Preferred Regions', 'Nigeria, United Kingdom, USA'),
+        12.0.height,
+        _buildInfoTile('Budget Type', 'Flexible / Project-based'),
+      ],
+    );
+  }
+
+  Widget _buildInfoTile(String label, String value) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey100)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body, fontWeight: FontWeight.w500)),
+          4.0.height,
+          Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
         ],
       ),
     );

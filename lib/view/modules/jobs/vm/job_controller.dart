@@ -143,7 +143,7 @@ class JobController extends StateNotifier<JobState> {
     try {
       final response = await _apiService.getAppliedJobs();
       if (response.data['success']) {
-        final List<dynamic> data = response.data['data'];
+        final List<dynamic> data = response.data['data'] ?? [];
         state = state.copyWith(
           jobs: data.map((e) => JobDto.fromJson(e['job'])).toList(),
           isLoading: false,
@@ -161,7 +161,7 @@ class JobController extends StateNotifier<JobState> {
     try {
       final response = await _apiService.getMyListings();
       if (response.data['success']) {
-        final List<dynamic> data = response.data['data'];
+        final List<dynamic> data = response.data['data'] ?? [];
         state = state.copyWith(
           jobs: data.map((e) => JobDto.fromJson(e)).toList(),
           isLoading: false,
@@ -215,6 +215,13 @@ class JobController extends StateNotifier<JobState> {
   Future<String?> applyToJob(String jobId, Map<String, dynamic> data) async {
     state = state.copyWith(isLoading: true);
     try {
+      // Prevent applying to own job
+      final job = state.jobs.cast<JobDto?>().firstWhere((j) => j?.id == jobId, orElse: () => null);
+      if (job != null && job.userId == _ref.read(userControllerProvider).id) {
+        state = state.copyWith(isLoading: false);
+        return 'You cannot apply to your own job';
+      }
+
       final response = await _apiService.applyToJob(jobId, data);
       state = state.copyWith(isLoading: false);
       if (response.data != null && response.data is Map && response.data['success'] == true) {

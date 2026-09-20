@@ -98,6 +98,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
       }
     });
 
+    // Fetch jobs for home recommendations
+    ref.read(jobControllerProvider.notifier).fetchJobs();
+
     if (widget.showOnboardingSheet) {
       _openOnboarding();
     } else if (!SharedPrefManager.shownBiometricsSheet && ref.read(userControllerProvider).authStrategy == 'email') {
@@ -510,7 +513,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 240, // Increased breadth as requested
+      height: 250, // Increased breadth as requested
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -531,7 +534,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             bottom: 12,
             child: MainButton(
               text: 'Browse jobs',
-              width: 160, // Increased width
+              width: 180, // Increased width
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,
@@ -744,4 +747,3 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
-}

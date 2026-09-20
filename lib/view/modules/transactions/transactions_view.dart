@@ -92,8 +92,6 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text('Available Balance', style: TextStyle(color: AppColors.body, fontSize: 13, fontWeight: FontWeight.w500)),
-                          4.0.width,
-                          const Icon(Icons.info_outline, size: 14, color: AppColors.body),
                           12.0.width,
                           GestureDetector(
                             onTap: () => ref.read(balanceVisibleController.notifier).toggle(),

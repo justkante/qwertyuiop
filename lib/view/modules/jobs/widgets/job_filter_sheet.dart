@@ -98,73 +98,9 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildPriceBox('Min', _currentRangeValues.start),
-                _buildPriceBox('Max', _currentRangeValues.end),
-              ],
-            ),
-            24.0.height,
-
-            _buildSectionTitle('Location'),
-            12.0.height,
-            InkWell(
-              onTap: () {
-                AppBottomSheet.showBottomSheet(
-                  context,
-                  widget: GetCountriesSheet(
-                    onCountrySelected: (country) => setState(() => _selectedCountry = country),
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(_selectedCountry?.name ?? 'Anywhere', style: const TextStyle(fontSize: 13)),
-                    const Icon(Icons.location_on_outlined, color: AppColors.body, size: 18),
-                  ],
-                ),
-              ),
-            ),
-            32.0.height,
-
-            Row(
-              children: [
-                Expanded(
-                  child: MainButton(
-                    text: 'Reset',
-                    color: AppColors.grey100,
-                    textColor: AppColors.black2,
-                    onPressed: () {
-                      setState(() {
-                        _currentRangeValues = const RangeValues(1000, 50000);
-                        _selectedCategories.clear();
-                        _selectedCountry = null;
-                      });
-                    },
-                  ),
-                ),
-                16.0.width,
-                Expanded(
-                  child: MainButton(
-                    text: 'Apply Filters',
-                    onPressed: () {
-                      ref.read(jobControllerProvider.notifier).fetchJobs(filters: {
-                        if (_selectedCategories.isNotEmpty) 'category_id': _selectedCategories.first,
-                        'min_price': _currentRangeValues.start,
-                        'max_price': _currentRangeValues.end,
-                        if (_selectedCountry != null) 'location': _selectedCountry!.name,
-                      });
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            24.0.height,
-          ],
-        ),
+          _buildPriceBox('Min', _currentRangeValues.start),
+          _buildPriceBox('Max', _currentRangeValues.end),
+        ],
       ),
     );
   }
@@ -174,6 +110,7 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
   }
 
   Widget _buildPriceBox(String label, double value) {
+    final currency = ref.watch(userControllerProvider).primaryCurrency ?? 'NGN';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -183,7 +120,7 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
           width: MediaQuery.sizeOf(context).width * 0.4,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(10)),
-          child: Text(value.amountWithCurrency('NGN'), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          child: Text(value.amountWithCurrency(currency), style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
         ),
       ],
     );

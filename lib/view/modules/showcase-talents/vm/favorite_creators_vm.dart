@@ -15,18 +15,7 @@ class AddToFavoriteCreatorsNotifier extends AutoDisposeAsyncNotifier<String> {
 
     if (!state.hasError) {
       ref.invalidate(fetchFavoriteCreatorsProvider);
-      if (ref.watch(hasSearchFiltersProvider)) {
-        ref.read(filterCreatorsProvider.notifier).filterCreators(
-              location: locationNotifier.value?.id,
-              priceMin: minPriceNotifier.value,
-              priceMax: maxPriceNotifier.value,
-              category: categoriesNotifier.value
-                  .map((e) => e.removeSpace().removeSlash().toLowerCase())
-                  .join('|'),
-            );
-      } else {
-        ref.invalidate(filterCreatorsProvider);
-      }
+      ref.read(filterCreatorsProvider.notifier).filterCreators();
     }
   }
 
@@ -51,18 +40,7 @@ class RemoveFromFavoriteCreatorsNotifier extends AutoDisposeAsyncNotifier<String
 
     if (!state.hasError) {
       ref.invalidate(fetchFavoriteCreatorsProvider);
-      if (ref.watch(hasSearchFiltersProvider)) {
-        ref.read(filterCreatorsProvider.notifier).filterCreators(
-              location: locationNotifier.value?.id,
-              priceMin: minPriceNotifier.value,
-              priceMax: maxPriceNotifier.value,
-              category: categoriesNotifier.value
-                  .map((e) => e.removeSpace().removeSlash().toLowerCase())
-                  .join('|'),
-            );
-      } else {
-        ref.invalidate(filterCreatorsProvider);
-      }
+      ref.read(filterCreatorsProvider.notifier).filterCreators();
     }
   }
 

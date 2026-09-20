@@ -2,17 +2,15 @@ import 'package:creatify_mobile/core/deeplinking/deeplink_provider.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
-import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_card.dart';
 import 'package:creatify_mobile/view/modules/home/notifications_view.dart';
-import 'package:creatify_mobile/view/modules/home/search_preferences_sheet.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/search-talents/talent_filter_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/favorite_creators_vm.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart' as filter_vm;
 import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -20,10 +18,7 @@ import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
-import 'package:creatify_mobile/view/widgets/snackbar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final recommendedDismissedProvider = StateProvider<bool>((ref) => false);
@@ -39,7 +34,6 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
   final searchController = TextEditingController();
 
   String _searchQuery = '';
-  String creatorId = '';
 
   void _onSearchChanged() {
     setState(() {
@@ -47,22 +41,9 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
     });
   }
 
-  void _openCreatorFromDeepLink(List<CreatorProfileDto> creators, String profileId) {
-    if (ref.read(pendingDeepLinkProvider) != profileId) return;
-    ref.read(pendingDeepLinkProvider.notifier).state = null;
-
-    final creator = creators.cast<CreatorProfileDto?>().firstWhere(
-          (c) => c?.profileId == profileId,
-          orElse: () => null,
-        );
-
-    if (creator == null || creator.id == null) return;
-    NavigationService.instance.push(CreatorProfileView(profile: creator));
-  }
-
   void clearFilters() {
     ref.read(hasSearchFiltersProvider.notifier).state = false;
-    ref.read(filterCreatorsProvider.notifier).filterCreators();
+    ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators();
     searchController.clear();
   }
 
@@ -82,8 +63,8 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
-    final creators = ref.watch(filterCreatorsProvider);
-    final recommendedCreators = ref.watch(getRecommendedCreatorsProvider);
+    final creators = ref.watch(filter_vm.filterCreatorsProvider);
+    final recommendedCreators = ref.watch(filter_vm.getRecommendedCreatorsProvider);
     final hasUnreadNotifications = ref.watch(fetchNotificationsProvider).hasValue &&
         ((ref.watch(fetchNotificationsProvider).value?.unreadCount ?? 0) > 0);
 
@@ -176,6 +157,9 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
                       ),
                       child: TextFormField(
                         controller: searchController,
+                        onFieldSubmitted: (val) {
+                           ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
+                        },
                         decoration: InputDecoration(
                           hintText: 'Search name, skill, or keyword...',
                           hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
@@ -187,32 +171,37 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
                     ),
                   ),
                   12.0.width,
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.grey300),
-                      borderRadius: BorderRadius.circular(12),
+                  InkWell(
+                    onTap: () {
+                       AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.grey300),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.tune, color: Colors.black, size: 20),
                     ),
-                    child: const Icon(Icons.tune, color: Colors.black, size: 20),
                   ),
                 ],
               ),
               16.0.height,
 
-              // Filter Chips
+              // Filter Chips - Wired to open sheet
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildFilterChip('Role'),
+                    _buildFilterChip('Role', () => AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet())),
                     8.0.width,
-                    _buildFilterChip('Location'),
+                    _buildFilterChip('Location', () => AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet())),
                     8.0.width,
-                    _buildFilterChip('Budget'),
+                    _buildFilterChip('Budget', () => AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet())),
                     8.0.width,
-                    _buildFilterChip('Rating'),
+                    _buildFilterChip('Rating', () => AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet())),
                     8.0.width,
-                    _buildFilterChip('Availability'),
+                    _buildFilterChip('Availability', () => AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet())),
                   ],
                 ),
               ),

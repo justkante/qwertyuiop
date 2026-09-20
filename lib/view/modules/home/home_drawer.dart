@@ -258,7 +258,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       },
                     ),
                     DrawerMenuItem(
-                    icon: AppImages.info,
+                    icon: AppImages.personSupport,
                     title: 'Contact Support',
                     onTap: () {
                       NavigationService.instance.push(const SupportView());

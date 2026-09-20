@@ -206,8 +206,10 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                 isLoading: ref.watch(makeSubscriptionPaymentProvider).isLoading,
                 onPressed: _selectedTier == 'Free' ? null : () {
                    final plans = ref.read(fetchSubscriptionPlansProvider).value ?? [];
+                   final targetInterval = _isAnnual ? 'annually' : 'monthly';
                    final plan = plans.firstWhere(
-                     (p) => p.name?.toLowerCase() == _selectedTier.toLowerCase().replaceAll('+', '').trim(),
+                     (p) => p.name?.toLowerCase() == _selectedTier.toLowerCase().replaceAll('+', '').trim() &&
+                            p.interval?.toLowerCase() == targetInterval,
                      orElse: () => plans.isNotEmpty ? plans.first : SubscriptionsPlanDto(),
                    );
                    if (plan.id != null) {
@@ -215,6 +217,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                    }
                 },
               ),
+            ),
             // Footer
             16.0.height,
             Center(
