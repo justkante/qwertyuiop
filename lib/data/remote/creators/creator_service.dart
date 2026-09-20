@@ -95,9 +95,12 @@ class CreatorService {
     try {
       final response = await _networkService.request(
         endpoints.editProfileImage,
-        RequestMethod.post,
+        RequestMethod.upload,
         data: FormData.fromMap({
-          'profile_image': await MultipartFile.fromFile(filePath),
+          'profile_image': await MultipartFile.fromFile(
+            filePath,
+            filename: filePath.split('/').last,
+          ),
         }),
       );
 

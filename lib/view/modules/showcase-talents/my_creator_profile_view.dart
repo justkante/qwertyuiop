@@ -57,6 +57,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   bool dashboardLoading = false;
   bool _tourStarted = false;
   late final ShowcaseView _showcaseView;
+  String selectedTimeframe = 'Last 30 days';
 
   @override
   void initState() {
@@ -243,8 +244,8 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
                         SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 80,
+                          height: 80,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
@@ -258,12 +259,12 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                                 child: ExpandableProfileImage(
                                   imageUrl: data.profileImage,
                                   initials: data.initials,
-                                  size: 56,
+                                  size: 60,
                                   initialsFallback: Center(
                                     child: InitialAvatar(
                                       initials: data.initials,
                                       padding: const EdgeInsets.all(12),
-                                      size: 20,
+                                      size: 24,
                                     ),
                                   ),
                                 ),
@@ -274,7 +275,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
+                                    padding: const EdgeInsets.all(5),
                                     decoration: const BoxDecoration(
                                       color: Colors.white,
                                       shape: BoxShape.circle,
@@ -286,7 +287,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                               ),
                               Positioned(
                                 top: -5,
-                                right: -60,
+                                right: -50,
                                 child: _buildUpgradeBadge(data),
                               ),
                             ],
@@ -525,13 +526,22 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
           children: [
             const Text('Creator Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             PopupMenuButton<String>(
-              onSelected: (val) {},
+              onSelected: (val) {
+                 setState(() {
+                    switch(val) {
+                       case 'day': selectedTimeframe = 'Current day'; break;
+                       case 'last_day': selectedTimeframe = 'Last day'; break;
+                       case 'last_week': selectedTimeframe = 'Last week'; break;
+                       case 'last_month': selectedTimeframe = 'Last 30 days'; break;
+                    }
+                 });
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(20)),
                 child: Row(
                   children: [
-                    const Text('Last 30 days', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
+                    Text(selectedTimeframe, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
                     4.0.width,
                     const Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.body),
                   ],

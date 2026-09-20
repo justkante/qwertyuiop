@@ -70,39 +70,12 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
     super.dispose();
   }
 
-  void _showProfileMenu() {
-    final menuItems = CreatorMenuController.createDefaultMenuItems(
-      reportAccount: () {
-        final userData = ref.watch(userControllerProvider);
-
-        if (userData.id == null) {
-          AppBottomSheet.showBottomSheet(
-            context,
-            widget: const LoginSheet(),
-          );
-        } else {
-          AppBottomSheet.showBottomSheet(
-            context,
-            widget: ReportCreatorAccountSheet(
-              userId: widget.profile?.id,
-            ),
-          );
-        }
-      },
-      shareProfile: () {
-        AppDialog.showAppDialog(
-          context,
-          widget: ShareProfileWidget(
-            profile: widget.profile,
-          ),
-        );
-      },
-    );
-
-    CreatorMenuController.showProfileMenu(
-      context: context,
-      buttonKey: _menuButtonKey,
-      menuItems: menuItems,
+  void _onShareProfile() {
+    AppDialog.showAppDialog(
+      context,
+      widget: ShareProfileWidget(
+        profile: widget.profile,
+      ),
     );
   }
 
@@ -157,9 +130,8 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
           ),
           actions: [
             IconButton(
-              key: _menuButtonKey,
-              icon: const Icon(Icons.more_vert, color: AppColors.icons),
-              onPressed: _showProfileMenu,
+              icon: const Icon(Icons.share_outlined, color: AppColors.icons),
+              onPressed: _onShareProfile,
             ),
           ],
         ),
@@ -172,32 +144,32 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                Center(
                  child: Stack(
                    clipBehavior: Clip.none,
-                   alignment: Alignment.topRight,
+                   alignment: Alignment.center,
                    children: [
                      Container(
-                       padding: const EdgeInsets.all(4),
+                       padding: const EdgeInsets.all(2),
                        decoration: BoxDecoration(
                          shape: BoxShape.circle,
-                         border: Border.all(color: AppColors.primary, width: 2),
+                         border: Border.all(color: AppColors.primary, width: 1.5),
                        ),
                        child: ExpandableProfileImage(
                          imageUrl: widget.profile?.profileImage,
                          initials: widget.profile?.initials ?? '',
-                         size: 100,
+                         size: 60,
                          initialsFallback: Center(
                            child: InitialAvatar(
                              initials: widget.profile?.initials ?? '',
-                             padding: const EdgeInsets.all(24),
-                             size: 32,
+                             padding: const EdgeInsets.all(12),
+                             size: 24,
                            ),
                          ),
                        ),
                      ),
                      if (widget.profile?.isPremium == true)
                         Positioned(
-                          top: 0,
-                          right: 0,
-                          child: SvgPicture.asset(AppImages.premiumBadge, height: 32),
+                          top: -5,
+                          right: -50,
+                          child: _buildBadge(),
                         ),
                    ],
                  ),
@@ -582,7 +554,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
               ),
               16.0.height,
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center, // Centered align rating summary
                 children: [
                   // Ratings Summary
                   RatingSummary(
@@ -737,5 +709,31 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
         ),
       ),
     );
+  }
+
+  Widget _buildBadge() {
+    return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE0F2F1),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(AppImages.premiumBadge, height: 16),
+            4.0.width,
+            const Text(
+              'Premium',
+              style: TextStyle(
+                color: AppColors.primary,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      );
   }
 }

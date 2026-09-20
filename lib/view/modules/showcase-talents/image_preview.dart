@@ -82,7 +82,7 @@ class _ImagePreviewScreenState extends ConsumerState<ImagePreviewScreen> {
         ToastDialog.showSuccess('Profile Image Updated', context);
       }
       if (value is AsyncError) {
-        ToastDialog.showError('Failed to Update Profile Image', context);
+        ToastDialog.showError(value.error.toString(), context);
       }
     });
 

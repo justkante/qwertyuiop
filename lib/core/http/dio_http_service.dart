@@ -137,19 +137,13 @@ class NetworkService implements HttpService {
           );
           break;
         case RequestMethod.upload:
-          response = await _dio.post(path,
-              data: formData,
-              queryParameters: queryParams,
-              options: options ??
-                  Options(
-                    headers: {
-                      "Authorization": "Bearer Your Token here ",
-                      "Content-Disposition": "form-data",
-                      "Content-Type": "multipart/form-data",
-                      'Accept': 'application/json'
-                    },
-                  ),
-              onSendProgress: (sent, total) {});
+          response = await _dio.post(
+            path,
+            data: formData ?? data,
+            queryParameters: queryParams,
+            options: options,
+            onSendProgress: (sent, total) {},
+          );
           break;
         case RequestMethod.patch:
           response = await _dio.patch(path, queryParameters: queryParams, data: data);

@@ -34,6 +34,7 @@ class MyRecruiterProfileView extends ConsumerStatefulWidget {
 class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView> with SingleTickerProviderStateMixin {
   late TabController tabController;
   bool openingGallery = false;
+  String selectedTimeframe = 'Last 30 days';
 
   @override
   void initState() {
@@ -280,13 +281,22 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           children: [
             const Text('Recruiter Metrics', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
             PopupMenuButton<String>(
-              onSelected: (val) {},
+              onSelected: (val) {
+                 setState(() {
+                    switch(val) {
+                       case 'day': selectedTimeframe = 'Current day'; break;
+                       case 'last_day': selectedTimeframe = 'Last day'; break;
+                       case 'last_week': selectedTimeframe = 'Last week'; break;
+                       case 'last_month': selectedTimeframe = 'Last 30 days'; break;
+                    }
+                 });
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(20)),
                 child: Row(
                   children: [
-                    const Text('Last 30 days', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
+                    Text(selectedTimeframe, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
                     4.0.width,
                     const Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.body),
                   ],
