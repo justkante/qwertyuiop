@@ -6,6 +6,7 @@ import 'package:creatify_mobile/view/modules/bookings/creator_profile_view.dart'
 import 'package:creatify_mobile/view/modules/home/rating/star_rating.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
+import 'package:creatify_mobile/view/modules/bookings/draft_bookings_view.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -184,10 +185,10 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.flash_on, color: Color(0xFF00BFA5), size: 14),
+                            const Icon(Icons.access_time, color: Color(0xFF00BFA5), size: 14),
                             4.0.width,
                             Text(
-                              'Responds in 2h', // Mock data to match image
+                              'Last active: ${widget.profile?.lastSeenAt ?? 'Just now'}',
                               style: const TextStyle(color: Color(0xFF00BFA5), fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -223,13 +224,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                   flex: 2,
                   child: OutlinedButton(
                     onPressed: () {
-                       if (widget.profile != null) {
-                         NavigationService.instance.push(
-                           BookCreatorView(
-                             creatorProfile: widget.profile!,
-                           ),
-                         );
-                       }
+                       NavigationService.instance.push(const DraftBookingsView());
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.primary),

@@ -7,6 +7,7 @@ import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/choose_plan_view.dart';
 
 class ComparePlansView extends ConsumerWidget {
   const ComparePlansView({super.key});
@@ -66,35 +67,27 @@ class ComparePlansView extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // Placeholder for the 3D illustration
+                  // Illustration
                   SizedBox(
                     width: 100,
                     height: 100,
                     child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        Positioned(
-                          right: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFC8E6C9),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(Icons.star, color: Colors.orange, size: 32),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 10,
-                          left: 10,
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFA7FFEB),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Icon(Icons.workspace_premium, color: Color(0xFF00796B), size: 40),
-                          ),
-                        ),
+                         Container(
+                           padding: const EdgeInsets.all(12),
+                           decoration: const BoxDecoration(color: Color(0xFFE0F2F1), shape: BoxShape.circle),
+                           child: const Icon(Icons.workspace_premium, color: Color(0xFF00BFA5), size: 48),
+                         ),
+                         Positioned(
+                           top: 5,
+                           right: 5,
+                           child: Container(
+                             padding: const EdgeInsets.all(4),
+                             decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
+                             child: const Icon(Icons.star, color: Colors.orange, size: 20),
+                           ),
+                         ),
                       ],
                     ),
                   ),
@@ -107,6 +100,7 @@ class ComparePlansView extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Expanded(flex: 3, child: SizedBox()),
                   _buildPlanHeader(
@@ -117,15 +111,30 @@ class ComparePlansView extends ConsumerWidget {
                     'forever',
                     'Current Plan',
                     isCurrent: true,
+                    onTap: () {},
                   ),
                   _buildPlanHeader(
                     context,
                     'Pro',
-                    'For serious growth',
-                    _getFormattedPrice(userData),
+                    'For greater opportunities',
+                    '₦3,000',
                     '/ month',
                     'Choose Plan',
                     isPopular: true,
+                    onTap: () {
+                       NavigationService.instance.push(const ChoosePlanView(initialIsAnnual: false));
+                    },
+                  ),
+                  _buildPlanHeader(
+                    context,
+                    'Pro+',
+                    'For serious growth',
+                    '₦30,000',
+                    '/ year',
+                    'Choose Plan',
+                    onTap: () {
+                       NavigationService.instance.push(const ChoosePlanView(initialIsAnnual: true));
+                    },
                   ),
                 ],
               ),
@@ -134,27 +143,29 @@ class ComparePlansView extends ConsumerWidget {
 
             // Features List
             _buildSectionHeader('PROFILE & VISIBILITY'),
-            _buildFeatureRow('Create a profile', true, true),
-            _buildFeatureRow('Showcase your work', true, true),
-            _buildFeatureRow('Higher profile visibility', true, true),
+            _buildFeatureRow('Create a profile', true, true, true),
+            _buildFeatureRow('Showcase your work', true, true, true),
+            _buildFeatureRow('Higher profile visibility', false, true, true),
 
             _buildSectionHeader('JOBS & OPPORTUNITIES'),
-            _buildFeatureRow('Browse and apply for jobs', true, true),
-            _buildFeatureRow('Post job adverts (Recruiters)', true, true),
-            _buildFeatureRow('Apply directly to job adverts', true, true),
-            _buildFeatureRow('Job alerts', true, true),
+            _buildFeatureRow('Browse and apply for jobs', true, true, true),
+            _buildFeatureRow('Post job adverts (Recruiters)', false, true, true),
+            _buildFeatureRow('Apply directly to job adverts', true, true, true),
+            _buildFeatureRow('Job alerts', false, true, true),
 
             _buildSectionHeader('TOOLS & SUPPORT'),
-            _buildFeatureRow('Priority support', false, true),
-            _buildFeatureRow('Advanced insights\n(e.g. profile views, applications)', false, true),
-            _buildFeatureRow('Early access to new features', false, true),
+            _buildFeatureRow('Priority support', false, false, true),
+            _buildFeatureRow('Advanced insights\n(e.g. profile views, applications)', false, false, true),
+            _buildFeatureRow('Early access to new features', false, false, true),
 
             32.0.height,
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: MainButton(
                 text: 'Choose a Plan',
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () {
+                   NavigationService.instance.push(const ChoosePlanView());
+                },
               ),
             ),
             24.0.height,
@@ -195,6 +206,7 @@ class ComparePlansView extends ConsumerWidget {
     String buttonText, {
     bool isCurrent = false,
     bool isPopular = false,
+    required VoidCallback onTap,
   }) {
     return Expanded(
       flex: 2,
@@ -215,24 +227,29 @@ class ComparePlansView extends ConsumerWidget {
           else
             const SizedBox(height: 12),
           4.0.height,
-          Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-          Text(subtitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 9, color: AppColors.body)),
+          Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(subtitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, color: AppColors.body)),
+          8.0.height,
+          Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Inter')),
+          Text(period, style: const TextStyle(fontSize: 8, color: AppColors.body)),
           12.0.height,
-          Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, fontFamily: 'Inter')),
-          Text(period, style: const TextStyle(fontSize: 9, color: AppColors.body)),
-          12.0.height,
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isCurrent ? AppColors.grey200 : const Color(0xFF00796B)),
-            ),
-            child: Text(
-              buttonText,
-              style: TextStyle(
-                color: isCurrent ? AppColors.body : const Color(0xFF00796B),
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
+          InkWell(
+            onTap: isCurrent ? null : onTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: isCurrent ? AppColors.grey200 : const Color(0xFF00796B)),
+              ),
+              child: Text(
+                buttonText,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: isCurrent ? AppColors.body : const Color(0xFF00796B),
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -257,7 +274,7 @@ class ComparePlansView extends ConsumerWidget {
     );
   }
 
-  Widget _buildFeatureRow(String feature, bool freeCheck, bool proCheck) {
+  Widget _buildFeatureRow(String feature, bool freeCheck, bool proCheck, bool proPlusCheck) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       decoration: const BoxDecoration(
@@ -269,49 +286,25 @@ class ComparePlansView extends ConsumerWidget {
             flex: 3,
             child: Text(
               feature,
-              style: const TextStyle(fontSize: 11, color: Colors.black87, height: 1.3),
+              style: const TextStyle(fontSize: 10, color: Colors.black87, height: 1.3),
             ),
           ),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: freeCheck
-                  ? const Icon(Icons.check_circle, color: Color(0xFF00796B), size: 18)
-                  : const Text('—', style: TextStyle(color: AppColors.body)),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: proCheck
-                  ? const Icon(Icons.check_circle, color: Color(0xFF00796B), size: 18)
-                  : const Text('—', style: TextStyle(color: AppColors.body)),
-            ),
-          ),
+          _buildCheckIcon(freeCheck),
+          _buildCheckIcon(proCheck),
+          _buildCheckIcon(proPlusCheck),
         ],
       ),
     );
   }
 
-  String _getFormattedPrice(dynamic userData) {
-    final String currency = (userData.primaryCurrency ?? 'NGN').toUpperCase();
-    final String country = (userData.countryCode ?? 'NG').toUpperCase();
-
-    double monthlyPrice;
-
-    if (country == 'NG' || currency == 'NGN') {
-      monthlyPrice = 10000;
-    } else if (country == 'GB' || currency == 'GBP') {
-      monthlyPrice = 9.99;
-    } else {
-      final rates = {
-        'USD': 1.27, 'EUR': 1.18, 'CAD': 1.74, 'AUD': 1.91, 'BRL': 6.50,
-        'AED': 4.66, 'SGD': 1.71, 'GHS': 18.5, 'KES': 165.0, 'ZAR': 23.5,
-      };
-      final rate = rates[currency] ?? 1.27;
-      monthlyPrice = 9.99 * rate;
-    }
-
-    return monthlyPrice.amountWithCurrency(currency);
+  Widget _buildCheckIcon(bool checked) {
+    return Expanded(
+      flex: 2,
+      child: Center(
+        child: checked
+            ? const Icon(Icons.check_circle, color: Color(0xFF00796B), size: 16)
+            : const Text('—', style: TextStyle(color: AppColors.body, fontSize: 10)),
+      ),
+    );
   }
 }

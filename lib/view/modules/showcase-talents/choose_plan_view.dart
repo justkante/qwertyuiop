@@ -116,21 +116,34 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             16.0.height,
             _buildPlanOption(
               'Pro',
-              'For serious growth',
-              _getFormattedPrice(userData),
+              'For greater opportunities',
+              _isAnnual ? '₦30,000' : '₦3,000',
               _isAnnual ? '/ year' : '/ month',
               [
                 'Higher profile visibility',
                 'Apply directly to job adverts',
                 'Job alerts',
                 'Post job adverts (Recruiters)',
-                'Advanced insights',
-                'Priority support',
-                'And more...'
+                'Priority support'
               ],
               tier: 'Pro',
-              isPopular: true,
-              showDiscount: _isAnnual,
+              isPopular: !_isAnnual,
+            ),
+            16.0.height,
+            _buildPlanOption(
+              'Pro+',
+              'For serious growth',
+              _isAnnual ? '₦30,000' : '₦3,000', // Dummy for now, actual pricing logic would be better
+              _isAnnual ? '/ year' : '/ month',
+              [
+                'Everything in Pro',
+                'Advanced insights',
+                'Early access to features',
+                'Priority ranking',
+                'Custom profile link'
+              ],
+              tier: 'Pro+',
+              isPopular: _isAnnual,
             ),
             24.0.height,
 
@@ -192,7 +205,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
               child: MainButton(
                 text: 'Subscribe to $_selectedTier',
                 onPressed: _selectedTier == 'Free' ? null : () {
-                  // Handle subscription
+                  // Handle subscription logic
                 },
               ),
             ),
@@ -260,7 +273,6 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
     List<String> features, {
     required String tier,
     bool isPopular = false,
-    bool showDiscount = false,
   }) {
     final isSelected = _selectedTier == tier;
 
@@ -294,17 +306,6 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                         16.0.height,
                         Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter')),
                         Text(period, style: const TextStyle(fontSize: 12, color: AppColors.body)),
-                        if (showDiscount) ...[
-                          8.0.height,
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE0F2F1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text('Save 17%', style: TextStyle(color: Color(0xFF00796B), fontSize: 10, fontWeight: FontWeight.bold)),
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -392,28 +393,5 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
         ),
       ),
     );
-  }
-
-  String _getFormattedPrice(dynamic userData) {
-    final String currency = (userData.primaryCurrency ?? 'NGN').toUpperCase();
-    final String country = (userData.countryCode ?? 'NG').toUpperCase();
-
-    double monthlyPrice;
-
-    if (country == 'NG' || currency == 'NGN') {
-      monthlyPrice = 10000;
-    } else if (country == 'GB' || currency == 'GBP') {
-      monthlyPrice = 9.99;
-    } else {
-      final rates = {
-        'USD': 1.27, 'EUR': 1.18, 'CAD': 1.74, 'AUD': 1.91, 'BRL': 6.50,
-        'AED': 4.66, 'SGD': 1.71, 'GHS': 18.5, 'KES': 165.0, 'ZAR': 23.5,
-      };
-      final rate = rates[currency] ?? 1.27;
-      monthlyPrice = 9.99 * rate;
-    }
-
-    final price = _isAnnual ? monthlyPrice * 10 : monthlyPrice;
-    return price.amountWithCurrency(currency);
   }
 }

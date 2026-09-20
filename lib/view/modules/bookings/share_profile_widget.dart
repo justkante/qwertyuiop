@@ -12,6 +12,7 @@ import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart' as snackbar;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ShareProfileWidget extends StatefulWidget {
   const ShareProfileWidget({
@@ -30,6 +31,8 @@ class ShareProfileWidget extends StatefulWidget {
 class _ShareProfileWidgetState extends State<ShareProfileWidget> {
   @override
   Widget build(BuildContext context) {
+    final profileUrl = 'https://creatifyapp.com/profile/${widget.profile?.profileId ?? widget.profile?.id}';
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -66,7 +69,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                widget.profile?.name ?? "Akomolafe Kindness",
+                widget.profile?.name ?? "User",
                 textAlign: TextAlign.center,
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: Colors.black,
@@ -118,24 +121,63 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
 
         // Link and Copy Button
         ProfileIdWidget(
-          profileId: 'https://creatifyapp.com/profile/${widget.profile?.profileId}',
+          profileId: profileUrl,
         ),
         24.0.height,
+
+        // Social Media Icons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSocialIcon(FontAwesomeIcons.whatsapp, const Color(0xFF25D366), 'WhatsApp', () {
+              AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+            }),
+            20.0.width,
+            _buildSocialIcon(FontAwesomeIcons.instagram, const Color(0xFFE4405F), 'Instagram', () {
+               // Instagram usually needs direct link share
+               AppUtils.shareLink(profileUrl, context);
+            }),
+            20.0.width,
+            _buildSocialIcon(FontAwesomeIcons.xTwitter, Colors.black, 'X', () {
+               AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+            }),
+            20.0.width,
+            _buildSocialIcon(FontAwesomeIcons.facebook, const Color(0xFF1877F2), 'Facebook', () {
+               AppUtils.shareLink(profileUrl, context);
+            }),
+          ],
+        ),
+        32.0.height,
 
         // Share Button
         MainButton(
           text: 'Share',
           padding: const EdgeInsets.symmetric(vertical: 12),
           onPressed: () async {
-            if (widget.profile?.profileId != null) {
-              final link = 'https://creatifyapp.com/profile/${widget.profile?.profileId}';
-              final message = "Check out ${widget.profile?.name}'s profile on Creatify: $link";
-              await AppUtils.shareLink(message, context);
-            } else {
-              snackbar.ToastDialog.showError('Profile link not available', context);
-            }
+             final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
+             await AppUtils.shareLink(message, context);
           },
         ),
+      ],
+    );
+  }
+
+  Widget _buildSocialIcon(IconData icon, Color color, String label, VoidCallback onTap) {
+    return Column(
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: FaIcon(icon, color: color, size: 24),
+          ),
+        ),
+        4.0.height,
+        Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body)),
       ],
     );
   }

@@ -1,13 +1,9 @@
-// To parse this JSON data, do
-//
-//     final creatorProfileDto = creatorProfileDtoFromJson(jsonString);
-
 import 'dart:convert';
 
-RecruiterProfileDto creatorProfileDtoFromJson(String str) =>
+RecruiterProfileDto recruiterProfileDtoFromJson(String str) =>
     RecruiterProfileDto.fromJson(json.decode(str));
 
-String creatorProfileDtoToJson(RecruiterProfileDto data) => json.encode(data.toJson());
+String recruiterProfileDtoToJson(RecruiterProfileDto data) => json.encode(data.toJson());
 
 class RecruiterProfileDto {
   final String? id;
@@ -15,6 +11,7 @@ class RecruiterProfileDto {
   final String? email;
   final String? profileImage;
   final String? lastSeenAt;
+  final bool? isPremium;
   final RatingsAndReviews? ratingsAndReviews;
   final Analytics? analytics;
 
@@ -26,6 +23,7 @@ class RecruiterProfileDto {
     this.ratingsAndReviews,
     this.lastSeenAt,
     this.analytics,
+    this.isPremium,
   });
 
   String get initials {
@@ -45,6 +43,7 @@ class RecruiterProfileDto {
     String? name,
     String? profileImage,
     String? email,
+    bool? isPremium,
     RatingsAndReviews? ratingsAndReviews,
     Analytics? analytics,
     String? lastSeenAt,
@@ -54,6 +53,7 @@ class RecruiterProfileDto {
         name: name ?? this.name,
         profileImage: profileImage ?? this.profileImage,
         email: email ?? this.email,
+        isPremium: isPremium ?? this.isPremium,
         ratingsAndReviews: ratingsAndReviews ?? this.ratingsAndReviews,
         analytics: analytics ?? this.analytics,
         lastSeenAt: lastSeenAt ?? this.lastSeenAt,
@@ -64,6 +64,7 @@ class RecruiterProfileDto {
         name: json["name"],
         email: json["email"],
         profileImage: json["profile_image"],
+        isPremium: json["is_premium"],
         ratingsAndReviews:
             json["reviews"] == null ? null : RatingsAndReviews.fromJson(json["reviews"]),
         analytics: json["analytics"] == null ? null : Analytics.fromJson(json["analytics"]),
@@ -75,6 +76,7 @@ class RecruiterProfileDto {
         "name": name,
         "email": email,
         "profile_image": profileImage,
+        "is_premium": isPremium,
         "reviews": ratingsAndReviews?.toJson(),
         "analytics": analytics?.toJson(),
         "last_seen_at": lastSeenAt,

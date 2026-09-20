@@ -286,10 +286,23 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                   // Placeholder for the 3D illustration
-                   SvgPicture.asset(
-                     AppImages.almostThere,
-                     height: 140,
+                   // Document with crown illustration
+                   Container(
+                     padding: const EdgeInsets.all(20),
+                     decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)]),
+                     child: SvgPicture.asset(
+                       AppImages.premium,
+                       height: 100,
+                     ),
+                   ),
+                   Positioned(
+                     top: 20,
+                     right: 20,
+                     child: Container(
+                       padding: const EdgeInsets.all(8),
+                       decoration: const BoxDecoration(color: Color(0xFF00BFA5), shape: BoxShape.circle),
+                       child: const Icon(Icons.check, color: Colors.white, size: 20),
+                     ),
                    ),
                 ],
               ),

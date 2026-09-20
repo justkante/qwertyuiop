@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:creatify_mobile/core/di/injector.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

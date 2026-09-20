@@ -57,9 +57,6 @@ class _DraftBookingsViewState extends ConsumerState<DraftBookingsView> {
         ),
         title: const Text('Draft Bookings', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
         centerTitle: true,
-        actions: [
-          IconButton(icon: const Icon(Icons.more_vert, color: Colors.black), onPressed: () {}),
-        ],
       ),
       body: Column(
         children: [
