@@ -57,7 +57,22 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   bool dashboardLoading = false;
   bool _tourStarted = false;
   late final ShowcaseView _showcaseView;
-  String selectedTimeframe = 'Last 30 days';
+  String selectedTimeframeValue = 'last_month';
+
+  String get selectedTimeframeDisplay {
+    switch (selectedTimeframeValue) {
+      case 'day':
+        return 'Current day';
+      case 'last_day':
+        return 'Last day';
+      case 'last_week':
+        return 'Last week';
+      case 'last_month':
+        return 'Last 30 days';
+      default:
+        return 'Last 30 days';
+    }
+  }
 
   @override
   void initState() {
@@ -148,7 +163,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
     NavigationService.instance.push(
       UpdateRatesCardSheet(
         exisitingNiches: ref
-            .read(fetchCreatorProfileProvider(ref.read(userControllerProvider).id ?? ''))
+            .read(fetchCreatorProfileProvider((ref.read(userControllerProvider).id ?? '', null)))
             .maybeWhen(
               data: (data) => data.categories ?? [],
               orElse: () => [],
@@ -166,7 +181,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
 
   void _onShareProfile() {
     ref
-        .watch(fetchCreatorProfileProvider(ref.watch(userControllerProvider).id ?? ''))
+        .watch(fetchCreatorProfileProvider((ref.watch(userControllerProvider).id ?? '', null)))
         .whenData((profile) {
       AppDialog.showAppDialog(
         context,
@@ -181,7 +196,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
-    final myCreatorProfile = ref.watch(fetchCreatorProfileProvider(userData.id ?? ''));
+    final myCreatorProfile = ref.watch(fetchCreatorProfileProvider((userData.id ?? '', selectedTimeframeValue)));
     final onboardingStatus = ref.watch(getOnboardingStatusProvider);
 
     ref.listen(verifySubscriptionPaymentProvider, (_, value) {
@@ -226,7 +241,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
         ),
         body: RefreshIndicator.adaptive(
           onRefresh: () async {
-            ref.invalidate(fetchCreatorProfileProvider(userData.id ?? ''));
+            ref.invalidate(fetchCreatorProfileProvider);
             ref.invalidate(getOnboardingStatusProvider);
           },
           child: SingleChildScrollView(
@@ -244,8 +259,8 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
                         SizedBox(
-                          width: 80,
-                          height: 80,
+                          width: 70,
+                          height: 70,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
@@ -259,12 +274,12 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                                 child: ExpandableProfileImage(
                                   imageUrl: data.profileImage,
                                   initials: data.initials,
-                                  size: 60,
+                                  size: 56,
                                   initialsFallback: Center(
                                     child: InitialAvatar(
                                       initials: data.initials,
                                       padding: const EdgeInsets.all(12),
-                                      size: 24,
+                                      size: 20,
                                     ),
                                   ),
                                 ),
@@ -275,7 +290,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(5),
+                                    padding: const EdgeInsets.all(4),
                                     decoration: const BoxDecoration(
                                       color: Colors.white,
                                       shape: BoxShape.circle,
@@ -287,7 +302,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                               ),
                               Positioned(
                                 top: -5,
-                                right: -50,
+                                right: -60,
                                 child: _buildUpgradeBadge(data),
                               ),
                             ],
@@ -528,12 +543,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
             PopupMenuButton<String>(
               onSelected: (val) {
                  setState(() {
-                    switch(val) {
-                       case 'day': selectedTimeframe = 'Current day'; break;
-                       case 'last_day': selectedTimeframe = 'Last day'; break;
-                       case 'last_week': selectedTimeframe = 'Last week'; break;
-                       case 'last_month': selectedTimeframe = 'Last 30 days'; break;
-                    }
+                    selectedTimeframeValue = val;
                  });
               },
               child: Container(
@@ -541,7 +551,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                 decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(20)),
                 child: Row(
                   children: [
-                    Text(selectedTimeframe, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
+                    Text(selectedTimeframeDisplay, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: AppColors.body)),
                     4.0.width,
                     const Icon(Icons.keyboard_arrow_down, size: 14, color: AppColors.body),
                   ],

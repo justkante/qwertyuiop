@@ -280,10 +280,10 @@ class CreatorService {
     }
   }
 
-  Future<CreatorProfileDto> getCreatorProfile(String id) async {
+  Future<CreatorProfileDto> getCreatorProfile(String id, {String? timeframe}) async {
     try {
       final response = await _networkService.request(
-        endpoints.getCreatorProfile(id),
+        "${endpoints.getCreatorProfile(id)}${timeframe != null ? '?timeframe=$timeframe' : ''}",
         RequestMethod.get,
       );
 
@@ -293,10 +293,10 @@ class CreatorService {
     }
   }
 
-  Future<RecruiterProfileDto> getRecruiterProfile(String id) async {
+  Future<RecruiterProfileDto> getRecruiterProfile(String id, {String? timeframe}) async {
     try {
       final response = await _networkService.request(
-        endpoints.getRecruiterProfile(id),
+        "${endpoints.getRecruiterProfile(id)}${timeframe != null ? '?timeframe=$timeframe' : ''}",
         RequestMethod.get,
       );
 

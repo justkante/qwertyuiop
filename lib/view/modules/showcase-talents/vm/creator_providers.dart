@@ -38,13 +38,13 @@ final fetchAvailabilityProvider = FutureProvider.autoDispose
 });
 
 final fetchCreatorProfileProvider =
-    FutureProvider.autoDispose.family<CreatorProfileDto, String>((ref, id) async {
-  return await ref.watch(creatorRepository).getCreatorProfile(id);
+    FutureProvider.autoDispose.family<CreatorProfileDto, (String, String?)>((ref, arg) async {
+  return await ref.watch(creatorRepository).getCreatorProfile(arg.$1, timeframe: arg.$2);
 });
 
 final fetchRecruiterProfileProvider =
-    FutureProvider.autoDispose.family<RecruiterProfileDto, String>((ref, id) async {
-  return await ref.watch(creatorRepository).getRecruiterProfile(id);
+    FutureProvider.autoDispose.family<RecruiterProfileDto, (String, String?)>((ref, arg) async {
+  return await ref.watch(creatorRepository).getRecruiterProfile(arg.$1, timeframe: arg.$2);
 });
 
 final fetchFavoriteCreatorsProvider = FutureProvider.autoDispose((ref) async {

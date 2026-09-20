@@ -60,7 +60,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
 
   @override
   Widget build(BuildContext context) {
-    final myRecruiterProfile = ref.watch(fetchRecruiterProfileProvider(widget.creatorId));
+    final myRecruiterProfile = ref.watch(fetchRecruiterProfileProvider((widget.creatorId, null)));
 
     return Scaffold(
       appBar: AppBar(

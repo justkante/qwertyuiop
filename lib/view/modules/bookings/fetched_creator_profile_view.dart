@@ -62,7 +62,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
         );
       },
       shareProfile: () {
-        ref.watch(fetchCreatorProfileProvider(widget.creatorId)).whenData((profile) {
+        ref.watch(fetchCreatorProfileProvider((widget.creatorId, null))).whenData((profile) {
           AppDialog.showAppDialog(
             context,
             widget: ShareProfileWidget(
@@ -83,7 +83,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
-    final myCreatorProfile = ref.watch(fetchCreatorProfileProvider(widget.creatorId));
+    final myCreatorProfile = ref.watch(fetchCreatorProfileProvider((widget.creatorId, null)));
     final makeFavorite = ref.watch(addToFavoriteCreatorsProvider).isLoading;
     final hasProfile = myCreatorProfile.hasValue;
 

@@ -125,7 +125,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
     final onboardingStatus = ref.watch(getOnboardingStatusProvider);
-    final myCreatorProfile = ref.watch(fetchCreatorProfileProvider(userData.id ?? ''));
+    final myCreatorProfile = ref.watch(fetchCreatorProfileProvider((userData.id ?? '', null)));
     final jobState = ref.watch(jobControllerProvider);
     final recommendedCreatorsAsync = ref.watch(filter_vm.getRecommendedCreatorsProvider);
     final transactions = ref.watch(getTransactionsProvider);

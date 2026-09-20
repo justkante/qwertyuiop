@@ -41,8 +41,8 @@ abstract class CreatorRepo {
   Future<String> deletePortfolioItem(String id);
   Future<CreatorAvailabilityDto> getCreatorAvailability({required int year, required int month});
   Future<String> updateAvailability(UpdateAvailabilityReq req);
-  Future<CreatorProfileDto> getCreatorProfile(String id);
-  Future<RecruiterProfileDto> getRecruiterProfile(String id);
+  Future<CreatorProfileDto> getCreatorProfile(String id, {String? timeframe});
+  Future<RecruiterProfileDto> getRecruiterProfile(String id, {String? timeframe});
   Future<List<CreatorProfileDto>> filterCreators(
       {String? name, String? priceMin, String? priceMax, String? category, String? location});
   Future<List<CreatorProfileDto>> getFavoriteCreators();
@@ -146,8 +146,8 @@ class CreatorRepoImpl implements CreatorRepo {
   }
 
   @override
-  Future<CreatorProfileDto> getCreatorProfile(String id) async {
-    return await _creatorService.getCreatorProfile(id);
+  Future<CreatorProfileDto> getCreatorProfile(String id, {String? timeframe}) async {
+    return await _creatorService.getCreatorProfile(id, timeframe: timeframe);
   }
 
   @override
@@ -238,8 +238,8 @@ class CreatorRepoImpl implements CreatorRepo {
   }
 
   @override
-  Future<RecruiterProfileDto> getRecruiterProfile(String id) async {
-    return await _creatorService.getRecruiterProfile(id);
+  Future<RecruiterProfileDto> getRecruiterProfile(String id, {String? timeframe}) async {
+    return await _creatorService.getRecruiterProfile(id, timeframe: timeframe);
   }
 
   @override
