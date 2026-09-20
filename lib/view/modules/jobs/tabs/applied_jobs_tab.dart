@@ -103,7 +103,7 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                 : jobState.jobs.isEmpty
                     ? _buildEmptyState()
                     : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 140),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 180),
                         itemCount: jobState.jobs.length,
                         separatorBuilder: (_, __) => 16.0.height,
                         itemBuilder: (context, index) {
@@ -179,7 +179,9 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
           ),
           16.0.height,
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+               ToastDialog.showSuccess('Job alerts activated! You will receive notifications for new jobs.', context);
+            },
             child: const Text('Set job alerts', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
           ),
           32.0.height,

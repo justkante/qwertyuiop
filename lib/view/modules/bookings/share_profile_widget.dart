@@ -124,23 +124,23 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         ),
         24.0.height,
 
-        // Social Media Icons - Using standard Icons for build reliability
+        // Social Media Icons - Square-ish as requested
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSocialIcon(Icons.chat_bubble_outline, const Color(0xFF25D366), 'WhatsApp', () {
+            _buildSocialIcon(Icons.chat, const Color(0xFF25D366), 'WhatsApp', () {
               AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
             }),
             20.0.width,
-            _buildSocialIcon(Icons.camera_alt_outlined, const Color(0xFFE4405F), 'Instagram', () {
+            _buildSocialIcon(Icons.camera_alt, const Color(0xFFE4405F), 'Instagram', () {
                AppUtils.shareLink(profileUrl, context);
             }),
             20.0.width,
-            _buildSocialIcon(Icons.alternate_email, Colors.black, 'X', () {
-               AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook', () {
+               AppUtils.shareLink(profileUrl, context);
             }),
             20.0.width,
-            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook', () {
+            _buildSocialIcon(Icons.snapchat, const Color(0xFFFFFC00), 'Snapchat', () {
                AppUtils.shareLink(profileUrl, context);
             }),
           ],
@@ -169,7 +169,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
+              borderRadius: BorderRadius.circular(12), // Square-ish
             ),
             child: Icon(icon, color: color, size: 24),
           ),

@@ -443,6 +443,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildSmallActionBanner(String title, String subtitle, Color bgColor, Color iconColor, IconData icon, VoidCallback onTap) {
     return InkWell(
@@ -474,6 +475,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildFixedMiniMetric(String label, String value, Color bgColor, Color iconColor, IconData icon, VoidCallback onTap) {
     return InkWell(
@@ -505,11 +507,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 200, // Balanced height
+      height: 240, // Increased breadth as requested
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -526,11 +529,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ),
           Positioned(
-            left: 16,
-            bottom: 16,
+            left: 12,
+            bottom: 12,
             child: MainButton(
               text: 'Browse jobs',
-              width: 140,
+              width: 160, // Increased width
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,
@@ -540,6 +543,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildTitledHeader(String title, Widget trailing) {
     return Row(
@@ -550,6 +554,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ],
     );
   }
+}
 
   Widget _buildToggleSwitch(int current, Function(int) onChanged) {
     return Container(
@@ -564,6 +569,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildToggleItem(int index, bool active, Function(int) onTap, String label) {
     return GestureDetector(
@@ -580,6 +586,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildCreatorsList(AsyncValue<RecommendedCreatorsDto> recommendedAsync) {
     return recommendedAsync.when(
@@ -600,6 +607,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       error: (e, s) => Center(child: Text('Error loading creators: $e')),
     );
   }
+}
 
   Widget _buildRecommendationsList(JobState state) {
     if (state.jobs.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommendations found', style: TextStyle(fontSize: 12, color: AppColors.body))));
@@ -613,6 +621,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildRecommendationCard(dynamic job) {
     return Container(
@@ -673,6 +682,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildActiveListings(JobState state) {
     final active = state.jobs.where((j) => j.status?.toLowerCase() == 'active').toList();
@@ -694,6 +704,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildQuickActionsRow() {
     return SingleChildScrollView(
@@ -718,6 +729,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildQuickActionCard(String title, IconData icon, Color bgColor, Color iconColor, VoidCallback onTap) {
     return InkWell(
@@ -738,6 +750,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 
   Widget _buildRecentActivityItem(String title, String subtitle, String time, IconData icon, Color bgColor, Color iconColor) {
     return Container(
@@ -767,4 +780,5 @@ class _HomeViewState extends ConsumerState<HomeView> {
       ),
     );
   }
+}
 }

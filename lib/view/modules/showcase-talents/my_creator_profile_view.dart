@@ -538,10 +538,11 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                  setState(() {
                     selectedTimeframeValue = val;
                  });
-                 ref.invalidate(fetchCreatorProfileProvider);
-              },
+                 // Refresh metrics
                  // Refresh metrics
                  ref.invalidate(fetchCreatorProfileProvider);
+                 ref.read(fetchCreatorProfileProvider((userData.id ?? '', selectedTimeframeValue)));
+                 ref.read(fetchCreatorProfileProvider((userData.id ?? '', selectedTimeframeValue)));
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

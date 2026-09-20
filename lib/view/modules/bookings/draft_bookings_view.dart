@@ -162,8 +162,30 @@ class _DraftBookingsViewState extends ConsumerState<DraftBookingsView> {
           MainButton(
             text: '+ Create a new booking',
             onPressed: () {
-               ref.read(navBarController.notifier).index = 1; // Go to Discover
-               Navigator.of(context).popUntil((route) => route.isFirst);
+               // Open a sheet to choose creator or go to search
+               showModalBottomSheet(
+                 context: context,
+                 builder: (context) => Container(
+                   padding: const EdgeInsets.all(24),
+                   child: Column(
+                     mainAxisSize: MainAxisSize.min,
+                     children: [
+                       const Text('Create New Booking', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                       16.0.height,
+                       const Text('To create a new booking, please find a creator in the Discover tab.', textAlign: TextAlign.center),
+                       24.0.height,
+                       MainButton(
+                         text: 'Go to Discover',
+                         onPressed: () {
+                           Navigator.pop(context); // Close sheet
+                           ref.read(navBarController.notifier).index = 1;
+                           Navigator.of(context).pop(); // Close drafts page
+                         },
+                       ),
+                     ],
+                   ),
+                 ),
+               );
             },
           ),
           40.0.height,

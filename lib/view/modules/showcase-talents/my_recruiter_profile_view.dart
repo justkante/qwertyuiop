@@ -276,8 +276,11 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                  setState(() {
                     selectedTimeframeValue = val;
                  });
+                 // Refresh metrics
+                 // Refresh metrics
                  ref.invalidate(fetchRecruiterProfileProvider);
-              },
+                 ref.read(fetchRecruiterProfileProvider((userData.id ?? '', selectedTimeframeValue)));
+                 ref.read(fetchRecruiterProfileProvider((userData.id ?? '', selectedTimeframeValue)));
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

@@ -108,7 +108,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
               else if (jobState.jobs.isEmpty)
                 const Padding(
                   padding: EdgeInsets.only(top: 100),
-                  child: Center(child: Text('No listings found')),
+                  child: Center(child: Text('No available listings')),
                 )
               else
                 ListView.separated(

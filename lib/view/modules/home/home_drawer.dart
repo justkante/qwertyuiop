@@ -258,12 +258,12 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       },
                     ),
                     DrawerMenuItem(
-                      icon: AppImages.info,
-                      title: 'Help Centre',
-                      onTap: () {
-                        // NavigationService.instance.push(const HelpCentreView());
-                      },
-                    ),
+                    icon: AppImages.info,
+                    title: 'Contact Support',
+                    onTap: () {
+                      NavigationService.instance.push(const SupportView());
+                    },
+                  ),
 
                     const DrawerHeading(title: 'LEGAL'),
                     DrawerMenuItem(

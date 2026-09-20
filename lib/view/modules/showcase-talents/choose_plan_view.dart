@@ -171,7 +171,6 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline, size: 20, color: AppColors.body),
                     12.0.width,
                     Expanded(
                       child: RichText(
@@ -204,8 +203,25 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: MainButton(
                 text: 'Subscribe to $_selectedTier',
+                isLoading: ref.watch(makeSubscriptionPaymentProvider).isLoading,
                 onPressed: _selectedTier == 'Free' ? null : () {
-                  // Handle subscription logic
+                   final plans = ref.read(fetchSubscriptionPlansProvider).value ?? [];
+                   final plan = plans.firstWhere(
+                     (p) => p.name?.toLowerCase() == _selectedTier.toLowerCase().replaceAll('+', '').trim(),
+                     orElse: () => plans.isNotEmpty ? plans.first : SubscriptionsPlanDto(),
+                   );
+                   if (plan.id != null) {
+                     ref.read(makeSubscriptionPaymentProvider.notifier).makeSubscriptionPayment(plan.id!);
+                   }
+                },
+              ),
+            ),
+                     (p) => p.name?.toLowerCase() == _selectedTier.toLowerCase().replaceAll('+', ''),
+                     orElse: () => plans.isNotEmpty ? plans.first : SubscriptionsPlanDto(),
+                   );
+                   if (plan.id != null) {
+                     ref.read(makeSubscriptionPaymentProvider.notifier).makeSubscriptionPayment(plan.id!);
+                   }
                 },
               ),
             ),

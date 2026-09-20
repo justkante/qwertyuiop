@@ -44,42 +44,7 @@ class MetricsCard extends StatelessWidget {
                 ),
               ),
               5.0.width,
-              Tooltip(
-                preferBelow: false,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                margin: const EdgeInsets.symmetric(horizontal: 32),
-                decoration: BoxDecoration(
-                  color: AppColors.highlightCoral,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                richMessage: TextSpan(
-                  text: "$label:\n",
-                  style: context.textTheme.bodySmall?.copyWith(
-                    fontSize: 10,
-                    color: AppColors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: tooltipMessage,
-                      style: context.textTheme.bodySmall?.copyWith(
-                        fontSize: 10,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                textStyle: context.textTheme.bodySmall?.copyWith(
-                  color: AppColors.white,
-                ),
-                showDuration: 2000.ms,
-                triggerMode: TooltipTriggerMode.tap,
-                child: SvgPicture.asset(
-                  AppImages.info,
-                  height: 12,
-                  width: 12,
-                ),
-              ),
+              // Info icon removed
             ],
           ),
           Text(

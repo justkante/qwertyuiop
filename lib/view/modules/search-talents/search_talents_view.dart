@@ -337,20 +337,24 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
     );
   }
 
-  Widget _buildFilterChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.grey200),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(_getIconForFilter(label), size: 16, color: Colors.black87),
-          6.0.width,
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-          const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.body),
-        ],
+  Widget _buildFilterChip(String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.grey200),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(_getIconForFilter(label), size: 16, color: Colors.black87),
+            6.0.width,
+            Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+            const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.body),
+          ],
+        ),
       ),
     );
   }

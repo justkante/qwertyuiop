@@ -99,9 +99,13 @@ class JobController extends StateNotifier<JobState> {
     try {
       final response = await _apiService.getJobs(filters ?? {});
       if (response.data['success']) {
-        final List<dynamic> data = response.data['data']['data'];
+        final data = response.data['data'];
+        final List<dynamic> jobList = (data is Map && data['data'] != null)
+            ? data['data']
+            : (data is List ? data : []);
+
         state = state.copyWith(
-          jobs: data.map((e) => JobDto.fromJson(e)).toList(),
+          jobs: jobList.map((e) => JobDto.fromJson(e)).toList(),
           isLoading: false,
         );
       } else {

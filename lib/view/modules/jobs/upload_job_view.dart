@@ -107,7 +107,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Job Type
-              const Text('Job Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Job Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               12.0.height,
               Row(
                 children: [
@@ -119,7 +119,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Describe Job
-              const Text('Describe Job', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Describe Job', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               8.0.height,
               TextFormField(
                 controller: _descriptionController,
@@ -127,16 +127,17 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                 validator: (val) => val == null || val.isEmpty ? 'Description is required' : null,
                 decoration: InputDecoration(
                   hintText: 'Enter description here',
-                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 12),
+                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
                   fillColor: AppColors.grey50,
                   filled: true,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
+                style: const TextStyle(fontSize: 14),
               ),
               24.0.height,
 
               // Service
-              const Text('Service', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Service', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               8.0.height,
               ref.watch(fetchCreatorNichesProvider).when(
                 data: (categories) => Container(
@@ -146,15 +147,15 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedService,
-                      hint: const Text('Select Service', style: TextStyle(fontSize: 12, color: AppColors.body)),
-                      items: categories.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name ?? '', style: const TextStyle(fontSize: 12)))).toList(),
+                      hint: const Text('Select Service', style: TextStyle(fontSize: 13, color: AppColors.body)),
+                      items: categories.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name ?? '', style: const TextStyle(fontSize: 14)))).toList(),
                       onChanged: (val) => setState(() => _selectedService = val),
                       icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
                     ),
                   ),
                 ),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => const Text('Error loading services', style: TextStyle(color: Colors.red, fontSize: 12)),
+                error: (e, s) => const Text('Error loading services', style: TextStyle(color: Colors.red, fontSize: 13)),
               ),
               24.0.height,
 
@@ -370,7 +371,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Price
-              const Text('Price', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Price', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
               8.0.height,
               TextFormField(
                 controller: _priceController,
@@ -380,7 +381,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                   prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? 'NGN'} ',
                   prefixStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
                   hintText: '0.00',
-                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 12),
+                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
                   fillColor: AppColors.grey50,
                   filled: true,
                   border: OutlineInputBorder(
@@ -388,22 +389,40 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     borderSide: BorderSide.none,
                   ),
                 ),
+                style: const TextStyle(fontSize: 14),
               ),
               40.0.height,
 
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _submitJob,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF009688),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                         // Save draft logic
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFF009688)),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Save', style: TextStyle(color: Color(0xFF009688), fontWeight: FontWeight.bold)),
+                    ),
                   ),
-                  child: ref.watch(jobControllerProvider).isLoading
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Post Job', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                ),
+                  16.0.width,
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _submitJob,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF009688),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: ref.watch(jobControllerProvider).isLoading
+                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Post Job', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
