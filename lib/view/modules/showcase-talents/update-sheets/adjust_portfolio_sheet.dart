@@ -200,7 +200,10 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
                             // Upload the file to portfolio
                             await ref.read(uploadToPortfolioProvider.notifier).uploadToPortfolio(
                               {
-                                'file': await MultipartFile.fromFile(uploadFile.path),
+                                'file': await MultipartFile.fromFile(
+                                  uploadFile.path,
+                                  filename: uploadFile.path.split('/').last,
+                                ),
                               },
                             );
                           }
@@ -296,6 +299,7 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
             12.0.height,
             MainButton(
               text: 'Continue',
+              width: 180, // Reduced size as requested
               onPressed: () {
                 context.pop();
               },

@@ -259,28 +259,21 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
                         SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 80,
+                          height: 80,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border: Border.all(color: AppColors.primary, width: 1.5),
-                                ),
-                                child: ExpandableProfileImage(
-                                  imageUrl: data.profileImage,
-                                  initials: data.initials,
-                                  size: 56,
-                                  initialsFallback: Center(
-                                    child: InitialAvatar(
-                                      initials: data.initials,
-                                      padding: const EdgeInsets.all(12),
-                                      size: 20,
-                                    ),
+                              ExpandableProfileImage(
+                                imageUrl: data.profileImage,
+                                initials: data.initials,
+                                size: 70, // One circle
+                                initialsFallback: Center(
+                                  child: InitialAvatar(
+                                    initials: data.initials,
+                                    padding: const EdgeInsets.all(12),
+                                    size: 24,
                                   ),
                                 ),
                               ),
@@ -545,6 +538,10 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                  setState(() {
                     selectedTimeframeValue = val;
                  });
+                 ref.invalidate(fetchCreatorProfileProvider);
+              },
+                 // Refresh metrics
+                 ref.invalidate(fetchCreatorProfileProvider);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

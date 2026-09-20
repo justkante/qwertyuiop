@@ -113,23 +113,19 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // MARK: Centered Profile Picture with Upgrade Badge at Top Right
+                        // MARK: Centered Profile Picture
                         SizedBox(
-                          width: 70,
-                          height: 70,
+                          width: 80,
+                          height: 80,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.primary, width: 1.5)),
-                                child: ExpandableProfileImage(
-                                  imageUrl: data.profileImage,
-                                  initials: data.initials,
-                                  size: 56,
-                                  initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 20, padding: const EdgeInsets.all(12))),
-                                ),
+                              ExpandableProfileImage(
+                                imageUrl: data.profileImage,
+                                initials: data.initials,
+                                size: 70, // Reduced size and one circle
+                                initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 24, padding: const EdgeInsets.all(12))),
                               ),
                               Positioned(
                                 bottom: -2,
@@ -137,16 +133,11 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
+                                    padding: const EdgeInsets.all(5),
                                     decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
                                     child: const Icon(Icons.camera_alt_outlined, size: 10, color: AppColors.primary),
                                   ),
                                 ),
-                              ),
-                              Positioned(
-                                top: -5,
-                                right: -60,
-                                child: _buildUpgradeBadge(data.isPremium ?? false),
                               ),
                             ],
                           ),
@@ -283,13 +274,10 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
             PopupMenuButton<String>(
               onSelected: (val) {
                  setState(() {
-                    switch(val) {
-                       case 'day': selectedTimeframe = 'Current day'; break;
-                       case 'last_day': selectedTimeframe = 'Last day'; break;
-                       case 'last_week': selectedTimeframe = 'Last week'; break;
-                       case 'last_month': selectedTimeframe = 'Last 30 days'; break;
-                    }
+                    selectedTimeframeValue = val;
                  });
+                 ref.invalidate(fetchRecruiterProfileProvider);
+              },
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
