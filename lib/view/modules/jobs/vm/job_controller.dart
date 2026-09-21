@@ -7,6 +7,7 @@ import 'package:creatify_mobile/core/error/api_exception.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/favorite_jobs_vm.dart';
 import 'dart:async';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'job_service.dart';
 
 class JobState {

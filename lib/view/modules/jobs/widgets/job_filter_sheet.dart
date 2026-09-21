@@ -78,7 +78,7 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
                     selectedColor: AppColors.primary,
                     checkmarkColor: Colors.white,
                     backgroundColor: AppColors.grey50,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10), side: BorderSide.none),
                   );
                 }).toList(),
               ),
