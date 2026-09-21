@@ -411,38 +411,6 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
-      child: const Column(
-        children: [
-          Icon(Icons.business_outlined, color: AppColors.primary, size: 40),
-          16.0.height,
-          Text('Company Profile coming soon!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('You will soon be able to showcase your company details.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.body, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPreferencesTab(dynamic data) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
-      child: const Column(
-        children: [
-          Icon(Icons.tune_outlined, color: AppColors.primary, size: 40),
-          16.0.height,
-          Text('Hiring Preferences coming soon!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          Text('Customizing your hiring experience is on the way.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.body, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompanyTab(dynamic data) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
           const Icon(Icons.business_outlined, color: AppColors.primary, size: 40),
