@@ -15,7 +15,7 @@ class MainButton extends StatelessWidget {
   final EdgeInsets? padding;
   final Function()? onPressed;
   final Widget? prefixIcon;
-  final double? width;
+  final double? width, height;
 
   const MainButton({
     super.key,
@@ -31,6 +31,7 @@ class MainButton extends StatelessWidget {
     this.fontSize,
     this.prefixIcon,
     this.width,
+    this.height,
   });
 
   @override
@@ -44,6 +45,7 @@ class MainButton extends StatelessWidget {
             },
       child: Container(
         width: width,
+        height: height,
         padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
           color: onPressed == null ? AppColors.btnInactive : color,
