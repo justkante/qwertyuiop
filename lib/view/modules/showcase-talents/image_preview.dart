@@ -155,9 +155,8 @@ class _ImagePreviewScreenState extends ConsumerState<ImagePreviewScreen> {
                     text: 'Upload',
                     isLoading: editingProfileImage,
                     onPressed: () {
-                      ref.read(editProfileImageProvider.notifier).editProfileImage(
-                            croppedImageFile?.path ?? widget.imageFile.path,
-                          );
+                      final path = croppedImageFile?.path ?? widget.imageFile.path;
+                      ref.read(editProfileImageProvider.notifier).editProfileImage(path);
                     },
                   ).animate().fadeIn(delay: 600.ms).slideY(delay: 600.ms),
                   24.0.height,

@@ -139,8 +139,7 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
                     ),
                     6.0.height,
 
-                    UploadMediaCard(
-                      isLoading: openingGallery,
+                    GestureDetector(
                       onTap: () async {
                         final result = await AppBottomSheet.showBottomSheet(
                           context,
@@ -156,9 +155,9 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
 
                         if (!context.mounted) return;
 
-                        if (portfolioItems.hasValue && portfolioItems.value?.totalCount == 9) {
+                        if (portfolioItems.hasValue && (portfolioItems.value?.totalCount ?? 0) >= 9) {
                           ToastDialog.showError(
-                              'You have uploaded the maximum number of files', context);
+                              'You have uploaded the maximum number of files (9)', context);
                         } else {
                           setState(() {
                             openingGallery = true;
@@ -209,6 +208,27 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
                           }
                         }
                       },
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 32),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.primary.withOpacity(0.2), style: BorderStyle.solid),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                              child: const Icon(Icons.add, color: Colors.white, size: 24),
+                            ),
+                            12.0.height,
+                            const Text('Click here to upload', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
+                            const Text('Images, Videos or Documents (Max 9)', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                          ],
+                        ),
+                      ),
                     ),
                     24.0.height,
 

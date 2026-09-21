@@ -124,22 +124,22 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         ),
         24.0.height,
 
-        // Social Media Icons - Square-ish as requested
+        // Social Media Icons - Transparent background, larger icons
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSocialIcon(Icons.chat_bubble_outline, const Color(0xFF25D366), 'WhatsApp', () {
+            _buildSocialIcon(Icons.chat_bubble, const Color(0xFF25D366), 'WhatsApp', () {
               AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
             }),
-            20.0.width,
-            _buildSocialIcon(Icons.camera_alt_outlined, const Color(0xFFE4405F), 'Instagram', () {
+            24.0.width,
+            _buildSocialIcon(Icons.camera_alt, const Color(0xFFE4405F), 'Instagram', () {
                AppUtils.shareLink(profileUrl, context);
             }),
-            20.0.width,
+            24.0.width,
             _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook', () {
                AppUtils.shareLink(profileUrl, context);
             }),
-            20.0.width,
+            24.0.width,
             _buildSocialIcon(Icons.snapchat, const Color(0xFFFFFC00), 'Snapchat', () {
                AppUtils.shareLink(profileUrl, context);
             }),
@@ -147,10 +147,10 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         ),
         32.0.height,
 
-        // Share Button - Square-ish as requested
+        // Share Button - Capsulated
         MainButton(
           text: 'Share Profile',
-          borderRadius: 12, // Square-ish
+          borderRadius: 30, // Capsulated
           padding: const EdgeInsets.symmetric(vertical: 14),
           onPressed: () async {
              final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
@@ -166,17 +166,10 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
       children: [
         InkWell(
           onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12), // Square-ish
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
+          child: Icon(icon, color: color, size: 36), // Increased size, no background
         ),
-        4.0.height,
-        Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body)),
+        6.0.height,
+        Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body, fontWeight: FontWeight.bold)),
       ],
     );
   }

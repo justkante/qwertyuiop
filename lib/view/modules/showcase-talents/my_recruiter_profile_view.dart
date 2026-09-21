@@ -407,46 +407,34 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
   }
 
   Widget _buildCompanyTab(dynamic data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Company Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary)),
-          ],
-        ),
-        16.0.height,
-        _buildInfoTile('Company Name', data.name ?? 'Not provided'),
-        12.0.height,
-        _buildInfoTile('Industry', 'Technology & Media'),
-        12.0.height,
-        _buildInfoTile('Company Bio', 'Creative agency looking for top talent across the globe.'),
-        12.0.height,
-        _buildInfoTile('Website', 'www.creatifyapp.com'),
-      ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
+      child: const Column(
+        children: [
+          Icon(Icons.business_outlined, color: AppColors.primary, size: 40),
+          16.0.height,
+          Text('Company Profile coming soon!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text('You will soon be able to showcase your company details.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.body, fontSize: 12)),
+        ],
+      ),
     );
   }
 
   Widget _buildPreferencesTab(dynamic data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Hiring Preferences', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.primary)),
-          ],
-        ),
-        16.0.height,
-        _buildInfoTile('Target Roles', 'UGC Creator, Video Editor, Script Writer'),
-        12.0.height,
-        _buildInfoTile('Preferred Regions', 'Nigeria, United Kingdom, USA'),
-        12.0.height,
-        _buildInfoTile('Budget Type', 'Flexible / Project-based'),
-      ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
+      child: const Column(
+        children: [
+          Icon(Icons.tune_outlined, color: AppColors.primary, size: 40),
+          16.0.height,
+          Text('Hiring Preferences coming soon!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          Text('Customizing your hiring experience is on the way.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.body, fontSize: 12)),
+        ],
+      ),
     );
   }
 

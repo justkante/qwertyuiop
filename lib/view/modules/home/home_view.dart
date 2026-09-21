@@ -513,7 +513,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 250,
+      height: 160, // Reduced height (approx half of the previously expanded 250-280)
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -525,16 +525,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.fill,
+              fit: BoxFit.cover, // Cover looks better for reduced height
               errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),
           Positioned(
-            left: 12,
-            bottom: 12,
+            left: 16,
+            bottom: 16,
             child: MainButton(
               text: 'Browse jobs',
-              width: 180,
+              width: 140, // Standard width
+              height: 40,
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,
@@ -635,7 +636,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                   child: Image.network('https://picsum.photos/seed/${job.id}/400/250', height: 120, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(height: 120, color: AppColors.grey50)),
                 ),
-                const Positioned(top: 8, right: 8, child: Icon(Icons.favorite_border, color: Colors.white)),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: InkWell(
+                    onTap: () {
+                      ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
+                    },
+                    child: Icon(
+                      job.isFavorited == true ? Icons.favorite : Icons.favorite_border,
+                      color: job.isFavorited == true ? Colors.red : Colors.white,
+                    ),
+                  ),
+                ),
               ],
             ),
             Padding(

@@ -224,7 +224,11 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                   flex: 2,
                   child: OutlinedButton(
                     onPressed: () {
-                       NavigationService.instance.push(const DraftBookingsView());
+                       NavigationService.instance.push(
+                         BookCreatorView(
+                           creatorProfile: widget.profile ?? CreatorProfileDto(),
+                         ),
+                       );
                     },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.primary),
