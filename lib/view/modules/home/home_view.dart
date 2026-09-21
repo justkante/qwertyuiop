@@ -360,10 +360,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         _buildRecommendationsList(jobState),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: TextButton.icon(
+                        child: TextButton(
                           onPressed: () => ref.read(custom_nav.navBarController.notifier).index = _recommendedToggle == 0 ? 1 : 2,
-                          icon: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
-                          label: const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 18),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 0),
+                            minimumSize: const Size(50, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 13)),
+                              Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -468,7 +478,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1B3131))),
-                  Text(subtitle, style: const TextStyle(fontSize: 9, color: AppColors.body)),
+                  Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.body)), // Increased fontSize
                 ],
               ),
             ),
@@ -489,7 +499,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 14)),
+            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 18)), // Increased icon size
             8.0.height,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -497,8 +507,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 Expanded(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: const TextStyle(fontSize: 9, color: AppColors.body, fontWeight: FontWeight.w500)),
-                    Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
+                    Text(label, style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500)), // Increased fontSize
+                    Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased fontSize
                   ],
                 )),
                 const Icon(Icons.chevron_right, size: 14, color: AppColors.body),
@@ -513,7 +523,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 250, // Increased breadth as requested
+      height: 160, // Reduced height
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -525,16 +535,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.fill, // Stretched to fill as requested
+              fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),
           Positioned(
-            left: 12,
-            bottom: 12,
+            left: 16,
+            bottom: 16,
             child: MainButton(
               text: 'Browse jobs',
-              width: 180, // Increased width
+              width: 140,
+              height: 40,
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,

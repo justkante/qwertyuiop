@@ -203,10 +203,11 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
             Row(
               children: [
                 Expanded(
-                  flex: 3,
+                  flex: 1,
                   child: MainButton(
-                    text: 'View Profile →',
+                    text: 'View Profile',
                     textColor: Colors.white,
+                    fontSize: 12,
                     borderRadius: 24,
                     color: const Color(0xFF1B3131),
                     onPressed: () {
@@ -219,9 +220,9 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     },
                   ),
                 ),
-                12.0.width,
+                8.0.width,
                 Expanded(
-                  flex: 2,
+                  flex: 1,
                   child: OutlinedButton(
                     onPressed: () {
                        NavigationService.instance.push(
@@ -233,14 +234,14 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.primary),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.send_outlined, size: 16, color: AppColors.primary),
-                        8.0.width,
-                        const Text('Book', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                        const Icon(Icons.send_outlined, size: 14, color: AppColors.primary),
+                        6.0.width,
+                        const Text('Book', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
                       ],
                     ),
                   ),

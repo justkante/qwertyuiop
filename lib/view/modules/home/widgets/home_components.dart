@@ -86,7 +86,7 @@ class ProfileStrengthWidget extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.body, size: 20),
+          // const Icon(Icons.chevron_right, color: AppColors.body, size: 20), // Removed arrow
         ],
       ),
     );
@@ -96,7 +96,7 @@ class ProfileStrengthWidget extends StatelessWidget {
     return Row(
       children: [
         Icon(
-          completed ? Icons.check_circle : Icons.radio_button_unchecked,
+          completed ? Icons.star : Icons.star_border, // Stars instead of circles
           color: completed ? const Color(0xFF00BFA5) : AppColors.grey300,
           size: 14,
         ),
