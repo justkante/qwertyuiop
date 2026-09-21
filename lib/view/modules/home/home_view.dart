@@ -513,7 +513,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 160, // Reduced height (approx half of the previously expanded 250-280)
+      height: 250, // Increased breadth as requested
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -525,17 +525,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.cover, // Cover looks better for reduced height
+              fit: BoxFit.fill, // Stretched to fill as requested
               errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),
           Positioned(
-            left: 16,
-            bottom: 16,
+            left: 12,
+            bottom: 12,
             child: MainButton(
               text: 'Browse jobs',
-              width: 140, // Standard width
-              height: 40,
+              width: 180, // Increased width
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,

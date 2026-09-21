@@ -137,6 +137,18 @@ class JobController extends StateNotifier<JobState> {
             }
             return j;
           }).toList(),
+          appliedJobs: state.appliedJobs.map((j) {
+            if (j.id == jobId) {
+              return j.copyWith(isFavorited: isFavorited);
+            }
+            return j;
+          }).toList(),
+          myListings: state.myListings.map((j) {
+            if (j.id == jobId) {
+              return j.copyWith(isFavorited: isFavorited);
+            }
+            return j;
+          }).toList(),
         );
 
         // Invalidate favorites provider so it refreshes when user navigates to Favourites screen

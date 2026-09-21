@@ -137,7 +137,7 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
 
   Widget _buildEmptyState() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 200), // Added bottom padding
       child: Column(
         children: [
           40.0.height,
