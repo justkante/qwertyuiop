@@ -358,6 +358,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         _buildCreatorsList(recommendedCreatorsAsync)
                       else
                         _buildRecommendationsList(jobState),
+                      4.0.height,
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
@@ -477,8 +478,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF1B3131))),
-                  Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.body)), // Increased fontSize
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))), // Increased title size
+                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.body)), // Increased from 11
                 ],
               ),
             ),
@@ -507,8 +508,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 Expanded(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500)), // Increased fontSize
-                    Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased fontSize
+                    Text(label, style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500)), // Increased from 11
+                    Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased from 18
                   ],
                 )),
                 const Icon(Icons.chevron_right, size: 14, color: AppColors.body),
@@ -523,7 +524,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 160, // Reduced height
+      height: 140, // Reduced height as requested
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -545,7 +546,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             child: MainButton(
               text: 'Browse jobs',
               width: 140,
-              height: 40,
+              height: 38, // Slightly shorter
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,
@@ -636,69 +637,61 @@ class _HomeViewState extends ConsumerState<HomeView> {
       },
       child: Container(
         width: 240,
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Stack(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network('https://picsum.photos/seed/${job.id}/400/250', height: 120, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(height: 120, color: AppColors.grey50)),
-                ),
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: InkWell(
-                    onTap: () {
-                      ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
-                    },
-                    child: Icon(
-                      job.isFavorited == true ? Icons.favorite : Icons.favorite_border,
-                      color: job.isFavorited == true ? Colors.red : Colors.white,
-                    ),
+                Expanded(child: Text(job.title ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131)), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                InkWell(
+                  onTap: () {
+                    ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
+                  },
+                  child: Icon(
+                    job.isFavorited == true ? Icons.favorite : Icons.favorite_border,
+                    color: job.isFavorited == true ? Colors.red : AppColors.grey300,
+                    size: 20,
                   ),
                 ),
               ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(job.title ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131)), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  8.0.height,
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 12, color: AppColors.body),
-                      4.0.width,
-                      Text(job.location ?? '', style: const TextStyle(fontSize: 10, color: AppColors.body)),
-                      const Spacer(),
-                      const Icon(Icons.account_balance_wallet_outlined, size: 12, color: Color(0xFF00BFA5)),
-                      4.0.width,
-                      Text(num.parse(job.price.toString()).amountWithCurrency(job.currency ?? 'NGN'), style: const TextStyle(fontSize: 10, color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  12.0.height,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.body),
-                          4.0.width,
-                          const Text('12/07/26 - 14/07/26', style: TextStyle(fontSize: 10, color: AppColors.body)),
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(color: Color(0xFF00796B), shape: BoxShape.circle),
-                        child: const Icon(Icons.chevron_right, color: Colors.white, size: 14),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            12.0.height,
+            Row(
+              children: [
+                const Icon(Icons.location_on_outlined, size: 12, color: AppColors.body),
+                4.0.width,
+                Text(job.location ?? '', style: const TextStyle(fontSize: 11, color: AppColors.body)),
+              ],
+            ),
+            8.0.height,
+            Row(
+              children: [
+                const Icon(Icons.account_balance_wallet_outlined, size: 12, color: Color(0xFF00BFA5)),
+                4.0.width,
+                Text(num.parse(job.price.toString()).amountWithCurrency(job.currency ?? 'NGN'), style: const TextStyle(fontSize: 11, color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
+              ],
+            ),
+            16.0.height,
+            const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.body),
+                    4.0.width,
+                    const Text('12/07/26 - 14/07/26', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                  ],
+                ),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(color: Color(0xFF00796B), shape: BoxShape.circle),
+                  child: const Icon(Icons.chevron_right, color: Colors.white, size: 14),
+                ),
+              ],
             ),
           ],
         ),
@@ -756,15 +749,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        width: 140,
-        padding: const EdgeInsets.all(16),
+        width: 130, // Slightly narrower
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.grey100), borderRadius: BorderRadius.circular(20)),
-        child: Row(
+        child: Column( // Use Column to avoid horizontal folding
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: bgColor.withOpacity(0.2), shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 18)),
-            12.0.width,
-            Expanded(child: Text(title, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1B3131), height: 1.2))),
-            const Icon(Icons.chevron_right, size: 16, color: AppColors.grey300),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: bgColor.withOpacity(0.2), shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 18)),
+                const Icon(Icons.chevron_right, size: 16, color: AppColors.grey300),
+              ],
+            ),
+            12.0.height,
+            Text(
+              title.replaceAll(' ', '\n'), // Force line by line as requested
+              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1B3131), height: 1.2),
+            ),
           ],
         ),
       ),
