@@ -30,9 +30,9 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
   Widget build(BuildContext context) {
     final jobState = ref.watch(jobControllerProvider);
 
-    final activeCount = jobState.jobs.where((j) => j.status?.toLowerCase() == 'active').length;
-    final draftCount = jobState.jobs.where((j) => j.status?.toLowerCase() == 'draft').length;
-    final closedCount = jobState.jobs.where((j) => j.status?.toLowerCase() == 'closed').length;
+    final activeCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'active').length;
+    final draftCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'draft').length;
+    final closedCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'closed').length;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -105,7 +105,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                   padding: EdgeInsets.only(top: 100),
                   child: Center(child: CircularProgressIndicator.adaptive()),
                 )
-              else if (jobState.jobs.isEmpty)
+              else if (jobState.myListings.isEmpty)
                 const Padding(
                   padding: EdgeInsets.only(top: 100),
                   child: Center(child: Text('No available listings')),
@@ -114,10 +114,10 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: jobState.jobs.length,
+                  itemCount: jobState.myListings.length,
                   separatorBuilder: (context, index) => 16.0.height,
                   itemBuilder: (context, index) {
-                    final job = jobState.jobs[index];
+                    final job = jobState.myListings[index];
                     return MyListingJobCard(
                       title: job.title ?? '',
                       location: job.location ?? 'Remote',

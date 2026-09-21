@@ -147,9 +147,10 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         ),
         32.0.height,
 
-        // Share Button - Capsulated
+        // Share Button - Capsulated and wider
         MainButton(
           text: 'Share Profile',
+          width: 320, // Making it significantly wider
           borderRadius: 30, // Capsulated
           padding: const EdgeInsets.symmetric(vertical: 14),
           onPressed: () async {
@@ -166,7 +167,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
       children: [
         InkWell(
           onTap: onTap,
-          child: Icon(icon, color: color, size: 36), // Increased size, no background
+          child: Icon(icon, color: color, size: 48), // Increased size
         ),
         6.0.height,
         Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body, fontWeight: FontWeight.bold)),

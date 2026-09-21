@@ -12,6 +12,8 @@ import 'job_service.dart';
 
 class JobState {
   final List<JobDto> jobs;
+  final List<JobDto> appliedJobs;
+  final List<JobDto> myListings;
   final List<RecentSearchDto> recentSearches;
   final List<JobApplicationDto> applications;
   final bool isLoading;
@@ -19,6 +21,8 @@ class JobState {
 
   JobState({
     this.jobs = const [],
+    this.appliedJobs = const [],
+    this.myListings = const [],
     this.recentSearches = const [],
     this.applications = const [],
     this.isLoading = false,
@@ -27,6 +31,8 @@ class JobState {
 
   JobState copyWith({
     List<JobDto>? jobs,
+    List<JobDto>? appliedJobs,
+    List<JobDto>? myListings,
     List<RecentSearchDto>? recentSearches,
     List<JobApplicationDto>? applications,
     bool? isLoading,
@@ -34,6 +40,8 @@ class JobState {
   }) {
     return JobState(
       jobs: jobs ?? this.jobs,
+      appliedJobs: appliedJobs ?? this.appliedJobs,
+      myListings: myListings ?? this.myListings,
       recentSearches: recentSearches ?? this.recentSearches,
       applications: applications ?? this.applications,
       isLoading: isLoading ?? this.isLoading,
@@ -146,14 +154,14 @@ class JobController extends StateNotifier<JobState> {
       if (response.data['success']) {
         final List<dynamic> data = response.data['data'] ?? [];
         state = state.copyWith(
-          jobs: data.map((e) => JobDto.fromJson(e['job'])).toList(),
+          appliedJobs: data.map((e) => JobDto.fromJson(e['job'])).toList(),
           isLoading: false,
         );
       } else {
-        state = state.copyWith(isLoading: false, jobs: []);
+        state = state.copyWith(isLoading: false, appliedJobs: []);
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, jobs: []);
+      state = state.copyWith(isLoading: false, appliedJobs: []);
     }
   }
 
@@ -164,14 +172,14 @@ class JobController extends StateNotifier<JobState> {
       if (response.data['success']) {
         final List<dynamic> data = response.data['data'] ?? [];
         state = state.copyWith(
-          jobs: data.map((e) => JobDto.fromJson(e)).toList(),
+          myListings: data.map((e) => JobDto.fromJson(e)).toList(),
           isLoading: false,
         );
       } else {
-        state = state.copyWith(isLoading: false, jobs: []);
+        state = state.copyWith(isLoading: false, myListings: []);
       }
     } catch (e) {
-      state = state.copyWith(isLoading: false, jobs: []);
+      state = state.copyWith(isLoading: false, myListings: []);
     }
   }
 

@@ -137,6 +137,7 @@ class NetworkService implements HttpService {
           );
           break;
         case RequestMethod.upload:
+          await checkInternet();
           response = await _dio.post(
             path,
             data: formData ?? data,

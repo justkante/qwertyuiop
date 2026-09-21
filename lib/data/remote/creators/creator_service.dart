@@ -93,15 +93,18 @@ class CreatorService {
 
   Future<String> uploadProfileImage(String filePath) async {
     try {
+      final formData = FormData.fromMap({
+        'profile_image': await MultipartFile.fromFile(
+          filePath,
+          filename: filePath.split('/').last,
+        ),
+      });
+
       final response = await _networkService.request(
         endpoints.editProfileImage,
-        RequestMethod.upload,
-        data: FormData.fromMap({
-          'profile_image': await MultipartFile.fromFile(
-            filePath,
-            filename: filePath.split('/').last,
-          ),
-        }),
+        RequestMethod.post,
+        data: formData,
+        options: Options(contentType: 'multipart/form-data'),
       );
 
       return response.data['message'];

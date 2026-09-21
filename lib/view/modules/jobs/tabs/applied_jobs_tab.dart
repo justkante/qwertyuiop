@@ -100,14 +100,14 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
           Expanded(
             child: jobState.isLoading
                 ? const Center(child: CircularProgressIndicator.adaptive())
-                : jobState.jobs.isEmpty
+                : jobState.appliedJobs.isEmpty
                     ? _buildEmptyState()
                     : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 180),
-                        itemCount: jobState.jobs.length,
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 250),
+                        itemCount: jobState.appliedJobs.length,
                         separatorBuilder: (_, __) => 16.0.height,
                         itemBuilder: (context, index) {
-                          final job = jobState.jobs[index];
+                          final job = jobState.appliedJobs[index];
                           return JobPostCard(
                             title: job.title ?? '',
                             description: job.description ?? '',

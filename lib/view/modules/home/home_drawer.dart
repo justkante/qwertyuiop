@@ -132,7 +132,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Hello ${userData.name?.split(' ').first},',
+                              'Hello ${userData.name?.split(' ').first ?? 'User'},',
                               style: context.textTheme.bodyMedium?.copyWith(
                                 color: AppColors.black2,
                                 fontWeight: FontWeight.bold,
@@ -245,7 +245,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       title: 'Manage Subscription',
                       iconColor: AppColors.primary,
                       onTap: () {
-                        NavigationService.instance.push(ManageSubscriptionView());
+                        NavigationService.instance.push(const ManageSubscriptionView());
                       },
                     ),
 
@@ -257,13 +257,6 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                         NavigationService.instance.push(const SupportView());
                       },
                     ),
-                    DrawerMenuItem(
-                    icon: AppImages.personSupport,
-                    title: 'Contact Support',
-                    onTap: () {
-                      NavigationService.instance.push(const SupportView());
-                    },
-                  ),
 
                     const DrawerHeading(title: 'LEGAL'),
                     DrawerMenuItem(

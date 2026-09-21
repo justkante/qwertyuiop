@@ -210,7 +210,7 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
                       },
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 32),
+                        padding: const EdgeInsets.symmetric(vertical: 24),
                         decoration: BoxDecoration(
                           color: AppColors.primary.withOpacity(0.05),
                           borderRadius: BorderRadius.circular(20),
@@ -219,13 +219,14 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
                         child: Column(
                           children: [
                             Container(
-                              padding: const EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(10),
                               decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                              child: const Icon(Icons.add, color: Colors.white, size: 24),
+                              child: const Icon(Icons.add, color: Colors.white, size: 20),
                             ),
-                            12.0.height,
-                            const Text('Click here to upload', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary)),
-                            const Text('Images, Videos or Documents (Max 9)', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                            8.0.height,
+                            const Text('Click here to upload', style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary, fontSize: 13)),
+                            const Text('Showcase your best work (Images, Videos, PDF)', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                            const Text('Max 9 items', style: TextStyle(fontSize: 9, color: AppColors.primary, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
