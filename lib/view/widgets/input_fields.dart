@@ -23,6 +23,9 @@ class TextInputField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Widget? prefixIcon, suffixIcon;
   final TextCapitalization? textCapitalization;
+  final TextStyle? headerStyle;
+  final TextStyle? style;
+  final TextStyle? hintStyle;
   const TextInputField({
     super.key,
     required this.controller,
@@ -42,6 +45,9 @@ class TextInputField extends StatefulWidget {
     this.inputFormatters,
     this.onChanged,
     this.textCapitalization,
+    this.headerStyle,
+    this.style,
+    this.hintStyle,
   });
 
   @override
@@ -112,7 +118,7 @@ class _TextInputFieldState extends State<TextInputField> {
         if (widget.header != null) ...[
           Text(
             widget.header ?? "",
-            style: Theme.of(context).textTheme.bodySmall!.copyWith(
+            style: widget.headerStyle ?? Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: AppColors.subHeading,
                   fontWeight: FontWeight.w500,
                 ),
@@ -141,13 +147,13 @@ class _TextInputFieldState extends State<TextInputField> {
               ? const EdgeInsets.only(bottom: _kDoneBarHeight)
               : const EdgeInsets.all(20.0),
           inputFormatters: widget.inputFormatters,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          style: widget.style ?? Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.heading,
                 overflow: TextOverflow.ellipsis,
               ),
           decoration: InputDecoration(
             hintText: widget.hint,
-            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.body),
+            hintStyle: widget.hintStyle ?? Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.body),
             suffixIcon: widget.suffixIcon,
             prefixIcon: widget.prefixIcon,
           ),
