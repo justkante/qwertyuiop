@@ -146,53 +146,42 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                               ExpandableProfileImage(
                                 imageUrl: data.profileImage,
                                 initials: data.initials,
-                                size: 80,
+                                size: 70, // One circle
                                 initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 24, padding: const EdgeInsets.all(12))),
                               ),
                               Positioned(
-                                bottom: 0,
-                                right: 0,
+                                bottom: -2,
+                                right: -2,
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-                                    child: const Icon(Icons.camera_alt_outlined, size: 14, color: AppColors.primary),
+                                    child: const Icon(Icons.camera_alt_outlined, size: 10, color: AppColors.primary),
                                   ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        16.0.height,
+                        24.0.height,
 
                         Column(
                           children: [
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22)),
-                                if (data.isPremium == true) ...[
+                                Text(userData.name ?? 'User', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                                if (data.isPremium == true || (data.ratingsAndReviews?.averageRating != null && data.ratingsAndReviews!.averageRating! >= 4.5)) ...[
                                   4.0.width,
-                                  SvgPicture.asset(AppImages.blueTick, width: 20, height: 20),
+                                  const Icon(Icons.check_circle, color: Color(0xFF2196F3), size: 18),
                                 ],
                               ],
                             ),
-                            Text('Recruiter Profile', style: TextStyle(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w600)),
+                            Text('Recruiter Profile', style: TextStyle(color: AppColors.primary, fontSize: 13, fontWeight: FontWeight.w600)),
                             8.0.height,
-                            InkWell(
-                              onTap: () {
-                                 // Navigate to reviews or tab
-                              },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 14),
-                                  4.0.width,
-                                  Text('${data.ratingsAndReviews?.averageRating ?? 0.0} (${data.ratingsAndReviews?.totalReviews ?? 0} reviews) >', style: const TextStyle(color: AppColors.body, fontSize: 12)),
-                                ],
-                              ),
-                            ),
+                            StarRating(rating: data.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 16),
+                            Text('${data.ratingsAndReviews?.averageRating ?? 0.0} (${data.ratingsAndReviews?.totalReviews ?? 0} reviews)', style: const TextStyle(color: AppColors.body, fontSize: 11)),
                           ],
                         ),
                         16.0.height,
@@ -201,40 +190,20 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _buildSmallInfoChip(Icons.location_on_outlined, 'Lagos, Nigeria'),
-                            16.0.width,
-                            _buildSmallInfoChip(Icons.business_outlined, 'Company'),
+                            12.0.width,
+                            _buildSmallInfoChip(Icons.business_center_outlined, 'Agency'),
                           ],
                         ),
                         24.0.height,
                         Row(
                           children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => NavigationService.instance.push(const EditProfileView()),
-                                icon: const Icon(Icons.edit_outlined, size: 18),
-                                label: const Text('Edit Profile'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: const Color(0xFF1B3131),
-                                  side: BorderSide(color: AppColors.grey200),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                ),
-                              ),
-                            ),
+                            Expanded(child: MainButton(text: 'Edit Profile', color: const Color(0xFFE0F2F1), textColor: AppColors.primary, onPressed: () {
+                               NavigationService.instance.push(const EditProfileView());
+                            })),
                             12.0.width,
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: () => NavigationService.instance.push(FetchedRecruiterProfileView(creatorId: userData.id ?? '', creatorName: userData.name ?? '')),
-                                icon: const Icon(Icons.remove_red_eye_outlined, size: 18),
-                                label: const Text('View Public Profile'),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppColors.primary,
-                                  side: const BorderSide(color: AppColors.primary),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                ),
-                              ),
-                            ),
+                            Expanded(child: MainButton(text: 'View Public', color: AppColors.grey50, textColor: const Color(0xFF1B3131), onPressed: () {
+                               NavigationService.instance.push(FetchedRecruiterProfileView(creatorId: userData.id ?? '', creatorName: userData.name ?? ''));
+                            })),
                           ],
                         ),
                         32.0.height,
@@ -366,14 +335,11 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           crossAxisCount: 3,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 1.0,
+          childAspectRatio: 1.1,
           children: [
-            _buildMetricItem('Total Bookings', data.analytics?.totalBookings?.toString() ?? '0', Icons.work_outline, const Color(0xFFE3F2FD), const Color(0xFF2196F3)),
-            _buildMetricItem('Active Bookings', '0', Icons.access_time, const Color(0xFFE0F2F1), const Color(0xFF00BFA5)),
-            _buildMetricItem('Repeat Hire Rate', '${data.analytics?.repeatHireRate ?? 0}%', Icons.percent, const Color(0xFFFFFDE7), const Color(0xFFF9A825)),
-            _buildMetricItem('Cancellation Rate', '0.0%', Icons.cancel_outlined, const Color(0xFFFCEBEC), const Color(0xFFFF6F61)),
-            _buildMetricItem('Average Response', '${data.analytics?.averageResponseTime ?? 0} hrs', Icons.bolt, const Color(0xFFF3E5F5), const Color(0xFF7B1FA2)),
-            _buildMetricItem('Member Since', data.analytics?.memberSince?.timeNoAgo() ?? '1 week', Icons.calendar_today_outlined, const Color(0xFFEFEFEF), const Color(0xFF757575)),
+            _buildMetricItem('Bookings', data.analytics?.totalBookings?.toString() ?? '0', Icons.shopping_bag_outlined, const Color(0xFFE3F2FD), const Color(0xFF2196F3)),
+            _buildMetricItem('Repeat Rate', '${data.analytics?.repeatHireRate ?? 0}%', Icons.refresh_outlined, const Color(0xFFF3E5F5), const Color(0xFF7B1FA2)),
+            _buildMetricItem('Resp. Time', '${data.analytics?.averageResponseTime ?? 0}h', Icons.bolt, const Color(0xFFE0F2F1), const Color(0xFF00897B)),
           ],
         ),
         32.0.height,

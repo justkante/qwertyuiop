@@ -203,13 +203,14 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
             Row(
               children: [
                 Expanded(
+                  flex: 2,
                   child: MainButton(
-                    text: 'View Profile',
+                    text: 'View Profile →',
                     textColor: Colors.white,
-                    fontSize: 11, // Tighter
-                    borderRadius: 12,
-                    height: 38,
-                    color: const Color(0xFF1B3131),
+                    fontSize: 14,
+                    borderRadius: 24,
+                    height: 44,
+                    color: const Color(0xFF00796B),
                     onPressed: () {
                       NavigationService.instance.push(
                         CreatorProfileView(
@@ -220,15 +221,10 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     },
                   ),
                 ),
-                8.0.width,
+                12.0.width,
                 Expanded(
-                  child: MainButton(
-                    text: 'Book Now',
-                    textColor: Colors.white,
-                    fontSize: 11, // Tighter
-                    borderRadius: 12,
-                    height: 38,
-                    color: AppColors.primary,
+                  flex: 1,
+                  child: OutlinedButton(
                     onPressed: () {
                        NavigationService.instance.push(
                          BookCreatorView(
@@ -236,6 +232,19 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                          ),
                        );
                     },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF00796B)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.send_outlined, size: 16, color: Color(0xFF00796B)),
+                        8.0.width,
+                        const Text('Invite', style: TextStyle(color: Color(0xFF00796B), fontWeight: FontWeight.bold, fontSize: 13)),
+                      ],
+                    ),
                   ),
                 ),
               ],

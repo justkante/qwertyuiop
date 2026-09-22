@@ -271,7 +271,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Promo Banner
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24), // Reduced width by approx 10%
+                  padding: const EdgeInsets.symmetric(horizontal: 4), // Maximum width
                   child: _buildStretchedBanner(
                     AppImages.homeBanner,
                     () {
