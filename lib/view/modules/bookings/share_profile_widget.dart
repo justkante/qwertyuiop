@@ -12,6 +12,7 @@ import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart' as snackbar;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ShareProfileWidget extends StatefulWidget {
   const ShareProfileWidget({
@@ -128,20 +129,41 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSocialIcon(Icons.chat_bubble, const Color(0xFF25D366), 'WhatsApp', () {
-              AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+            _buildSocialIcon(Icons.chat_bubble, const Color(0xFF25D366), 'WhatsApp', () async {
+              final text = Uri.encodeComponent("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl");
+              final whatsappUrl = Uri.parse("whatsapp://send?text=$text");
+              if (await canLaunchUrl(whatsappUrl)) {
+                 await launchUrl(whatsappUrl);
+              } else {
+                 AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+              }
             }),
             24.0.width,
-            _buildSocialIcon(Icons.camera_alt, const Color(0xFFE4405F), 'Instagram', () {
-               AppUtils.shareLink(profileUrl, context);
+            _buildSocialIcon(Icons.camera_alt, const Color(0xFFE4405F), 'Instagram', () async {
+               final instagramUrl = Uri.parse("https://www.instagram.com/");
+               if (await canLaunchUrl(instagramUrl)) {
+                  await launchUrl(instagramUrl, mode: LaunchMode.externalApplication);
+               } else {
+                  AppUtils.shareLink(profileUrl, context);
+               }
             }),
             24.0.width,
-            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook', () {
-               AppUtils.shareLink(profileUrl, context);
+            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook', () async {
+               final fbUrl = Uri.parse("https://www.facebook.com/sharer/sharer.php?u=$profileUrl");
+               if (await canLaunchUrl(fbUrl)) {
+                  await launchUrl(fbUrl, mode: LaunchMode.externalApplication);
+               } else {
+                  AppUtils.shareLink(profileUrl, context);
+               }
             }),
             24.0.width,
-            _buildSocialIcon(Icons.snapchat, const Color(0xFFFFFC00), 'Snapchat', () {
-               AppUtils.shareLink(profileUrl, context);
+            _buildSocialIcon(Icons.snapchat, const Color(0xFFFFFC00), 'Snapchat', () async {
+               final snapUrl = Uri.parse("https://www.snapchat.com/share?url=$profileUrl");
+               if (await canLaunchUrl(snapUrl)) {
+                  await launchUrl(snapUrl, mode: LaunchMode.externalApplication);
+               } else {
+                  AppUtils.shareLink(profileUrl, context);
+               }
             }),
           ],
         ),

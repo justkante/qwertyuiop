@@ -93,7 +93,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                     ),
                   ),
                   Text(
-                    'Create. Connect. Collaborate.',
+                    'Find. Book. Create.',
                     style: context.textTheme.bodySmall?.copyWith(
                       color: AppColors.body,
                       fontSize: 11,

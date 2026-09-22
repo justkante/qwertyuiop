@@ -234,9 +234,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
-                          child: const TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search jobs, recruiters or roles',
+                          child: TextField(
+                            onSubmitted: (val) {
+                               if (val.isNotEmpty) {
+                                  ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
+                                  ref.read(custom_nav.navBarController.notifier).index = 1; // Switch to Search Talents tab
+                               }
+                            },
+                            decoration: const InputDecoration(
+                              hintText: 'Search creators, skills or locations',
                               hintStyle: TextStyle(color: AppColors.body, fontSize: 13),
                               icon: Icon(Icons.search, color: AppColors.body, size: 22),
                               border: InputBorder.none,
@@ -246,10 +252,15 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ),
                       ),
                       12.0.width,
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
-                        child: const Icon(Icons.tune, color: Colors.black, size: 22),
+                      InkWell(
+                        onTap: () {
+                           AppBottomSheet.showBottomSheet(context, widget: const filter_vm.TalentFilterSheet());
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
+                          child: const Icon(Icons.tune, color: Colors.black, size: 22),
+                        ),
                       ),
                     ],
                   ),
@@ -349,34 +360,50 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
                   child: Column(
                     children: [
-                      _buildTitledHeader(
-                        _recommendedToggle == 0 ? 'Recommended creators' : 'Recommended for you',
-                        _buildToggleSwitch(_recommendedToggle, (val) => setState(() => _recommendedToggle = val)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              _recommendedToggle == 0 ? 'Recommended creators' : 'Recommended for you',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF1B3131)),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                               if (_recommendedToggle == 0) {
+                                  ref.read(custom_nav.navBarController.notifier).index = 1;
+                               } else {
+                                  ref.read(jobTabIndexProvider.notifier).state = 0;
+                                  ref.read(custom_nav.navBarController.notifier).index = 2;
+                               }
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(60, 30),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 14)),
+                                Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      12.0.height,
+                      Row(
+                        children: [
+                          _buildToggleSwitch(_recommendedToggle, (val) => setState(() => _recommendedToggle = val)),
+                        ],
                       ),
                       16.0.height,
                       if (_recommendedToggle == 0)
                         _buildCreatorsList(recommendedCreatorsAsync)
                       else
                         _buildRecommendationsList(jobState),
-                      4.0.height,
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: () => ref.read(custom_nav.navBarController.notifier).index = _recommendedToggle == 0 ? 1 : 2,
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 0),
-                            minimumSize: const Size(50, 30),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: const Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 14)), // Increased
-                              Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
-                            ],
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -612,12 +639,12 @@ class _HomeViewState extends ConsumerState<HomeView> {
         final list = data.data ?? [];
         if (list.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommended creators found', style: TextStyle(fontSize: 12, color: AppColors.body))));
         return SizedBox(
-          height: 180,
+          height: 175,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: list.length,
             separatorBuilder: (_, __) => 12.0.width,
-            itemBuilder: (context, index) => SizedBox(width: 280, child: CreatorsCard(profile: list[index])),
+            itemBuilder: (context, index) => RecommendedCreatorsCard(profile: list[index]),
           ),
         );
       },
@@ -709,7 +736,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Widget _buildActiveListings(JobState state) {
-    final active = state.jobs.where((j) => j.status?.toLowerCase() == 'active').toList();
+    final active = state.myListings.where((j) => j.status?.toLowerCase() == 'active').toList();
     if (active.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No current active listing', style: TextStyle(color: AppColors.body))));
     return ListView.separated(
       shrinkWrap: true,

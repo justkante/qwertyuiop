@@ -247,7 +247,6 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
   }
 }
 
-// MARK: Recommended Creators Card Widget
 class RecommendedCreatorsCard extends ConsumerStatefulWidget {
   final Function()? onFavoriteToggle;
   final bool isFavorite;
@@ -280,78 +279,106 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
         NavigationService.instance.push(
           CreatorProfileView(
             profile: widget.profile,
-            isFavorite: widget.isFavorite,
+            isFavorite: widget.isFavorite || widget.profile?.isFavorited == true,
           ),
         );
       },
       child: Container(
-        padding: const EdgeInsets.all(10),
+        width: 160,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: AppColors.surface,
-          ),
-          boxShadow: const [
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.grey50),
+          boxShadow: [
             BoxShadow(
-              color: AppColors.shadowColor,
-              blurRadius: 6,
-              offset: Offset(2, 2),
-            ),
-            BoxShadow(
-              color: AppColors.shadowColor,
+              color: Colors.black.withOpacity(0.02),
               blurRadius: 10,
-              offset: Offset(8, 7),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Center(
-          child: Row(
-            children: [
-              widget.profile?.profileImage != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: CachedImageHandler(
-                        imageUrl: widget.profile?.profileImage ?? '',
-                        height: 40,
-                        width: 40,
-                      ),
-                    )
-                  : InitialAvatar(
-                      initials: widget.profile?.initials ?? '',
-                      padding: const EdgeInsets.all(14),
-                      size: 12,
-                    ),
-              8.0.width,
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      widget.profile?.name ?? 'Temiloluwa Otedola',
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textTheme.bodyLarge?.copyWith(
-                        fontSize: 14,
-                        color: AppColors.subHeading,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.orange, size: 12),
-                        2.0.width,
-                        Text(
-                          '${widget.profile?.ratingsAndReviews?.averageRating ?? 0.0}',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                Center(
+                  child: widget.profile?.profileImage != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(35),
+                          child: CachedImageHandler(
+                            imageUrl: widget.profile?.profileImage ?? '',
+                            height: 70,
+                            width: 70,
+                          ),
+                        )
+                      : InitialAvatar(
+                          initials: widget.profile?.initials ?? '',
+                          padding: const EdgeInsets.all(20),
+                          size: 14,
                         ),
-                      ],
-                    ),
-                  ],
                 ),
-              )
-            ],
-          ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: InkWell(
+                    onTap: widget.onFavoriteToggle,
+                    child: Icon(
+                      widget.isFavorite || widget.profile?.isFavorited == true
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      size: 20,
+                      color: widget.isFavorite || widget.profile?.isFavorited == true
+                          ? Colors.red
+                          : AppColors.grey300,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            12.0.height,
+            Text(
+              widget.profile?.categories?.firstOrNull?.name ?? 'Creator',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF1B3131),
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            4.0.height,
+            Row(
+              children: [
+                const Icon(Icons.star, color: Colors.orange, size: 14),
+                2.0.width,
+                Text(
+                  '${widget.profile?.ratingsAndReviews?.averageRating ?? 0.0}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+                Text(
+                  ' (${widget.profile?.ratingsAndReviews?.totalReviews ?? 0})',
+                  style: const TextStyle(color: AppColors.grey400, fontSize: 11),
+                ),
+              ],
+            ),
+            4.0.height,
+            Row(
+              children: [
+                const Icon(Icons.location_on_outlined, size: 14, color: AppColors.grey400),
+                4.0.width,
+                Expanded(
+                  child: Text(
+                    widget.profile?.location ?? 'Lagos',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: AppColors.grey400, fontSize: 12),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
