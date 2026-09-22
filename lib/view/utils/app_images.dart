@@ -20,7 +20,7 @@ class AppImages {
   static const String bookingConfetti = 'assets/images/booking_confetti.png';
   static const String almostTherePng = 'assets/images/almost_there.png';
   static const String map = 'assets/images/map.png';
-  static const String homeBanner = 'assets/images/home_banner_new.jpeg';
+  static const String homeBanner = 'assets/images/home_banner_new.jpg';
 
   /// SVG
   static const String google = 'assets/svg/google.svg';
