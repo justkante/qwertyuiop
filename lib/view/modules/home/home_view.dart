@@ -377,7 +377,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                                } else {
                                   ref.read(jobTabIndexProvider.notifier).state = 0;
                                   ref.read(custom_nav.navBarController.notifier).index = 2;
-                               }
+                                }
                             },
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.zero,
@@ -416,20 +416,35 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
                   child: Column(
                     children: [
-                      _buildTitledHeader('Your active listings', const SizedBox.shrink()),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Your active listings',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF1B3131)),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                               ref.read(jobTabIndexProvider.notifier).state = 2;
+                               ref.read(custom_nav.navBarController.notifier).index = 2;
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(60, 30),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 14)),
+                                Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                       16.0.height,
                       _buildActiveListings(jobState),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton.icon(
-                          onPressed: () {
-                             ref.read(jobTabIndexProvider.notifier).state = 2;
-                             ref.read(custom_nav.navBarController.notifier).index = 2;
-                          },
-                          icon: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
-                          label: const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 18),
-                        ),
-                      ),
                     ],
                   ),
                 ),
