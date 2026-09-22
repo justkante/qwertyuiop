@@ -185,7 +185,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                       textAlign: TextAlign.center,
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: Colors.black,
-                        fontSize: 18,
+                        fontSize: 22, // Increased from 18
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -193,8 +193,8 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                       4.0.width,
                       SvgPicture.asset(
                         AppImages.blueTick,
-                        width: 18,
-                        height: 18,
+                        width: 22, // Increased
+                        height: 22, // Increased
                       ),
                     ],
                   ],
@@ -206,6 +206,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                   'Creator Profile',
                   style: context.textTheme.bodySmall?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 14, // Increased
                     color: AppColors.primary,
                   ),
                 ),
@@ -217,7 +218,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                 child: StarRating(
                   rating: widget.profile?.ratingsAndReviews?.averageRating ?? 0.0,
                   starCount: 5,
-                  starSize: 16,
+                  starSize: 20, // Increased from 16
                 ),
               ),
               16.0.height,
@@ -334,7 +335,8 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                 "Creator Metrics",
                 style: context.textTheme.bodySmall?.copyWith(
                   color: AppColors.subHeading,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.bold, // Bold
+                  fontSize: 14, // Increased
                 ),
               ),
               8.0.height,
@@ -548,7 +550,8 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                   "Ratings & Reviews",
                   style: context.textTheme.bodySmall?.copyWith(
                     color: AppColors.subHeading,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold, // Bold
+                    fontSize: 14, // Increased
                   ),
                 ),
               ),
@@ -596,9 +599,9 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
               Text(
                 "Most Recent",
                 style: context.textTheme.bodySmall?.copyWith(
-                  fontSize: 12,
+                  fontSize: 14, // Increased
                   color: AppColors.body,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.bold, // Bold
                 ),
               ),
               12.0.height,

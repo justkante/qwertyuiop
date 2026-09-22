@@ -300,21 +300,23 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Color(0xFF1B3131)),
+      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF1B3131)), // Increased from 13
     );
   }
 
   Widget _buildTextField(TextEditingController controller, String hint, {IconData? icon, Widget? prefix}) {
     return TextFormField(
       controller: controller,
+      enableInteractiveSelection: true,
+      style: const TextStyle(fontSize: 16), // Added
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.body, fontSize: 13),
-        prefixIcon: icon != null ? Icon(icon, color: AppColors.body, size: 20) : prefix,
+        hintStyle: const TextStyle(color: AppColors.body, fontSize: 15), // Increased from 13
+        prefixIcon: icon != null ? Icon(icon, color: AppColors.body, size: 22) : prefix,
         fillColor: AppColors.grey50,
         filled: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (val) => (val == null || val.isEmpty) && hint.contains('e.g.') && !hint.contains('50,000') ? 'Required' : null,
     );
@@ -328,8 +330,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
         child: DropdownButton<String>(
           isExpanded: true,
           value: selectedProjectType,
-          hint: const Text('Select project type', style: TextStyle(fontSize: 13, color: AppColors.body)),
-          items: projectTypes.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13)))).toList(),
+          hint: const Text('Select project type', style: TextStyle(fontSize: 15, color: AppColors.body)), // Increased
+          items: projectTypes.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15)))).toList(), // Increased
           onChanged: (val) => setState(() => selectedProjectType = val),
           icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
         ),
@@ -345,9 +347,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           controller: controller,
           maxLines: 4,
           maxLength: 500,
+          enableInteractiveSelection: true,
+          style: const TextStyle(fontSize: 16), // Added
           decoration: InputDecoration(
             hintText: 'Tell the creator about your project, goals, style, and any specific requirements...',
-            hintStyle: const TextStyle(color: AppColors.body, fontSize: 13),
+            hintStyle: const TextStyle(color: AppColors.body, fontSize: 15), // Increased
             fillColor: AppColors.grey50,
             filled: true,
             counterText: "",

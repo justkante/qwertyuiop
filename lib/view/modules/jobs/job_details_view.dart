@@ -322,8 +322,8 @@ class _JobDetailViewState extends ConsumerState<JobDetailView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: AppColors.body, fontSize: 13)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(label, style: const TextStyle(color: AppColors.body, fontSize: 15)), // Increased from 13
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)), // Increased from 13
         ],
       ),
     );

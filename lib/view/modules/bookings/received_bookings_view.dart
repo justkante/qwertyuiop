@@ -188,14 +188,14 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-              child: Icon(icon, color: iconColor, size: 18),
+              child: Icon(icon, color: iconColor, size: 20), // Increased from 18
             ),
             12.0.width,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body)),
-                Text('$count', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
+                Text(label, style: const TextStyle(fontSize: 12, color: AppColors.body)), // Increased from 10
+                Text('$count', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased from 18
               ],
             ),
           ],
@@ -222,16 +222,17 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
           ),
         ),
         24.0.height,
-        const Text('No bookings yet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+        const Text('No bookings yet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)), // Increased
         8.0.height,
         const Text(
           'When you send or receive bookings, they\'ll appear here.',
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.body, fontSize: 13, height: 1.5),
+          style: TextStyle(color: AppColors.body, fontSize: 14, height: 1.5), // Increased
         ),
         32.0.height,
         MainButton(
           text: 'Find creators',
+          fontSize: 16,
           onPressed: () {
              ref.read(navBarController.notifier).index = 1; // Search Talents
           },
@@ -241,6 +242,7 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
           text: 'Explore jobs',
           color: Colors.white,
           textColor: const Color(0xFF00796B),
+          fontSize: 16,
           onPressed: () {
              ref.read(jobTabIndexProvider.notifier).state = 0;
              ref.read(navBarController.notifier).index = 2; // Jobs tab

@@ -212,13 +212,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         children: [
                           Text(
                             'Good morning, ${userData.name?.split(' ').first ?? 'User'}',
-                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
                           ),
                           4.0.width,
-                          const Text('👋', style: TextStyle(fontSize: 22)),
+                          const Text('👋', style: TextStyle(fontSize: 26)),
                         ],
                       ),
-                      Text('Ready to get discovered today?', style: TextStyle(fontSize: 14, color: AppColors.body)),
+                      Text('Ready to get discovered today?', style: TextStyle(fontSize: 18, color: AppColors.body)),
                     ],
                   ),
                 ),
@@ -478,7 +478,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))), // Increased title size
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131))), // Increased title size
                   Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.body)), // Increased from 11
                 ],
               ),
@@ -714,6 +714,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         currency: active[index].currency ?? 'NGN',
         dateRange: 'Active',
         status: 'Active',
+        serviceName: active[index].category?.name, // Added
         onTap: () {},
         description: active[index].description ?? '',
       ),

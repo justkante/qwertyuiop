@@ -161,14 +161,14 @@ class MetricCard extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500),
+                    style: const TextStyle(fontSize: 13, color: AppColors.body, fontWeight: FontWeight.w500), // Increased from 11
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     value,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 20, // Increased from 18
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF1B3131),
                     ),

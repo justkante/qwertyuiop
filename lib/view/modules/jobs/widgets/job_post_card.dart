@@ -13,6 +13,7 @@ class JobPostCard extends StatefulWidget {
   final String currency;
   final String dateRange;
   final String status; // Sent, Viewed, etc
+  final String? serviceName; // Add this
   final int? applicationCount; // Add this
   final List<String>? applicationAvatars; // Add this
   final VoidCallback onTap;
@@ -29,6 +30,7 @@ class JobPostCard extends StatefulWidget {
     required this.currency,
     required this.dateRange,
     required this.status,
+    this.serviceName, // Add this
     this.applicationCount, // Add this
     this.applicationAvatars, // Add this
     required this.onTap,
@@ -95,7 +97,7 @@ class _JobPostCardState extends State<JobPostCard> {
                     widget.title,
                     style: context.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: 18, // Increased
                     ),
                   ),
                   Row(
@@ -150,19 +152,30 @@ class _JobPostCardState extends State<JobPostCard> {
                 ],
               ),
               4.0.height,
+              if (widget.serviceName != null) ...[
+                Text(
+                  widget.serviceName!,
+                  style: const TextStyle(
+                    color: Color(0xFFFF6F61),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                4.0.height,
+              ],
               Row(
                 children: [
                   const Icon(Icons.location_on_outlined, size: 12, color: AppColors.body),
                   4.0.width,
                   Text(
                     widget.location,
-                    style: context.textTheme.bodySmall?.copyWith(fontSize: 11, color: AppColors.body),
+                    style: context.textTheme.bodySmall?.copyWith(fontSize: 14, color: AppColors.body), // Increased
                   ),
                   12.0.width,
                   Text(
                     widget.price.amountWithCurrency(widget.currency),
                     style: context.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
+                      fontSize: 14, // Increased
                       color: const Color(0xFF009688),
                       fontWeight: FontWeight.bold,
                     ),
@@ -175,7 +188,7 @@ class _JobPostCardState extends State<JobPostCard> {
                     ? widget.description.truncate(100)
                     : 'No description available',
                 style: context.textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
+                  fontSize: 14, // Increased
                   color: AppColors.body,
                   height: 1.4,
                 ),
@@ -187,7 +200,7 @@ class _JobPostCardState extends State<JobPostCard> {
                   Text(
                     widget.dateRange,
                     style: context.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
+                      fontSize: 14, // Increased
                       color: AppColors.body,
                     ),
                   ),

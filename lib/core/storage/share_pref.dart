@@ -41,6 +41,9 @@ class SharedPrefManager {
   static set countryUpdatedAt(String dateTime) => prefs.setString("countryUpdatedAt", dateTime);
   static String get countryUpdatedAt => prefs.getString("countryUpdatedAt") ?? '';
 
+  static set jobAlertsEnabled(bool v) => prefs.setBool("jobAlertsEnabled", v);
+  static bool get jobAlertsEnabled => prefs.getBool("jobAlertsEnabled") ?? false;
+
   static void clear() {
     prefs.clear();
   }

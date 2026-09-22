@@ -107,7 +107,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Job Type
-              const Text('Job Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text('Job Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               12.0.height,
               Row(
                 children: [
@@ -119,7 +119,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Describe Job
-              const Text('Describe Job', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text('Describe Job', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               8.0.height,
               TextFormField(
                 controller: _descriptionController,
@@ -127,17 +127,17 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                 validator: (val) => val == null || val.isEmpty ? 'Description is required' : null,
                 decoration: InputDecoration(
                   hintText: 'Enter description here',
-                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
+                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 15),
                   fillColor: AppColors.grey50,
                   filled: true,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 16),
               ),
               24.0.height,
 
               // Service
-              const Text('Service', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text('Service', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               8.0.height,
               ref.watch(fetchCreatorNichesProvider).when(
                 data: (categories) => Container(
@@ -147,15 +147,15 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     child: DropdownButton<String>(
                       isExpanded: true,
                       value: _selectedService,
-                      hint: const Text('Select Service', style: TextStyle(fontSize: 13, color: AppColors.body)),
-                      items: categories.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name ?? '', style: const TextStyle(fontSize: 14)))).toList(),
+                      hint: const Text('Select Service', style: TextStyle(fontSize: 15, color: AppColors.body)),
+                      items: categories.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name ?? '', style: const TextStyle(fontSize: 15)))).toList(),
                       onChanged: (val) => setState(() => _selectedService = val),
                       icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
                     ),
                   ),
                 ),
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (e, s) => const Text('Error loading services', style: TextStyle(color: Colors.red, fontSize: 13)),
+                error: (e, s) => const Text('Error loading services', style: TextStyle(color: Colors.red, fontSize: 14)),
               ),
               24.0.height,
 
@@ -169,7 +169,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Start Date
-              const Text('Start Date', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Start Date', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), // Increased
               8.0.height,
               InkWell(
                 onTap: () async {
@@ -187,7 +187,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(_startDate?.toFormattedDate() ?? 'Select', style: const TextStyle(fontSize: 12, color: AppColors.body)),
+                      Text(_startDate?.toFormattedDate() ?? 'Select Date', style: const TextStyle(fontSize: 16, color: AppColors.body)), // Increased
                       const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
                     ],
                   ),
@@ -196,7 +196,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Start Time
-              const Text('Start Time', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Start Time', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), // Increased
               8.0.height,
               Row(
                 children: [
@@ -218,19 +218,17 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             maxLength: 2,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            enableInteractiveSelection: true,
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500), // Increased
                             decoration: const InputDecoration(
                               counterText: "",
                               hintText: '12',
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.zero,
                             ),
-                            onChanged: (val) {
-                              if (val.length == 2) FocusScope.of(context).nextFocus();
-                            },
                           ),
                         ),
-                        const Text(':', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                        const Text(':', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22)), // Increased
                         // Minute
                         SizedBox(
                           width: 45,
@@ -239,16 +237,14 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                             keyboardType: TextInputType.number,
                             textAlign: TextAlign.center,
                             maxLength: 2,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                            enableInteractiveSelection: true,
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500), // Increased
                             decoration: const InputDecoration(
                               counterText: "",
                               hintText: '00',
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.zero,
                             ),
-                            onChanged: (val) {
-                              if (val.length == 2) FocusScope.of(context).nextFocus();
-                            },
                           ),
                         ),
                         12.0.width,
@@ -256,11 +252,11 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                         DropdownButtonHideUnderline(
                           child: DropdownButton<String>(
                             value: _period,
-                            icon: const Icon(Icons.keyboard_arrow_down, size: 16, color: AppColors.body),
+                            icon: const Icon(Icons.keyboard_arrow_down, size: 20, color: AppColors.body), // Increased
                             items: ['AM', 'PM']
                                 .map((e) => DropdownMenuItem(
                                       value: e,
-                                      child: Text(e, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                      child: Text(e, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)), // Increased
                                     ))
                                 .toList(),
                             onChanged: (val) {
@@ -299,7 +295,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                         color: AppColors.grey50,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.access_time, color: AppColors.primary, size: 24),
+                      child: const Icon(Icons.access_time, color: AppColors.primary, size: 30), // Increased
                     ),
                   ),
                 ],
@@ -307,7 +303,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Duration
-              const Text('Duration', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Duration', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), // Increased
               8.0.height,
               Row(
                 children: [
@@ -315,7 +311,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Amount', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                        const Text('Amount', style: TextStyle(fontSize: 14, color: AppColors.body)), // Increased
                         4.0.height,
                         TextFormField(
                           controller: _durationController,
@@ -323,7 +319,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                           validator: (val) => val == null || val.isEmpty ? 'Required' : null,
                           decoration: InputDecoration(
                             hintText: 'e.g. 5',
-                            hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 12),
+                            hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 14),
                             fillColor: AppColors.grey50,
                             filled: true,
                             border: OutlineInputBorder(
@@ -331,6 +327,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                               borderSide: BorderSide.none,
                             ),
                           ),
+                          style: const TextStyle(fontSize: 18), // Increased
                         ),
                       ],
                     ),
@@ -340,7 +337,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Unit', style: TextStyle(fontSize: 10, color: AppColors.body)),
+                        const Text('Unit', style: TextStyle(fontSize: 14, color: AppColors.body)), // Increased
                         4.0.height,
                         _buildDropdownField(
                           '',
@@ -356,22 +353,23 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               24.0.height,
 
               // Location
-              const Text('Location (optional)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              const Text('Location (optional)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)), // Increased
               8.0.height,
               TextFormField(
                 controller: _locationController,
                 decoration: InputDecoration(
                   hintText: 'Enter Location here',
-                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 12),
+                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 15),
                   fillColor: AppColors.grey50,
                   filled: true,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                 ),
+                style: const TextStyle(fontSize: 18), // Increased
               ),
               24.0.height,
 
               // Price
-              const Text('Price', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              const Text('Price', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)), // Increased
               8.0.height,
               TextFormField(
                 controller: _priceController,
@@ -379,9 +377,9 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                 validator: (val) => val == null || val.isEmpty ? 'Price is required' : null,
                 decoration: InputDecoration(
                   prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? 'NGN'} ',
-                  prefixStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                  prefixStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18), // Increased
                   hintText: '0.00',
-                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
+                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 15),
                   fillColor: AppColors.grey50,
                   filled: true,
                   border: OutlineInputBorder(
@@ -389,7 +387,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                style: const TextStyle(fontSize: 14),
+                style: const TextStyle(fontSize: 20), // Increased
               ),
               40.0.height,
 
@@ -397,29 +395,27 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () {
-                         // Save draft logic
-                      },
+                      onPressed: () => _submitJob(isDraft: true),
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(color: Color(0xFF009688)),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 18), // Increased
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Save', style: TextStyle(color: Color(0xFF009688), fontWeight: FontWeight.bold)),
+                      child: const Text('Save Draft', style: TextStyle(color: Color(0xFF009688), fontWeight: FontWeight.bold, fontSize: 18)), // Increased
                     ),
                   ),
                   16.0.width,
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _submitJob,
+                      onPressed: () => _submitJob(isDraft: false),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF009688),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 18), // Increased
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: ref.watch(jobControllerProvider).isLoading
-                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                          : const Text('Post Job', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Post Job', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)), // Increased
                     ),
                   ),
                 ],
@@ -479,7 +475,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
     );
   }
 
-  void _submitJob() async {
+  void _submitJob({bool isDraft = false}) async {
     if (_formKey.currentState!.validate()) {
       if (_selectedService == null) {
         ToastDialog.showError('Please select a service', context);
@@ -502,6 +498,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         'price': double.tryParse(_priceController.text) ?? 0.0,
         'type': _jobType,
         'work_mode': _selectedWorkMode,
+        'status': isDraft ? 'draft' : 'active',
         'currency': ref.read(userControllerProvider).primaryCurrency ?? 'NGN',
         'start_date': DateFormat('yyyy-MM-dd').format(_startDate!),
         'start_time': _startTime != null ? '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}' : null,
@@ -509,9 +506,14 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
       });
 
       if (error == null && mounted) {
-        NavigationService.instance.pushReplacement(const PostJobSuccessView());
+        if (isDraft) {
+          ToastDialog.showSuccess('Draft saved successfully', context);
+          Navigator.pop(context);
+        } else {
+          NavigationService.instance.pushReplacement(const PostJobSuccessView());
+        }
       } else if (mounted) {
-        ToastDialog.showError(error ?? 'Failed to post job. Please try again.', context);
+        ToastDialog.showError(error ?? 'Failed to process job. Please try again.', context);
       }
     }
   }

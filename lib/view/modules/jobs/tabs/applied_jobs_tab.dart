@@ -103,7 +103,7 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                 : jobState.appliedJobs.isEmpty
                     ? _buildEmptyState()
                     : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 250),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 300), // Even more padding for scrolling
                         itemCount: jobState.appliedJobs.length,
                         separatorBuilder: (_, __) => 16.0.height,
                         itemBuilder: (context, index) {
@@ -116,6 +116,7 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                             currency: job.currency ?? 'NGN',
                             dateRange: job.createdAt?.toFormattedDate() ?? '',
                             status: 'Sent', // From application
+                            serviceName: job.category?.name, // Added
                             initialFavorite: job.isFavorited ?? false,
                             onTap: () => NavigationService.instance.push(JobDetailView(job: job, status: JobStatus.viewed)),
                           );
@@ -137,7 +138,7 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
 
   Widget _buildEmptyState() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 200), // Added bottom padding
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 300), // Increased to 300
       child: Column(
         children: [
           40.0.height,
@@ -175,15 +176,12 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
           32.0.height,
           MainButton(
             text: 'Explore Jobs  →',
-            onPressed: () {}, // Navigate to Search tab
+            onPressed: () {
+               ref.read(jobTabIndexProvider.notifier).state = 0; // Navigate to Search tab
+            },
           ),
           16.0.height,
-          TextButton(
-            onPressed: () {
-               ToastDialog.showSuccess('Job alerts activated! You will receive notifications for new jobs.', context);
-            },
-            child: const Text('Set job alerts', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
-          ),
+          _buildJobAlertButton(),
           32.0.height,
           // Tips Section
           Container(
@@ -230,6 +228,26 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildJobAlertButton() {
+    final hasAlerts = SharedPrefManager.jobAlertsEnabled;
+    return TextButton(
+      onPressed: () {
+        final newVal = !hasAlerts;
+        SharedPrefManager.jobAlertsEnabled = newVal;
+        setState(() {});
+        if (newVal) {
+          ToastDialog.showSuccess('Job alerts activated!', context);
+        } else {
+          ToastDialog.showSuccess('Job alerts deactivated.', context);
+        }
+      },
+      child: Text(
+        hasAlerts ? 'Remove job alerts' : 'Set job alerts',
+        style: const TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold),
+      ),
     );
   }
 }

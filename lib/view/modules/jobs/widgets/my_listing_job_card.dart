@@ -10,6 +10,7 @@ class MyListingJobCard extends StatelessWidget {
   final double price;
   final String currency;
   final String description;
+  final String? serviceName; // Add this
   final int applicationCount;
   final String postedDate;
   final String status; // active, draft, closed
@@ -25,6 +26,7 @@ class MyListingJobCard extends StatelessWidget {
     required this.price,
     required this.currency,
     required this.description,
+    this.serviceName, // Add this
     required this.applicationCount,
     required this.postedDate,
     required this.status,
@@ -70,7 +72,7 @@ class MyListingJobCard extends StatelessWidget {
                     title,
                     style: context.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 18, // Increased from 16
                       color: const Color(0xFF1B3131),
                     ),
                   ),
@@ -109,7 +111,17 @@ class MyListingJobCard extends StatelessWidget {
               ],
             ),
             8.0.height,
-
+            if (serviceName != null) ...[
+              Text(
+                serviceName!,
+                style: const TextStyle(
+                  color: Color(0xFFFF6F61),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              8.0.height,
+            ],
             // Location and Price
             Row(
               children: [
@@ -117,7 +129,7 @@ class MyListingJobCard extends StatelessWidget {
                 4.0.width,
                 Text(
                   location,
-                  style: context.textTheme.bodySmall?.copyWith(fontSize: 12, color: AppColors.body),
+                  style: context.textTheme.bodySmall?.copyWith(fontSize: 14, color: AppColors.body), // Increased
                 ),
                 12.0.width,
                 const Text('|', style: TextStyle(color: AppColors.grey200)),
@@ -127,7 +139,7 @@ class MyListingJobCard extends StatelessWidget {
                 Text(
                   price.amountWithCurrency(currency),
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 15, // Increased
                     color: AppColors.primary,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Inter',
@@ -143,7 +155,7 @@ class MyListingJobCard extends StatelessWidget {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: context.textTheme.bodySmall?.copyWith(
-                fontSize: 12,
+                fontSize: 14, // Increased
                 color: AppColors.body,
                 height: 1.4,
               ),
@@ -157,7 +169,7 @@ class MyListingJobCard extends StatelessWidget {
                 6.0.width,
                 Text(
                   '$applicationCount Applications',
-                  style: context.textTheme.bodySmall?.copyWith(fontSize: 11, color: AppColors.body),
+                  style: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body), // Increased
                 ),
                 16.0.width,
                 const Text('|', style: TextStyle(color: AppColors.grey200)),
@@ -166,7 +178,7 @@ class MyListingJobCard extends StatelessWidget {
                 6.0.width,
                 Text(
                   '${statusLower == 'draft' ? 'Saved' : 'Posted'} $postedDate',
-                  style: context.textTheme.bodySmall?.copyWith(fontSize: 11, color: AppColors.body),
+                  style: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body), // Increased
                 ),
               ],
             ),

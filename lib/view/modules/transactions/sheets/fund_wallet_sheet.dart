@@ -97,22 +97,24 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
           16.0.height,
           Text(
             'Fund Your Wallet',
-            style: context.textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500),
+            style: context.textTheme.displayMedium?.copyWith(fontWeight: FontWeight.w500, fontSize: 28), // Increased
           ),
           8.0.height,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22),
             child: Text(
               'Enter the amount you want to add to your wallet. Funds will be available instantly after payment.',
-              style: context.textTheme.bodySmall,
+              style: context.textTheme.bodySmall?.copyWith(fontSize: 14), // Increased
               textAlign: TextAlign.center,
             ),
           ),
           32.0.height,
           TextInputField(
             header: 'Amount',
+            headerStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), // Increased
             controller: amount,
             inputType: TextInputType.number,
+            style: const TextStyle(fontSize: 18), // Increased
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
@@ -123,6 +125,7 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
               ),
             ],
             hint: 'Enter Amount',
+            hintStyle: const TextStyle(fontSize: 16), // Increased
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'This field is required';
@@ -148,6 +151,8 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
               return MainButton(
                 text: 'Fund Wallet',
                 isLoading: funding,
+                fontSize: 18, // Increased
+                padding: const EdgeInsets.symmetric(vertical: 16), // Increased
                 onPressed: isCodeValid
                     ? () {
                         ref.read(fundWalletProvider.notifier).fundWallet(

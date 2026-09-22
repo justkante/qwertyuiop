@@ -168,6 +168,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                     currency: job.currency ?? 'NGN',
                     dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate()} - ${job.expiresAt?.toFormattedDate()}' : '',
                     status: job.status ?? '',
+                    serviceName: job.category?.name, // Added
                     initialFavorite: job.isFavorited ?? false,
                     onFavoriteToggle: (val) {
                       ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);

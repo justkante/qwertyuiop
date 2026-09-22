@@ -18,17 +18,40 @@ class MyListingsTab extends ConsumerStatefulWidget {
 }
 
 class _MyListingsTabState extends ConsumerState<MyListingsTab> {
+  final TextEditingController searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(jobControllerProvider.notifier).fetchMyListings();
     });
+    searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = searchController.text.toLowerCase();
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_onSearchChanged);
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final jobState = ref.watch(jobControllerProvider);
+
+    final filteredListings = jobState.myListings.where((j) {
+      if (_searchQuery.isEmpty) return true;
+      return (j.title?.toLowerCase() ?? '').contains(_searchQuery) ||
+             (j.description?.toLowerCase() ?? '').contains(_searchQuery);
+    }).toList();
 
     final activeCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'active').length;
     final draftCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'draft').length;
@@ -68,12 +91,17 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: TextField(
+                        controller: searchController,
                         decoration: InputDecoration(
                           hintText: 'Search listing title...',
                           hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
                           icon: const Icon(Icons.search, size: 20, color: AppColors.body),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          suffixIcon: _searchQuery.isNotEmpty ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: () => searchController.clear(),
+                          ) : null,
                         ),
                       ),
                     ),
@@ -105,25 +133,26 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                   padding: EdgeInsets.only(top: 100),
                   child: Center(child: CircularProgressIndicator.adaptive()),
                 )
-              else if (jobState.myListings.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(top: 100),
-                  child: Center(child: Text('No available listings')),
+              else if (filteredListings.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 100),
+                  child: Center(child: Text(_searchQuery.isEmpty ? 'No available listings' : 'No results found for "$_searchQuery"')),
                 )
               else
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: jobState.myListings.length,
+                  itemCount: filteredListings.length,
                   separatorBuilder: (context, index) => 16.0.height,
                   itemBuilder: (context, index) {
-                    final job = jobState.myListings[index];
+                    final job = filteredListings[index];
                     return MyListingJobCard(
                       title: job.title ?? '',
                       location: job.location ?? 'Remote',
                       price: job.price ?? 0,
                       currency: job.currency ?? 'NGN',
                       description: job.description ?? '',
+                      serviceName: job.category?.name, // Added
                       applicationCount: job.applicationsCount ?? 0,
                       postedDate: job.createdAt?.toFormattedDate() ?? '',
                       status: job.status ?? 'Active',
