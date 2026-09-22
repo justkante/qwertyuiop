@@ -22,6 +22,7 @@ class ForgotPasswordEmailView extends ConsumerStatefulWidget {
 
 class _ForgotPasswordEmailViewState extends ConsumerState<ForgotPasswordEmailView> {
   final TextEditingController emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _ForgotPasswordEmailViewState extends ConsumerState<ForgotPasswordEmailVie
     return AbsorbPointer(
       absorbing: forgotEmailLoading,
       child: Form(
+        key: _formKey,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: context.canPop,
@@ -103,7 +105,7 @@ class _ForgotPasswordEmailViewState extends ConsumerState<ForgotPasswordEmailVie
                       isLoading: forgotEmailLoading,
                       onPressed: isValid
                           ? () {
-                              if (Form.of(context).validate()) {
+                              if (_formKey.currentState?.validate() ?? false) {
                                 ref
                                     .read(forgotPasswordEmailProvider.notifier)
                                     .verifyForgotEmail(email: emailController.text);

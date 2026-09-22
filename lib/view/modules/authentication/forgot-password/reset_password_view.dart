@@ -25,6 +25,7 @@ class ResetPasswordView extends ConsumerStatefulWidget {
 class _ResetPasswordViewState extends ConsumerState<ResetPasswordView> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   // Password Stuvs
   bool obscure = true;
@@ -61,6 +62,7 @@ class _ResetPasswordViewState extends ConsumerState<ResetPasswordView> {
     return AbsorbPointer(
       absorbing: resetting,
       child: Form(
+        key: _formKey,
         child: Scaffold(
           appBar: AppBar(
             automaticallyImplyLeading: context.canPop,
@@ -151,7 +153,7 @@ class _ResetPasswordViewState extends ConsumerState<ResetPasswordView> {
                       isLoading: resetting,
                       onPressed: (isValid && isPasswordsMatch)
                           ? () {
-                              if (Form.of(context).validate()) {
+                              if (_formKey.currentState?.validate() ?? false) {
                                 ref.read(resetPasswordProvider.notifier).resetPassword(
                                       ResetPasswordReq(
                                         email: enteredEmail.value,
