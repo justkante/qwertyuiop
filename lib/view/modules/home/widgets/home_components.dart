@@ -203,7 +203,7 @@ class SectionHeader extends StatelessWidget {
           title,
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 20, // Increased
             color: Color(0xFF1B3131),
           ),
         ),
@@ -214,7 +214,7 @@ class SectionHeader extends StatelessWidget {
               children: [
                 const Text(
                   'See all',
-                  style: TextStyle(color: Color(0xFF00BFA5), fontSize: 13, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: Color(0xFF00BFA5), fontSize: 14, fontWeight: FontWeight.bold), // Increased
                 ),
                 4.0.width,
                 const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),

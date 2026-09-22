@@ -212,13 +212,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         children: [
                           Text(
                             'Good morning, ${userData.name?.split(' ').first ?? 'User'}',
-                            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
                           ),
                           4.0.width,
-                          const Text('👋', style: TextStyle(fontSize: 26)),
+                          const Text('👋', style: TextStyle(fontSize: 28)),
                         ],
                       ),
-                      Text('Ready to get discovered today?', style: TextStyle(fontSize: 18, color: AppColors.body)),
+                      Text('Ready to get discovered today?', style: TextStyle(fontSize: 20, color: AppColors.body)),
                     ],
                   ),
                 ),
@@ -371,7 +371,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 13)),
+                              Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 14)), // Increased
                               Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
                             ],
                           ),
@@ -478,8 +478,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131))), // Increased title size
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.body)), // Increased from 11
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1B3131))), // Increased
+                  Text(subtitle, style: const TextStyle(fontSize: 13, color: AppColors.body)), // Increased
                 ],
               ),
             ),
@@ -500,7 +500,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 18)), // Increased icon size
+            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 20)), // Increased
             8.0.height,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -508,8 +508,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 Expanded(child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500)), // Increased from 11
-                    Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased from 18
+                    Text(label, style: const TextStyle(fontSize: 13, color: AppColors.body, fontWeight: FontWeight.w500)), // Increased
+                    Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased
                   ],
                 )),
                 const Icon(Icons.chevron_right, size: 14, color: AppColors.body),
@@ -524,7 +524,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 140, // Reduced height as requested
+      height: 130, // Reduced height as requested
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -541,13 +541,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ),
           Positioned(
-            left: 16,
-            bottom: 16,
+            left: 12,
+            bottom: 12,
             child: MainButton(
               text: 'Browse jobs',
-              width: 140,
-              height: 38, // Slightly shorter
-              borderRadius: 24,
+              width: 130,
+              height: 34,
+              fontSize: 12,
+              borderRadius: 20,
               color: const Color(0xFF00796B),
               onPressed: onTap,
             ),
@@ -561,7 +562,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1B3131))),
+        Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF1B3131))),
         trailing,
       ],
     );

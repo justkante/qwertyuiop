@@ -206,8 +206,9 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                   child: MainButton(
                     text: 'View Profile',
                     textColor: Colors.white,
-                    fontSize: 12,
-                    borderRadius: 12, // Square-ish
+                    fontSize: 11, // Tighter
+                    borderRadius: 12,
+                    height: 38,
                     color: const Color(0xFF1B3131),
                     onPressed: () {
                       NavigationService.instance.push(
@@ -219,13 +220,14 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     },
                   ),
                 ),
-                12.0.width,
+                8.0.width,
                 Expanded(
                   child: MainButton(
                     text: 'Book Now',
                     textColor: Colors.white,
-                    fontSize: 12,
-                    borderRadius: 12, // Square-ish
+                    fontSize: 11, // Tighter
+                    borderRadius: 12,
+                    height: 38,
                     color: AppColors.primary,
                     onPressed: () {
                        NavigationService.instance.push(
