@@ -227,8 +227,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
               // Search Bar
               SliverToBoxAdapter(
-              // Search Bar
-              SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
                   child: Container(
@@ -264,7 +262,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Promo Banner
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0), // Full width
+                  padding: const EdgeInsets.symmetric(horizontal: 16), // Balanced width
                   child: _buildStretchedBanner(
                     AppImages.homeBanner,
                     () {
@@ -637,7 +635,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         final list = data.data ?? [];
         if (list.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommended creators found', style: TextStyle(fontSize: 12, color: AppColors.body))));
         return SizedBox(
-          height: 175,
+          height: 250, // Increased height to prevent clipping of vertical cards
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: list.length,
