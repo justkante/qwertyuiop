@@ -501,6 +501,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(6),
@@ -511,13 +512,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF1B3131))), // Increased
-                  Text(subtitle, style: const TextStyle(fontSize: 13, color: AppColors.body)), // Increased
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131), height: 1.1), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  2.0.height,
+                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.body), maxLines: 1, overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, size: 14, color: iconColor),
+            4.0.width,
+            Icon(Icons.chevron_right, size: 16, color: iconColor),
           ],
         ),
       ),
@@ -529,26 +533,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        width: 160, // Expanded to accommodate side-by-side
+        width: 165,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
-        child: Row( // Row for side-by-side as requested
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 20)),
-            12.0.width,
-            Expanded(child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label.replaceAll(' ', '\n'), // One word per line for long labels
-                  style: const TextStyle(fontSize: 13, color: AppColors.body, fontWeight: FontWeight.w500, height: 1.1)
-                ),
-                Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
-              ],
-            )),
-            const Icon(Icons.chevron_right, size: 14, color: AppColors.body),
+            10.0.width,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500, height: 1.1),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  2.0.height,
+                  Text(
+                    value,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 14, color: AppColors.grey300),
           ],
         ),
       ),
