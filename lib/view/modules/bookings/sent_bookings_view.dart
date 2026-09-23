@@ -103,19 +103,18 @@ class _SentBookingsViewState extends ConsumerState<SentBookingsView> {
 
               // Search Bar
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
                   color: AppColors.grey50,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(30),
                 ),
                 child: TextField(
                   controller: searchController,
                   decoration: InputDecoration(
                     hintText: 'Search Name, Role...',
                     hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
-                    icon: const Icon(Icons.search, size: 20, color: AppColors.body),
+                    prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
                     border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                 ),
               ),

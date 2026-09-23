@@ -64,16 +64,15 @@ class _DraftBookingsViewState extends ConsumerState<DraftBookingsView> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
+              decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(30)),
               child: TextField(
                 controller: searchController,
                 decoration: InputDecoration(
                   hintText: 'Search draft bookings...',
                   hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
-                  icon: const Icon(Icons.search, size: 20, color: AppColors.body),
+                  prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
             ),

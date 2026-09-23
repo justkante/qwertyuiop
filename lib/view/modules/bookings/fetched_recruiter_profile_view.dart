@@ -211,7 +211,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                         Expanded(
                           flex: 3,
                           child: MetricsCard(
-                            label: 'Total Bookings',
+                            label: 'Bookings',
                             tooltipMessage:
                                 'Total number of bookings this recruiter has made on Creatify',
                             value: data.analytics?.totalBookings?.toString() ?? '0',
@@ -220,7 +220,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                         Expanded(
                           flex: 3,
                           child: MetricsCard(
-                            label: 'Repeat Hire Rate',
+                            label: 'Repeat Rate',
                             tooltipMessage:
                                 'Percentage of creators this recruiter has hired more than once',
                             value: "${data.analytics?.repeatHireRate?.toString()}%",
@@ -229,40 +229,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                         Expanded(
                           flex: 3,
                           child: MetricsCard(
-                            label: 'Joined',
-                            tooltipMessage: 'How long the recruiter has been on Creatify',
-                            value: data.analytics?.memberSince?.timeNoAgo() ?? '0',
-                          ),
-                        ),
-                      ],
-                    ),
-                    12.0.height,
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 8,
-                      children: [
-                        Expanded(
-                          flex: 3,
-                          child: MetricsCard(
-                            label: 'Active Bookings',
-                            tooltipMessage:
-                                'Number of bookings currently in progress with creators',
-                            value: data.analytics?.activeBookings?.toString() ?? '0',
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: MetricsCard(
-                            label: 'Cancellation Rate',
-                            tooltipMessage:
-                                'Percentage of bookings this recruiter has cancelled after confirming a booking',
-                            value: "${data.analytics?.cancellationRate?.toString()}%",
-                          ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: MetricsCard(
-                            label: 'Average Response Time',
+                            label: 'Resp. Time',
                             tooltipMessage:
                                 'Average time this recruiter takes to respond to messages and booking requests',
                             value: data.analytics?.averageResponseTime?.toString() ?? '0',

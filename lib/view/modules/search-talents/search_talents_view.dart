@@ -147,14 +147,14 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
               24.0.height,
 
               // Search Bar
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.grey50,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.grey50,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
                       child: TextFormField(
                         controller: searchController,
                         onFieldSubmitted: (val) {
@@ -165,26 +165,21 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
                           hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
                           prefixIcon: const Icon(Icons.search, color: AppColors.body, size: 20),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                       ),
                     ),
-                  ),
-                  12.0.width,
-                  InkWell(
-                    onTap: () {
-                       AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.grey300),
-                        borderRadius: BorderRadius.circular(12),
+                    InkWell(
+                      onTap: () {
+                         AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: 16),
+                        child: Icon(Icons.tune, color: Colors.black, size: 20),
                       ),
-                      child: const Icon(Icons.tune, color: Colors.black, size: 20),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               16.0.height,
 

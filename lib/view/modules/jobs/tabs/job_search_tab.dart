@@ -44,7 +44,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: AppColors.grey50,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                     child: TextField(
                       controller: _searchController,
@@ -57,8 +57,9 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                       decoration: InputDecoration(
                         hintText: 'Search Job, Role...',
                         hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 12),
-                        icon: const Icon(Icons.search, size: 20, color: AppColors.body),
+                        prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
                         border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
                   ),

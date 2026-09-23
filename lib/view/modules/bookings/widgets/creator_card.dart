@@ -203,7 +203,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
             Row(
               children: [
                 Expanded(
-                  flex: 2,
+                  flex: 3, // Larger as in the image
                   child: MainButton(
                     text: 'View Profile →',
                     textColor: Colors.white,
@@ -223,7 +223,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                 ),
                 12.0.width,
                 Expanded(
-                  flex: 1,
+                  flex: 2, // Slightly smaller than View Profile
                   child: OutlinedButton(
                     onPressed: () {
                        NavigationService.instance.push(
@@ -235,7 +235,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFF00796B)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      fixedSize: const Size.fromHeight(44), // Same height as MainButton
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,

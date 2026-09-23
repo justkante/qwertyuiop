@@ -227,43 +227,36 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
               // Search Bar
               SliverToBoxAdapter(
+              // Search Bar
+              SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
-                          child: TextField(
-                            onSubmitted: (val) {
-                               if (val.isNotEmpty) {
-                                  ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
-                                  ref.read(custom_nav.navBarController.notifier).index = 1; // Switch to Search Talents tab
-                               }
-                            },
-                            decoration: const InputDecoration(
-                              hintText: 'Search creators, skills or locations',
-                              hintStyle: TextStyle(color: AppColors.body, fontSize: 13),
-                              icon: Icon(Icons.search, color: AppColors.body, size: 22),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(vertical: 14),
-                            ),
-                          ),
-                        ),
-                      ),
-                      12.0.width,
-                      InkWell(
-                        onTap: () {
-                           AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(16)),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: TextField(
+                      onSubmitted: (val) {
+                         if (val.isNotEmpty) {
+                            ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
+                            ref.read(custom_nav.navBarController.notifier).index = 1;
+                         }
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search creators, skills or locations',
+                        hintStyle: const TextStyle(color: AppColors.body, fontSize: 13),
+                        prefixIcon: const Icon(Icons.search, color: AppColors.body, size: 22),
+                        suffixIcon: InkWell(
+                          onTap: () {
+                             AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
+                          },
                           child: const Icon(Icons.tune, color: Colors.black, size: 22),
                         ),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -271,7 +264,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Promo Banner
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4), // Maximum width
+                  padding: const EdgeInsets.symmetric(horizontal: 0), // Full width
                   child: _buildStretchedBanner(
                     AppImages.homeBanner,
                     () {
@@ -537,27 +530,26 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: 140,
+        width: 160, // Expanded to accommodate side-by-side
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.grey100)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row( // Row for side-by-side as requested
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 20)), // Increased
-            8.0.height,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 20)),
+            12.0.width,
+            Expanded(child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(label, style: const TextStyle(fontSize: 13, color: AppColors.body, fontWeight: FontWeight.w500)), // Increased
-                    Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased
-                  ],
-                )),
-                const Icon(Icons.chevron_right, size: 14, color: AppColors.body),
+                Text(
+                  label.replaceAll(' ', '\n'), // One word per line for long labels
+                  style: const TextStyle(fontSize: 13, color: AppColors.body, fontWeight: FontWeight.w500, height: 1.1)
+                ),
+                Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
               ],
-            ),
+            )),
+            const Icon(Icons.chevron_right, size: 14, color: AppColors.body),
           ],
         ),
       ),
@@ -567,7 +559,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 180, // Height that matches the rich design in the image
+      height: 250, // Increased breadth as requested
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -579,26 +571,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: double.infinity,
-                height: double.infinity,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0F2F1),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: const Center(child: Text('Apply directly to creative jobs')),
-              ),
+              fit: BoxFit.fill, // Stretched to fill as requested
+              errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),
           Positioned(
-            left: 16,
-            bottom: 16,
+            left: 12,
+            bottom: 12,
             child: MainButton(
               text: 'Browse jobs',
-              width: 140,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16), // Adjusted padding
-              fontSize: 13,
+              width: 180, // Increased width
               borderRadius: 24,
               color: const Color(0xFF00796B),
               onPressed: onTap,
@@ -672,7 +654,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildRecommendationsList(JobState state) {
     if (state.jobs.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommendations found', style: TextStyle(fontSize: 12, color: AppColors.body))));
     return SizedBox(
-      height: 250,
+      height: 150,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: state.jobs.length > 5 ? 5 : state.jobs.length,
@@ -802,24 +784,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        width: 130, // Slightly narrower
-        padding: const EdgeInsets.all(12),
+        width: 160, // Expanded width
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.grey100), borderRadius: BorderRadius.circular(20)),
-        child: Column( // Use Column to avoid horizontal folding
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row( // Row for side-by-side
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: bgColor.withOpacity(0.2), shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 18)),
-                const Icon(Icons.chevron_right, size: 16, color: AppColors.grey300),
-              ],
+            Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: bgColor.withOpacity(0.2), shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 18)),
+            12.0.width,
+            Expanded(
+              child: Text(
+                title.replaceAll(' ', '\n'), // One word per line as requested
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1B3131), height: 1.2)
+              )
             ),
-            12.0.height,
-            Text(
-              title.replaceAll(' ', '\n'), // Force line by line as requested
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1B3131), height: 1.2),
-            ),
+            const Icon(Icons.chevron_right, size: 16, color: AppColors.grey300),
           ],
         ),
       ),
