@@ -84,24 +84,6 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
           ),
         ),
         actions: [
-          IconButton(
-            onPressed: () => NavigationService.instance.push(const NotificationsView()),
-            icon: Stack(
-              children: [
-                const Icon(Icons.notifications_none_outlined, color: Colors.black, size: 28),
-                if (hasUnreadNotifications)
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                    ),
-                  ),
-              ],
-            ),
-          ),
           GestureDetector(
             onTap: () {
                if (userData.roles?.contains('recruiter') == true) {
@@ -132,17 +114,27 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               16.0.height,
-              Text(
-                'Find & Book Talents',
-                style: context.textTheme.displayMedium?.copyWith(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1B3131),
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'Find & Book Talents',
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.displayMedium?.copyWith(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF1B3131),
+                      ),
+                    ),
+                    4.0.height,
+                    Text(
+                      'Discover amazing creators for your next project',
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.bodyMedium?.copyWith(color: AppColors.body, fontSize: 13),
+                    ),
+                  ],
                 ),
               ),
-              Text(
-                'Discover amazing creators for your next project',
-                style: context.textTheme.bodyMedium?.copyWith(color: AppColors.body),
               ),
               24.0.height,
 

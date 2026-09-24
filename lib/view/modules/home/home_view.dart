@@ -279,29 +279,25 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                   child: Row(
                     children: [
-                      Expanded(
-                        child: _buildSmallActionBanner(
-                          'Post a job advert',
-                          'Reach thousands\nof creative talent',
-                          const Color(0xFFE0F2F1),
-                          const Color(0xFF00BFA5),
-                          Icons.add_circle_outline,
-                          () {
-                            ref.read(jobTabIndexProvider.notifier).state = 2;
-                            ref.read(custom_nav.navBarController.notifier).index = 2;
-                          },
-                        ),
+                      _buildSmallActionBanner(
+                        'Post a job advert',
+                        'Reach thousands\nof creative talent',
+                        const Color(0xFFE0F2F1),
+                        const Color(0xFF00BFA5),
+                        Icons.add_circle_outline,
+                        () {
+                          ref.read(jobTabIndexProvider.notifier).state = 2;
+                          ref.read(custom_nav.navBarController.notifier).index = 2;
+                        },
                       ),
                       12.0.width,
-                      Expanded(
-                        child: _buildSmallActionBanner(
-                          'Find talent',
-                          'Browse and connect\nwith creators',
-                          const Color(0xFFFFFDE7),
-                          const Color(0xFFF9A825),
-                          Icons.person_search_outlined,
-                          () => ref.read(custom_nav.navBarController.notifier).index = 1,
-                        ),
+                      _buildSmallActionBanner(
+                        'Find talent',
+                        'Browse and connect\nwith creators',
+                        const Color(0xFFFFFDE7),
+                        const Color(0xFFF9A825),
+                        Icons.person_search_outlined,
+                        () => ref.read(custom_nav.navBarController.notifier).index = 1,
                       ),
                     ],
                   ),
@@ -494,35 +490,38 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Widget _buildSmallActionBanner(String title, String subtitle, Color bgColor, Color iconColor, IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-              child: Icon(icon, color: iconColor, size: 18),
-            ),
-            8.0.width,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131), height: 1.1), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  2.0.height,
-                  Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.body), maxLines: 1, overflow: TextOverflow.ellipsis),
-                ],
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          height: 82, // Equal height for both containers
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+                child: Icon(icon, color: iconColor, size: 18),
               ),
-            ),
-            4.0.width,
-            Icon(Icons.chevron_right, size: 16, color: iconColor),
-          ],
+              6.0.width,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131), height: 1.1), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    2.0.height,
+                    Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.body, height: 1.15), maxLines: 2, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+              2.0.width,
+              Icon(Icons.chevron_right, size: 14, color: iconColor),
+            ],
+          ),
         ),
       ),
     );
