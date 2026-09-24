@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:creatify_mobile/core/utils/constants.dart';
 import 'package:creatify_mobile/data/models/requests/book_creator_req.dart';
@@ -21,6 +22,7 @@ import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/utils/validator.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -53,6 +55,31 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   String? selectedProjectType;
   CreatorUnavailabilityItemDto? selectedStartDate;
   final List<String> projectTypes = ['UGC Video', 'Social Media Management', 'Content Creation', 'Other'];
+  List<File> attachedFiles = [];
+
+  Future<void> _pickFiles() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        setState(() {
+          for (var file in result.files) {
+            if (file.path != null && attachedFiles.length < 5) {
+              attachedFiles.add(File(file.path!));
+            }
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ToastDialog.showError('Failed to pick file: $e', context);
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -96,12 +123,6 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -255,8 +276,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               ),
               20.0.height,
 
-              // Budget
-              _buildLabel('Budget (Optional)'),
+              // Budget - Mandatory
+              _buildLabel('Budget'),
               8.0.height,
               _buildTextField(
                 budgetController,
@@ -276,14 +297,18 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                 text: 'Send Invite',
                 isLoading: bookingCreatorLoading,
                 onPressed: () {
+                  if (selectedProjectType == null || selectedProjectType!.isEmpty) {
+                    ToastDialog.showError('Please select a project type', context);
+                    return;
+                  }
                   if (_formKey.currentState!.validate()) {
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
                         creatorId: widget.creatorProfile.id,
-                        jobDescription: "${projectTitleController.text}\n\n${projectDescriptionController.text}",
+                        jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
-                        bookingType: 'delivery_based', // Defaulting to delivery based as per provider
+                        bookingType: 'delivery_based',
                       )
                     );
                   }
@@ -300,7 +325,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF1B3131)), // Increased from 13
+      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF1B3131)),
     );
   }
 
@@ -308,17 +333,18 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     return TextFormField(
       controller: controller,
       enableInteractiveSelection: true,
-      style: const TextStyle(fontSize: 16), // Added
+      keyboardType: hint.contains('50,000') ? TextInputType.number : TextInputType.text,
+      style: const TextStyle(fontSize: 16),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.body, fontSize: 15), // Increased from 13
+        hintStyle: const TextStyle(color: AppColors.body, fontSize: 15),
         prefixIcon: icon != null ? Icon(icon, color: AppColors.body, size: 22) : prefix,
         fillColor: AppColors.grey50,
         filled: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
-      validator: (val) => (val == null || val.isEmpty) && hint.contains('e.g.') && !hint.contains('50,000') ? 'Required' : null,
+      validator: (val) => (val == null || val.trim().isEmpty) ? 'Required' : null,
     );
   }
 
@@ -330,8 +356,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
         child: DropdownButton<String>(
           isExpanded: true,
           value: selectedProjectType,
-          hint: const Text('Select project type', style: TextStyle(fontSize: 15, color: AppColors.body)), // Increased
-          items: projectTypes.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15)))).toList(), // Increased
+          hint: const Text('Select project type', style: TextStyle(fontSize: 15, color: AppColors.body)),
+          items: projectTypes.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15)))).toList(),
           onChanged: (val) => setState(() => selectedProjectType = val),
           icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
         ),
@@ -348,10 +374,10 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           maxLines: 4,
           maxLength: 500,
           enableInteractiveSelection: true,
-          style: const TextStyle(fontSize: 16), // Added
+          style: const TextStyle(fontSize: 16),
           decoration: InputDecoration(
             hintText: 'Tell the creator about your project, goals, style, and any specific requirements...',
-            hintStyle: const TextStyle(color: AppColors.body, fontSize: 15), // Increased
+            hintStyle: const TextStyle(color: AppColors.body, fontSize: 15),
             fillColor: AppColors.grey50,
             filled: true,
             counterText: "",
@@ -403,29 +429,78 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   }
 
   Widget _buildAttachmentBox() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1FDFB),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF00BFA5).withOpacity(0.3), style: BorderStyle.solid),
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Color(0xFF00796B),
-              shape: BoxShape.circle,
+    return Column(
+      children: [
+        InkWell(
+          onTap: _pickFiles,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1FDFB),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF00BFA5).withOpacity(0.3), style: BorderStyle.solid),
             ),
-            child: const Icon(Icons.add, color: Colors.white, size: 20),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF00796B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
+                ),
+                12.0.height,
+                const Text('Add files', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131))),
+                const Text('Images, moodboard, brief, etc. (Max 5 files)', style: TextStyle(fontSize: 10, color: AppColors.body)),
+              ],
+            ),
           ),
+        ),
+        if (attachedFiles.isNotEmpty) ...[
           12.0.height,
-          const Text('Add files', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131))),
-          const Text('Images, moodboard, brief, etc. (Max 5 files)', style: TextStyle(fontSize: 10, color: AppColors.body)),
+          Column(
+            children: attachedFiles.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final file = entry.value;
+              final fileName = file.path.split('/').last.split('\\').last;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.grey50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.grey200),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.insert_drive_file_outlined, size: 18, color: Color(0xFF00796B)),
+                    8.0.width,
+                    Expanded(
+                      child: Text(
+                        fileName,
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          attachedFiles.removeAt(idx);
+                        });
+                      },
+                      child: const Icon(Icons.close, size: 18, color: Colors.red),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
         ],
-      ),
+      ],
     );
   }
 }
