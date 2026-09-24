@@ -213,13 +213,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         children: [
                           Text(
                             'Good morning, ${userData.name?.split(' ').first ?? 'User'}',
-                            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
                           ),
                           4.0.width,
-                          const Text('👋', style: TextStyle(fontSize: 28)),
+                          const Text('👋', style: TextStyle(fontSize: 22)),
                         ],
                       ),
-                      Text('Ready to get discovered today?', style: TextStyle(fontSize: 20, color: AppColors.body)),
+                      Text('Ready to get discovered today?', style: TextStyle(fontSize: 14, color: AppColors.body)),
                     ],
                   ),
                 ),
@@ -572,7 +572,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildStretchedBanner(String imagePath, VoidCallback onTap) {
     return Container(
       width: double.infinity,
-      height: 250, // Increased breadth as requested
+      height: 150, // Reduced by ~40%
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
       ),
@@ -584,7 +584,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               imagePath,
               width: double.infinity,
               height: double.infinity,
-              fit: BoxFit.fill, // Stretched to fill as requested
+              fit: BoxFit.cover, // Properly fit image without distortion
               errorBuilder: (_, __, ___) => Container(color: const Color(0xFFE0F2F1)),
             ),
           ),
@@ -593,8 +593,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
             bottom: 12,
             child: MainButton(
               text: 'Browse jobs',
-              width: 180, // Increased width
-              borderRadius: 24,
+              width: 130, // Reduced size
+              height: 36,
+              fontSize: 12,
+              borderRadius: 18,
+              padding: EdgeInsets.zero,
               color: const Color(0xFF00796B),
               onPressed: onTap,
             ),
