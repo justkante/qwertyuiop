@@ -135,7 +135,6 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
                   ],
                 ),
               ),
-              ),
               24.0.height,
 
               // Search Bar
