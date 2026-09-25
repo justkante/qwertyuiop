@@ -32,6 +32,8 @@ class SearchTalentsView extends ConsumerStatefulWidget {
 
 class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
   final searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  bool _showBackToTop = false;
 
   String _searchQuery = '';
 
@@ -51,12 +53,28 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
   void initState() {
     super.initState();
     searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 300 && !_showBackToTop) {
+        setState(() => _showBackToTop = true);
+      } else if (_scrollController.offset <= 300 && _showBackToTop) {
+        setState(() => _showBackToTop = false);
+      }
+    });
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   void dispose() {
     searchController.removeListener(_onSearchChanged);
     searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -64,12 +82,17 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
     final creators = ref.watch(filter_vm.filterCreatorsProvider);
-    final recommendedCreators = ref.watch(filter_vm.getRecommendedCreatorsProvider);
-    final hasUnreadNotifications = ref.watch(fetchNotificationsProvider).hasValue &&
-        ((ref.watch(fetchNotificationsProvider).value?.unreadCount ?? 0) > 0);
 
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButton: _showBackToTop
+          ? FloatingActionButton.extended(
+              onPressed: _scrollToTop,
+              backgroundColor: const Color(0xFF00796B),
+              icon: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
+              label: const Text('Back to top', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+            )
+          : null,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -109,6 +132,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
           clearFilters();
         },
         child: SingleChildScrollView(
+          controller: _scrollController,
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,11 +161,12 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
               ),
               24.0.height,
 
-              // Search Bar
+              // Search Bar - Distinct light grey input field
               Container(
                 decoration: BoxDecoration(
-                  color: AppColors.grey50,
+                  color: const Color(0xFFF3F4F6),
                   borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
                 ),
                 child: Row(
                   children: [
@@ -153,7 +178,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
                         },
                         decoration: InputDecoration(
                           hintText: 'Search name, skill, or keyword...',
-                          hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
+                          hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
                           prefixIcon: const Icon(Icons.search, color: AppColors.body, size: 20),
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(vertical: 14),
@@ -243,41 +268,6 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
                 ],
               ),
               16.0.height,
-
-              // Recommended horizontal list
-              ref.watch(recommendedDismissedProvider)
-                  ? const SizedBox.shrink()
-                  : recommendedCreators.when(
-                      data: (data) {
-                        final list = data.data
-                                ?.where((c) => c.categories?.isNotEmpty == true)
-                                .toList() ??
-                            [];
-                        if (list.isEmpty) return const SizedBox.shrink();
-
-                        return Column(
-                          children: [
-                            SizedBox(
-                              height: 70,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                itemCount: list.length,
-                                separatorBuilder: (_, __) => 12.0.width,
-                                itemBuilder: (context, index) {
-                                  return SizedBox(
-                                    width: 230,
-                                    child: RecommendedCreatorsCard(profile: list[index]),
-                                  );
-                                },
-                              ),
-                            ),
-                            16.0.height,
-                          ],
-                        );
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (e, s) => const SizedBox.shrink(),
-                    ),
 
               // List of creators
               creators.when(

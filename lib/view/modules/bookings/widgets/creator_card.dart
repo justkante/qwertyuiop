@@ -37,6 +37,29 @@ class CreatorsCard extends ConsumerStatefulWidget {
 }
 
 class _CreatorsCardState extends ConsumerState<CreatorsCard> {
+  late bool _isFav;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFav = widget.isFavorite || widget.profile?.isFavorited == true;
+  }
+
+  @override
+  void didUpdateWidget(CreatorsCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _isFav = widget.isFavorite || widget.profile?.isFavorited == true;
+  }
+
+  void _toggleFav() {
+    setState(() {
+      _isFav = !_isFav;
+    });
+    if (widget.onFavoriteToggle != null) {
+      widget.onFavoriteToggle!();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // User Controller
@@ -54,7 +77,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
         NavigationService.instance.push(
           CreatorProfileView(
             profile: widget.profile,
-            isFavorite: widget.isFavorite,
+            isFavorite: _isFav,
           ),
         );
       },
@@ -120,15 +143,11 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                             ),
                           ),
                           InkWell(
-                            onTap: widget.onFavoriteToggle,
+                            onTap: _toggleFav,
                             child: Icon(
-                              widget.isFavorite || widget.profile?.isFavorited == true
-                                  ? Icons.favorite
-                                  : Icons.favorite_outline,
+                              _isFav ? Icons.favorite : Icons.favorite_outline,
                               size: 24,
-                              color: widget.isFavorite || widget.profile?.isFavorited == true
-                                  ? Colors.red
-                                  : AppColors.body,
+                              color: _isFav ? Colors.red : AppColors.body,
                             ),
                           ),
                         ],
@@ -203,7 +222,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
             Row(
               children: [
                 Expanded(
-                  flex: 3, // Larger as in the image
+                  flex: 3,
                   child: MainButton(
                     text: 'View Profile →',
                     textColor: Colors.white,
@@ -215,7 +234,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                       NavigationService.instance.push(
                         CreatorProfileView(
                           profile: widget.profile,
-                          isFavorite: widget.isFavorite || widget.profile?.isFavorited == true,
+                          isFavorite: _isFav,
                         ),
                       );
                     },
@@ -223,7 +242,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                 ),
                 12.0.width,
                 Expanded(
-                  flex: 2, // Slightly smaller than View Profile
+                  flex: 2,
                   child: OutlinedButton(
                     onPressed: () {
                        NavigationService.instance.push(
@@ -235,7 +254,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: Color(0xFF00796B)),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      fixedSize: const Size.fromHeight(44), // Same height as MainButton
+                      fixedSize: const Size.fromHeight(44),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -274,6 +293,29 @@ class RecommendedCreatorsCard extends ConsumerStatefulWidget {
 }
 
 class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCard> {
+  late bool _isFav;
+
+  @override
+  void initState() {
+    super.initState();
+    _isFav = widget.isFavorite || widget.profile?.isFavorited == true;
+  }
+
+  @override
+  void didUpdateWidget(RecommendedCreatorsCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _isFav = widget.isFavorite || widget.profile?.isFavorited == true;
+  }
+
+  void _toggleFav() {
+    setState(() {
+      _isFav = !_isFav;
+    });
+    if (widget.onFavoriteToggle != null) {
+      widget.onFavoriteToggle!();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -288,7 +330,7 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
         NavigationService.instance.push(
           CreatorProfileView(
             profile: widget.profile,
-            isFavorite: widget.isFavorite || widget.profile?.isFavorited == true,
+            isFavorite: _isFav,
           ),
         );
       },
@@ -332,15 +374,11 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
                   top: 0,
                   right: 0,
                   child: InkWell(
-                    onTap: widget.onFavoriteToggle,
+                    onTap: _toggleFav,
                     child: Icon(
-                      widget.isFavorite || widget.profile?.isFavorited == true
-                          ? Icons.favorite
-                          : Icons.favorite_border,
+                      _isFav ? Icons.favorite : Icons.favorite_border,
                       size: 20,
-                      color: widget.isFavorite || widget.profile?.isFavorited == true
-                          ? Colors.red
-                          : AppColors.grey300,
+                      color: _isFav ? Colors.red : AppColors.grey300,
                     ),
                   ),
                 ),

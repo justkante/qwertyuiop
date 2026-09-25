@@ -1,3 +1,4 @@
+import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
 import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -70,55 +71,97 @@ class _BankSheetState extends ConsumerState<StateSheet> {
 
           20.0.height,
           Expanded(
-            child: getStatesList.when(
-              data: (states) {
-                final filteredStates = states
-                    .where((state) => state.name!.toLowerCase().contains(_searchQuery))
-                    .toList();
+            child: Column(
+              children: [
+                // MARK: Search Field
+                SearchTextInputField(
+                  hintText: 'Search or type location...',
+                  controller: searchController,
+                ),
+                12.0.height,
+                Expanded(
+                  child: getStatesList.when(
+                    data: (states) {
+                      final filteredStates = states
+                          .where((state) => state.name != null && state.name!.toLowerCase().contains(_searchQuery))
+                          .toList();
 
-                return Column(
-                  children: [
-                    // MARK: Search Field
-                    SearchTextInputField(
-                      hintText: 'Search State...',
-                      controller: searchController,
-                    ),
-                    12.0.height,
-                    Expanded(
-                      child: Scrollbar(
-                        interactive: true,
-                        thickness: 2,
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          itemCount: filteredStates.length,
-                          separatorBuilder: (_, __) => 0.0.height,
-                          itemBuilder: (context, index) {
-                            final state = filteredStates[index];
-
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                state.name ?? '',
-                                style: context.textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.subHeading,
-                                ),
-                              ),
-                              onTap: () {
-                                context.pop(state);
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-              error: (error, stackTrace) => Text('Error: $error'),
-              loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+                      return _buildStateList(filteredStates);
+                    },
+                    error: (_, __) => _buildStateList([]),
+                    loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStateList(List<StatesItemDto> filteredStates) {
+    final customName = searchController.text.trim();
+
+    if (filteredStates.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.location_city_outlined, size: 44, color: AppColors.body),
+              12.0.height,
+              Text(
+                customName.isNotEmpty
+                    ? 'No matching predefined states.'
+                    : 'Search or type your city or state',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF1B3131)),
+              ),
+              16.0.height,
+              if (customName.isNotEmpty)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    context.pop(StatesItemDto(name: customName, id: customName));
+                  },
+                  icon: const Icon(Icons.check, size: 18, color: Colors.white),
+                  label: Text('Select "$customName"', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00796B),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Scrollbar(
+      interactive: true,
+      thickness: 2,
+      child: ListView.separated(
+        shrinkWrap: true,
+        itemCount: filteredStates.length,
+        separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.grey100),
+        itemBuilder: (context, index) {
+          final state = filteredStates[index];
+
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+            title: Text(
+              state.name ?? '',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: AppColors.subHeading,
+              ),
+            ),
+            onTap: () {
+              context.pop(state);
+            },
+          );
+        },
       ),
     );
   }

@@ -38,6 +38,9 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   static const double maxAmount = 10000000;
   final TextEditingController locationController = TextEditingController();
 
+  double? selectedRating;
+  String? selectedAvailability;
+
   // Track which top-level category is expanded
   String? expandedCategoryId;
 
@@ -137,6 +140,20 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                     title: 'By Location',
                     child: _buildLocationFilter(),
                   ),
+                  24.0.height,
+
+                  // By Rating
+                  _buildFilterSection(
+                    title: 'By Rating',
+                    child: _buildRatingFilter(),
+                  ),
+                  24.0.height,
+
+                  // By Availability
+                  _buildFilterSection(
+                    title: 'By Availability',
+                    child: _buildAvailabilityFilter(),
+                  ),
                   32.0.height,
                 ],
               ),
@@ -187,6 +204,97 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         8.0.height,
         child,
       ],
+    );
+  }
+
+  Widget _buildRatingFilter() {
+    final ratings = [
+      {'label': '4.5+ Stars', 'val': 4.5},
+      {'label': '4.0+ Stars', 'val': 4.0},
+      {'label': '3.5+ Stars', 'val': 3.5},
+      {'label': 'Any Rating', 'val': 0.0},
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: ratings.map((r) {
+        final label = r['label'] as String;
+        final val = r['val'] as double;
+        final isSelected = selectedRating == val;
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedRating = isSelected ? null : val;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF00796B) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: isSelected ? const Color(0xFF00796B) : AppColors.grey300),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.star, size: 14, color: isSelected ? Colors.white : Colors.orange),
+                6.0.width,
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? Colors.white : const Color(0xFF1B3131),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildAvailabilityFilter() {
+    final options = ['Available this week', 'Available this month', 'Any availability'];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: options.map((opt) {
+        final isSelected = selectedAvailability == opt;
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedAvailability = isSelected ? null : opt;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFF00796B) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: isSelected ? const Color(0xFF00796B) : AppColors.grey300),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.calendar_today_outlined, size: 14, color: isSelected ? Colors.white : const Color(0xFF00BFA5)),
+                6.0.width,
+                Text(
+                  opt,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? Colors.white : const Color(0xFF1B3131),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
@@ -291,7 +399,6 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                 ),
                 8.0.height,
               ],
-              // Divider(color: AppColors.grey300, height: 1),
             ],
           );
         }),
@@ -399,7 +506,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
             activeTrackColor: AppColors.spot500,
             inactiveTrackColor: AppColors.grey300,
             thumbColor: AppColors.highlightCoral,
-            overlayColor: AppColors.highlightCoral.withOpacity(0.1),
+            overlayColor: AppColors.highlightCoral.withValues(alpha: 0.1),
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
             rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 8),
@@ -469,23 +576,24 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   Widget _buildLocationFilter() {
     return TextInputField(
       controller: locationController,
-      hint: 'Select Location',
-      readOnly: true,
-      inputType: TextInputType.number,
-      onPressed: () async {
-        selectedState = await AppBottomSheet.showBottomSheet(
-          context,
-          widget: const StateSheet(),
-        );
+      hint: 'Search or select location (e.g. Brazil, Lagos)',
+      readOnly: false,
+      suffixIcon: InkWell(
+        onTap: () async {
+          selectedState = await AppBottomSheet.showBottomSheet(
+            context,
+            widget: const StateSheet(),
+          );
 
-        if (selectedState != null) {
-          locationController.text = selectedState?.name ?? '';
-        }
-      },
-      suffixIcon: const Icon(
-        Icons.keyboard_arrow_down,
-        color: AppColors.body,
-        size: 18,
+          if (selectedState != null) {
+            locationController.text = selectedState?.name ?? '';
+          }
+        },
+        child: const Icon(
+          Icons.map_outlined,
+          color: AppColors.body,
+          size: 20,
+        ),
       ),
       validator: null,
     );
@@ -505,6 +613,8 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
       amountRange = const RangeValues(minAmount, maxAmount);
       internationalAmountRange = const RangeValues(minInternationalAmount, maxAmount);
       locationController.clear();
+      selectedRating = null;
+      selectedAvailability = null;
 
       // Collapse any expanded category and reset show more
       expandedCategoryId = null;
@@ -526,17 +636,22 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
 
     // Check if the filters are null
     if (selectedState == null &&
+        locationController.text.isEmpty &&
         currentRange.start == currentMin &&
         currentRange.end == maxAmount &&
-        selectedCategories.isEmpty) {
+        selectedCategories.isEmpty &&
+        selectedRating == null &&
+        selectedAvailability == null) {
       // No filters selected, do nothing
       context.pop();
     } else {
       // Set that filters are applied
       ref.read(hasSearchFiltersProvider.notifier).state = true;
 
+      final locQuery = selectedState?.id ?? (locationController.text.isNotEmpty ? locationController.text : null);
+
       ref.read(filterCreatorsProvider.notifier).filterCreators(
-            location: selectedState?.id,
+            location: locQuery,
             priceMin: currentRange.start == currentMin ? null : currentRange.start,
             priceMax: currentRange.end == maxAmount ? null : currentRange.end,
             category: selectedCategories
