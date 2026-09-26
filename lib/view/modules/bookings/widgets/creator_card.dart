@@ -119,10 +119,6 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                             padding: const EdgeInsets.all(24),
                             size: 24,
                           ),
-                            initials: widget.profile?.initials ?? '',
-                            padding: const EdgeInsets.all(24),
-                            size: 24,
-                          ),
                     Container(
                       width: 16,
                       height: 16,
@@ -351,12 +347,12 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
         );
       },
       child: Container(
-        width: 160,
-        padding: const EdgeInsets.all(12),
+        width: 140,
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey50),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.grey100),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.02),
@@ -373,31 +369,18 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
                 Center(
                   child: _hasProfileImage
                       ? ClipRRect(
-                          borderRadius: BorderRadius.circular(35),
+                          borderRadius: BorderRadius.circular(32),
                           child: CachedImageHandler(
                             imageUrl: widget.profile!.profileImage!,
-                            height: 70,
-                            width: 70,
+                            height: 64,
+                            width: 64,
                           ),
                         )
                       : InitialAvatar(
                           initials: (widget.profile?.name != null && widget.profile!.name!.trim().isNotEmpty)
                               ? widget.profile!.name!.trim().split(' ').map((e) => e[0]).take(2).join('').toUpperCase()
                               : widget.profile?.initials ?? 'C',
-                          padding: const EdgeInsets.all(20),
-                          size: 14,
-                        ),
-                ),
-                          borderRadius: BorderRadius.circular(35),
-                          child: CachedImageHandler(
-                            imageUrl: widget.profile?.profileImage ?? '',
-                            height: 70,
-                            width: 70,
-                          ),
-                        )
-                      : InitialAvatar(
-                          initials: widget.profile?.initials ?? '',
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(18),
                           size: 14,
                         ),
                 ),
@@ -408,13 +391,23 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
                     onTap: _toggleFav,
                     child: Icon(
                       _isFav ? Icons.favorite : Icons.favorite_border,
-                      size: 20,
-                      color: _isFav ? Colors.red : AppColors.grey300,
+                      size: 18,
+                      color: _isFav ? Colors.red : AppColors.grey400,
                     ),
                   ),
                 ),
               ],
             ),
+            10.0.height,
+            Text(
+              widget.profile?.categories?.firstOrNull?.name ?? widget.profile?.name ?? 'Creator',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF1B3131),
+                fontWeight: FontWeight.bold,
+              ),
             12.0.height,
             Text(
               widget.profile?.categories?.firstOrNull?.name ?? 'Creator',
