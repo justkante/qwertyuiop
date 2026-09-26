@@ -21,6 +21,7 @@ import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/onboarding_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/favorite_creators_vm.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart' as filter_vm;
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/start_onboarding_vm.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart' as custom_nav;
