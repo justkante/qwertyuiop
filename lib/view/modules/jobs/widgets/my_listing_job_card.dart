@@ -39,17 +39,24 @@ class MyListingJobCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusLower = status.toLowerCase();
-    final statusColor = statusLower == 'active'
-        ? const Color(0xFF2E7D32)
-        : statusLower == 'draft'
-            ? const Color(0xFFF59E0B)
-            : Colors.grey;
+    final isExpiredStatus = statusLower.contains('expired');
+    final statusColor = isExpiredStatus
+        ? const Color(0xFFDC2626)
+        : statusLower == 'active'
+            ? const Color(0xFF2E7D32)
+            : statusLower == 'draft'
+                ? const Color(0xFFF59E0B)
+                : Colors.grey;
 
-    final statusBgColor = statusLower == 'active'
-        ? const Color(0xFFE8F5E9)
-        : statusLower == 'draft'
-            ? const Color(0xFFFEF3C7)
-            : const Color(0xFFF3F4F6);
+    final statusBgColor = isExpiredStatus
+        ? const Color(0xFFFEE2E2)
+        : statusLower == 'active'
+            ? const Color(0xFFE8F5E9)
+            : statusLower == 'draft'
+                ? const Color(0xFFFEF3C7)
+                : const Color(0xFFF3F4F6);
+
+    final displayStatusText = isExpiredStatus ? 'Inactive - Job Expired' : status.capitalize();
 
     return GestureDetector(
       onTap: onTap,
@@ -94,7 +101,7 @@ class MyListingJobCard extends StatelessWidget {
                           ),
                           6.0.width,
                           Text(
-                            status.capitalize(),
+                            displayStatusText,
                             style: TextStyle(
                               color: statusColor,
                               fontSize: 10,

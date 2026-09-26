@@ -649,15 +649,55 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildCreatorsList(AsyncValue<RecommendedCreatorsDto> recommendedAsync) {
     return recommendedAsync.when(
       data: (data) {
-        final list = data.data ?? [];
-        if (list.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommended creators found', style: TextStyle(fontSize: 12, color: AppColors.body))));
+        final rawList = (data.data ?? []).toList();
+        final list = <CreatorProfileDto>[];
+
+        for (var c in rawList) {
+          if (!list.any((item) => item.id == c.id)) {
+            list.add(c);
+          }
+        }
+
+        if (list.length < 3) {
+          final fallback = ref.watch(filter_vm.filterCreatorsProvider).value ?? [];
+          for (var c in fallback) {
+            if (list.length >= 3) break;
+            if (!list.any((item) => item.id == c.id)) {
+              list.add(c);
+            }
+          }
+        }
+
+        if (list.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Text('No recommended creators found', style: TextStyle(fontSize: 12, color: AppColors.body)),
+            ),
+          );
+        }
+
+        list.shuffle();
+        final displayList = list.take(3).toList();
+
         return SizedBox(
-          height: 250, // Increased height to prevent clipping of vertical cards
+          height: 175,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: list.length,
+            itemCount: displayList.length,
             separatorBuilder: (_, __) => 12.0.width,
-            itemBuilder: (context, index) => RecommendedCreatorsCard(profile: list[index]),
+            itemBuilder: (context, index) => RecommendedCreatorsCard(
+              profile: displayList[index],
+              isFavorite: displayList[index].isFavorited ?? false,
+              onFavoriteToggle: () {
+                final creator = displayList[index];
+                if (creator.isFavorited == true) {
+                  ref.read(removeFromFavoriteCreatorsProvider.notifier).removeFromFavoriteCreators(creator.id ?? '');
+                } else {
+                  ref.read(addToFavoriteCreatorsProvider.notifier).addToFavoriteCreators(creator.id ?? '');
+                }
+              },
+            ),
           ),
         );
       },

@@ -39,6 +39,11 @@ class CreatorsCard extends ConsumerStatefulWidget {
 class _CreatorsCardState extends ConsumerState<CreatorsCard> {
   late bool _isFav;
 
+  bool get _hasProfileImage {
+    final img = widget.profile?.profileImage;
+    return img != null && img.trim().isNotEmpty && img.trim().startsWith('http');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -98,16 +103,22 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: [
-                    widget.profile?.profileImage != null
+                    _hasProfileImage
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(40),
                             child: CachedImageHandler(
-                              imageUrl: widget.profile?.profileImage ?? '',
+                              imageUrl: widget.profile!.profileImage!,
                               height: 80,
                               width: 80,
                             ),
                           )
                         : InitialAvatar(
+                            initials: (widget.profile?.name != null && widget.profile!.name!.trim().isNotEmpty)
+                                ? widget.profile!.name!.trim().split(' ').map((e) => e[0]).take(2).join('').toUpperCase()
+                                : widget.profile?.initials ?? 'C',
+                            padding: const EdgeInsets.all(24),
+                            size: 24,
+                          ),
                             initials: widget.profile?.initials ?? '',
                             padding: const EdgeInsets.all(24),
                             size: 24,
@@ -295,6 +306,11 @@ class RecommendedCreatorsCard extends ConsumerStatefulWidget {
 class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCard> {
   late bool _isFav;
 
+  bool get _hasProfileImage {
+    final img = widget.profile?.profileImage;
+    return img != null && img.trim().isNotEmpty && img.trim().startsWith('http');
+  }
+
   @override
   void initState() {
     super.initState();
@@ -355,8 +371,23 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
             Stack(
               children: [
                 Center(
-                  child: widget.profile?.profileImage != null
+                  child: _hasProfileImage
                       ? ClipRRect(
+                          borderRadius: BorderRadius.circular(35),
+                          child: CachedImageHandler(
+                            imageUrl: widget.profile!.profileImage!,
+                            height: 70,
+                            width: 70,
+                          ),
+                        )
+                      : InitialAvatar(
+                          initials: (widget.profile?.name != null && widget.profile!.name!.trim().isNotEmpty)
+                              ? widget.profile!.name!.trim().split(' ').map((e) => e[0]).take(2).join('').toUpperCase()
+                              : widget.profile?.initials ?? 'C',
+                          padding: const EdgeInsets.all(20),
+                          size: 14,
+                        ),
+                ),
                           borderRadius: BorderRadius.circular(35),
                           child: CachedImageHandler(
                             imageUrl: widget.profile?.profileImage ?? '',

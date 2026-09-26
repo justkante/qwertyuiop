@@ -489,12 +489,20 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         ToastDialog.showError('Please select a start date', context);
         return;
       }
+      if (_hourController.text.trim().isEmpty || _minuteController.text.trim().isEmpty) {
+        ToastDialog.showError('Please enter a start time', context);
+        return;
+      }
+      if (_selectedWorkMode != 'Remote' && _locationController.text.trim().isEmpty) {
+        ToastDialog.showError('Location is required for non-remote jobs', context);
+        return;
+      }
 
       final error = await ref.read(jobControllerProvider.notifier).createJob({
         'title': _descriptionController.text.truncate(30),
         'description': _descriptionController.text,
         'category_id': _selectedService,
-        'location': _locationController.text,
+        'location': _locationController.text.isEmpty ? 'Remote' : _locationController.text,
         'price': double.tryParse(_priceController.text) ?? 0.0,
         'type': _jobType,
         'work_mode': _selectedWorkMode,

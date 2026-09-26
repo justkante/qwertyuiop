@@ -56,6 +56,28 @@ class JobDto {
     this.category,
   });
 
+  bool get isExpired {
+    if (expiresAt != null && expiresAt!.isBefore(DateTime.now())) {
+      return true;
+    }
+    if (startDate != null && startDate!.isNotEmpty) {
+      try {
+        final parsed = DateTime.tryParse(startDate!);
+        if (parsed != null && parsed.isBefore(DateTime.now().subtract(const Duration(days: 1)))) {
+          return true;
+        }
+      } catch (_) {}
+    }
+    return false;
+  }
+
+  String get effectiveStatus {
+    if (isExpired) {
+      return 'Inactive - Job Expired';
+    }
+    return status ?? 'Active';
+  }
+
   JobDto copyWith({
     String? id,
     String? userId,
