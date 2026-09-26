@@ -577,6 +577,8 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
     return TextInputField(
       controller: locationController,
       hint: 'Search or select location (e.g. Brazil, Lagos)',
+      inputType: TextInputType.text,
+      validator: null,
       readOnly: false,
       suffixIcon: InkWell(
         onTap: () async {
@@ -595,7 +597,6 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
           size: 20,
         ),
       ),
-      validator: null,
     );
   }
 
