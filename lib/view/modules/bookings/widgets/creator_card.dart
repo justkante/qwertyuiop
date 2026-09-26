@@ -400,21 +400,11 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
             ),
             10.0.height,
             Text(
-              widget.profile?.categories?.firstOrNull?.name ?? widget.profile?.name ?? 'Creator',
+              (widget.profile?.categories?.isNotEmpty == true ? widget.profile!.categories!.first.name : null) ?? widget.profile?.name ?? 'Creator',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontSize: 13,
-                color: Color(0xFF1B3131),
-                fontWeight: FontWeight.bold,
-              ),
-            12.0.height,
-            Text(
-              widget.profile?.categories?.firstOrNull?.name ?? 'Creator',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
                 color: Color(0xFF1B3131),
                 fontWeight: FontWeight.bold,
               ),
