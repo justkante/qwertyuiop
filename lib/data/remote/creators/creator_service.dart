@@ -141,16 +141,16 @@ class CreatorService {
       return list.map((x) => BankItemDto.fromJson(x)).toList();
     } catch (e) {
       return [
-        BankItemDto(id: '044', name: 'Access Bank', code: '044'),
-        BankItemDto(id: '058', name: 'Guaranty Trust Bank (GTB)', code: '058'),
-        BankItemDto(id: '033', name: 'United Bank for Africa (UBA)', code: '033'),
-        BankItemDto(id: '057', name: 'Zenith Bank', code: '057'),
-        BankItemDto(id: '032', name: 'Union Bank of Nigeria', code: '032'),
-        BankItemDto(id: '035', name: 'Wema Bank', code: '035'),
-        BankItemDto(id: '232', name: 'Sterling Bank', code: '232'),
-        BankItemDto(id: '215', name: 'Unity Bank', code: '215'),
-        BankItemDto(id: '070', name: 'Fidelity Bank', code: '070'),
-        BankItemDto(id: '221', name: 'Stanbic IBTC Bank', code: '221'),
+        BankItemDto(name: 'Access Bank', code: '044'),
+        BankItemDto(name: 'Guaranty Trust Bank (GTB)', code: '058'),
+        BankItemDto(name: 'United Bank for Africa (UBA)', code: '033'),
+        BankItemDto(name: 'Zenith Bank', code: '057'),
+        BankItemDto(name: 'Union Bank of Nigeria', code: '032'),
+        BankItemDto(name: 'Wema Bank', code: '035'),
+        BankItemDto(name: 'Sterling Bank', code: '232'),
+        BankItemDto(name: 'Unity Bank', code: '215'),
+        BankItemDto(name: 'Fidelity Bank', code: '070'),
+        BankItemDto(name: 'Stanbic IBTC Bank', code: '221'),
       ];
     }
   }
