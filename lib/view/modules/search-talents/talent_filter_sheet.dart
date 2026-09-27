@@ -209,10 +209,11 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
 
   Widget _buildRatingFilter() {
     final ratings = [
-      {'label': '4.5+ Stars', 'val': 4.5},
-      {'label': '4.0+ Stars', 'val': 4.0},
-      {'label': '3.5+ Stars', 'val': 3.5},
-      {'label': 'Any Rating', 'val': 0.0},
+      {'label': 'Any rating', 'val': 0.0},
+      {'label': '4.5 & above', 'val': 4.5},
+      {'label': '4.0 & above', 'val': 4.0},
+      {'label': '3.5 & above', 'val': 3.5},
+      {'label': 'No reviews yet/New to Creatify', 'val': -1.0},
     ];
 
     return Wrap(
@@ -257,7 +258,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   }
 
   Widget _buildAvailabilityFilter() {
-    final options = ['Available this week', 'Available this month', 'Any availability'];
+    final options = ['Available now', 'Available this week', 'Available this month', 'Select dates'];
 
     return Wrap(
       spacing: 8,
@@ -658,6 +659,8 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
             category: selectedCategories
                 .map((e) => e.removeSpace().removeSlash().toLowerCase())
                 .join('|'),
+            rating: selectedRating,
+            availability: selectedAvailability,
           );
 
       setState(() {

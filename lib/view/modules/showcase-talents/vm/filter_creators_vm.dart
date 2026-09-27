@@ -13,6 +13,8 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
     double? priceMax,
     String? category,
     String? location,
+    double? rating,
+    String? availability,
   }) async {
     state = const AsyncValue.loading();
 
@@ -28,13 +30,15 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
             );
       } catch (_) {}
 
-      if (list.isEmpty || (location != null && location.isNotEmpty) || (name != null && name.isNotEmpty) || (category != null && category.isNotEmpty)) {
+      if (list.isEmpty || (location != null && location.isNotEmpty) || (name != null && name.isNotEmpty) || (category != null && category.isNotEmpty) || (rating != null) || (availability != null && availability.isNotEmpty)) {
         final allCreators = await ref.read(creatorRepository).filterCreators();
 
         list = allCreators.where((creator) {
           bool matchesName = true;
           bool matchesLocation = true;
           bool matchesCategory = true;
+          bool matchesRating = true;
+          bool matchesAvailability = true;
 
           if (name != null && name.isNotEmpty) {
             final q = name.toLowerCase();
@@ -54,7 +58,26 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
             matchesCategory = creator.categories?.any((c) => c.name?.toLowerCase().contains(catLower) ?? false) ?? false;
           }
 
-          return matchesName && matchesLocation && matchesCategory;
+          if (rating != null) {
+            final avgRating = creator.ratingsAndReviews?.averageRating ?? 0.0;
+            final totalReviews = creator.ratingsAndReviews?.totalReviews ?? 0;
+            if (rating == -1.0) {
+              matchesRating = totalReviews == 0;
+            } else if (rating > 0) {
+              matchesRating = avgRating >= rating;
+            }
+          }
+
+          if (availability != null && availability.isNotEmpty) {
+            final lastActive = creator.lastSeenAt?.toLowerCase() ?? '';
+            if (availability == 'Available now') {
+              matchesAvailability = lastActive.contains('just now') || lastActive.contains('online') || lastActive.contains('m ago') || lastActive.contains('h ago');
+            } else {
+              matchesAvailability = true;
+            }
+          }
+
+          return matchesName && matchesLocation && matchesCategory && matchesRating && matchesAvailability;
         }).toList();
       }
 
@@ -74,6 +97,8 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           if (priceMax != null) 'price_max': priceMax,
           if (category != null) 'category': category,
           if (location != null) 'location': location,
+          if (rating != null) 'rating': rating,
+          if (availability != null) 'availability': availability,
         },
       );
     } catch (e) {

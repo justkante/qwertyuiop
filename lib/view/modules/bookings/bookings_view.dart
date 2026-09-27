@@ -1,7 +1,6 @@
 import 'package:creatify_mobile/view/modules/bookings/received_bookings_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/sent_bookings_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/bookings_tab.dart';
-import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:flutter/material.dart';
@@ -26,17 +25,13 @@ class _BookingsViewState extends ConsumerState<BookingsView> with SingleTickerPr
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        automaticallyImplyLeading: false,
         title: Text(
           'Bookings',
           style: context.textTheme.displayMedium?.copyWith(
-            fontSize: 24,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: const Color(0xFF1B3131),
           ),
         ),
         centerTitle: true,
@@ -46,15 +41,12 @@ class _BookingsViewState extends ConsumerState<BookingsView> with SingleTickerPr
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Text(
-              "Manage your bookings and track your appointments with ease",
-              style: context.textTheme.bodySmall?.copyWith(
-                color: AppColors.body,
-                fontSize: 14,
-              ),
+              "Manage your bookings and keep track of your appointments with ease",
+              style: context.textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),
           ),
-          24.0.height,
+          16.0.height,
           BookingsTabBar(tabController: tabController),
           16.0.height,
           Expanded(
