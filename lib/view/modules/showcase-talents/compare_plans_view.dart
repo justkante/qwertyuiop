@@ -1,4 +1,3 @@
-import 'package:creatify_mobile/view/modules/home/support_view.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
@@ -15,6 +14,8 @@ class ComparePlansView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userData = ref.watch(userControllerProvider);
+    final currency = userData.primaryCurrency ?? 'NGN';
+    final proMonthlyPrice = 10000.amountWithCurrency(currency);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -67,7 +68,6 @@ class ComparePlansView extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // Illustration
                   SizedBox(
                     width: 100,
                     height: 100,
@@ -96,7 +96,7 @@ class ComparePlansView extends ConsumerWidget {
             ),
             24.0.height,
 
-            // Table Header
+            // Table Header (Free and Pro only)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -107,8 +107,8 @@ class ComparePlansView extends ConsumerWidget {
                     context,
                     'Free',
                     'Get started',
-                    '₦0',
-                    'forever',
+                    'Free',
+                    '',
                     'Current Plan',
                     isCurrent: true,
                     onTap: () {},
@@ -117,7 +117,7 @@ class ComparePlansView extends ConsumerWidget {
                     context,
                     'Pro',
                     'For greater opportunities',
-                    '₦3,000',
+                    proMonthlyPrice,
                     '/ month',
                     'Choose Plan',
                     isPopular: true,
@@ -125,71 +125,26 @@ class ComparePlansView extends ConsumerWidget {
                        NavigationService.instance.push(const ChoosePlanView(initialIsAnnual: false));
                     },
                   ),
-                  _buildPlanHeader(
-                    context,
-                    'Pro+',
-                    'For serious growth',
-                    '₦30,000',
-                    '/ year',
-                    'Choose Plan',
-                    onTap: () {
-                       NavigationService.instance.push(const ChoosePlanView(initialIsAnnual: true));
-                    },
-                  ),
                 ],
               ),
             ),
             16.0.height,
 
-            // Features List
+            // Features List (Pro+ and Post job adverts removed, Advanced insights ticked for both)
             _buildSectionHeader('PROFILE & VISIBILITY'),
-            _buildFeatureRow('Create a profile', true, true, true),
-            _buildFeatureRow('Showcase your work', true, true, true),
-            _buildFeatureRow('Higher profile visibility', false, true, true),
+            _buildFeatureRow('Create a profile', true, true),
+            _buildFeatureRow('Showcase your work', true, true),
+            _buildFeatureRow('Higher profile visibility', false, true),
 
             _buildSectionHeader('JOBS & OPPORTUNITIES'),
-            _buildFeatureRow('Browse and apply for jobs', true, true, true),
-            _buildFeatureRow('Post job adverts (Recruiters)', false, true, true),
-            _buildFeatureRow('Apply directly to job adverts', true, true, true),
-            _buildFeatureRow('Job alerts', false, true, true),
+            _buildFeatureRow('Browse and apply for jobs', true, true),
+            _buildFeatureRow('Apply directly to job adverts', false, true),
+            _buildFeatureRow('Job alerts', false, true),
 
-            _buildSectionHeader('TOOLS & SUPPORT'),
-            _buildFeatureRow('Priority support', false, false, true),
-            _buildFeatureRow('Advanced insights\n(e.g. profile views, applications)', false, false, true),
-            _buildFeatureRow('Early access to new features', false, false, true),
+            _buildSectionHeader('INSIGHTS & SUPPORT'),
+            _buildFeatureRow('Advanced insights', true, true),
+            _buildFeatureRow('Priority support', false, true),
 
-            32.0.height,
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: MainButton(
-                text: 'Choose a Plan',
-                onPressed: () {
-                   NavigationService.instance.push(const ChoosePlanView());
-                },
-              ),
-            ),
-            24.0.height,
-
-            // Footer
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Still have questions? ",
-                  style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
-                ),
-                GestureDetector(
-                  onTap: () => NavigationService.instance.push(const SupportView()),
-                  child: Text(
-                    "Contact Support",
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF00BFA5),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
             40.0.height,
           ],
         ),
@@ -197,114 +152,73 @@ class ComparePlansView extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlanHeader(
-    BuildContext context,
-    String name,
-    String subtitle,
-    String price,
-    String period,
-    String buttonText, {
-    bool isCurrent = false,
-    bool isPopular = false,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildPlanHeader(BuildContext context, String title, String subtitle, String price, String period, String buttonText, {bool isPopular = false, bool isCurrent = false, required VoidCallback onTap}) {
     return Expanded(
-      flex: 2,
-      child: Column(
-        children: [
-          if (isPopular)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFF00796B),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Most popular',
-                style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-              ),
-            )
-          else
-            const SizedBox(height: 12),
-          4.0.height,
-          Text(name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          Text(subtitle, textAlign: TextAlign.center, style: const TextStyle(fontSize: 8, color: AppColors.body)),
-          8.0.height,
-          Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, fontFamily: 'Inter')),
-          Text(period, style: const TextStyle(fontSize: 8, color: AppColors.body)),
-          12.0.height,
-          InkWell(
-            onTap: isCurrent ? null : onTap,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: isCurrent ? AppColors.grey200 : const Color(0xFF00796B)),
-              ),
-              child: Text(
-                buttonText,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: isCurrent ? AppColors.body : const Color(0xFF00796B),
-                  fontSize: 8,
-                  fontWeight: FontWeight.bold,
-                ),
+      flex: 3,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isPopular ? const Color(0xFFE0F2F1).withOpacity(0.2) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: isPopular ? AppColors.primary : AppColors.grey200),
+        ),
+        child: Column(
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            4.0.height,
+            Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, fontFamily: 'Inter')),
+            if (period.isNotEmpty)
+              Text(period, style: const TextStyle(fontSize: 10, color: AppColors.body)),
+            12.0.height,
+            SizedBox(
+              width: double.infinity,
+              child: MainButton(
+                text: buttonText,
+                fontSize: 11,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                color: isCurrent ? AppColors.grey200 : AppColors.primary,
+                textColor: isCurrent ? AppColors.heading : Colors.white,
+                onPressed: onTap,
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          color: Color(0xFFBABABA),
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFeatureRow(String feature, bool freeCheck, bool proCheck, bool proPlusCheck) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFF5F5F5))),
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: AppColors.body,
+          letterSpacing: 1.2,
+        ),
       ),
+    );
+  }
+
+  Widget _buildFeatureRow(String title, bool free, bool pro) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              feature,
-              style: const TextStyle(fontSize: 10, color: Colors.black87, height: 1.3),
-            ),
-          ),
-          _buildCheckIcon(freeCheck),
-          _buildCheckIcon(proCheck),
-          _buildCheckIcon(proPlusCheck),
+          Expanded(flex: 3, child: Text(title, style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)))),
+          Expanded(flex: 1, child: Center(child: _buildCheck(free))),
+          Expanded(flex: 1, child: Center(child: _buildCheck(pro))),
         ],
       ),
     );
   }
 
-  Widget _buildCheckIcon(bool checked) {
-    return Expanded(
-      flex: 2,
-      child: Center(
-        child: checked
-            ? const Icon(Icons.check_circle, color: Color(0xFF00796B), size: 16)
-            : const Text('—', style: TextStyle(color: AppColors.body, fontSize: 10)),
-      ),
-    );
+  Widget _buildCheck(bool available) {
+    if (available) {
+      return const Icon(Icons.check, color: Color(0xFF00796B), size: 20);
+    }
+    return const Icon(Icons.remove, color: AppColors.grey300, size: 20);
   }
 }

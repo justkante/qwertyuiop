@@ -2,11 +2,16 @@ import 'package:creatify_mobile/data/models/responses/subcriptions_plans_dto.dar
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
+import 'package:creatify_mobile/view/modules/transactions/sheets/fund_wallet_sheet.dart';
+import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
+import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
+import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -32,6 +37,12 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
   @override
   Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
+    final currency = userData.primaryCurrency ?? 'NGN';
+
+    final proPrice = _isAnnual
+        ? 110000.amountWithCurrency(currency)
+        : 10000.amountWithCurrency(currency);
+    final periodText = _isAnnual ? '/ year' : '/ month';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -107,46 +118,30 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             ),
             24.0.height,
 
-            // Plans
+            // Plans (Free and Pro only)
             _buildPlanOption(
               'Free',
               'Get started on Creatify.',
-              '₦0',
-              'forever',
-              ['Create a profile', 'Showcase your work', 'Browse and apply for jobs'],
+              'Free',
+              '',
+              ['Create a profile', 'Showcase your work', 'Browse and apply for jobs', 'Advanced insights'],
               tier: 'Free',
             ),
             16.0.height,
             _buildPlanOption(
               'Pro',
-              'For greater opportunities',
-              '₦3,000',
-              '/ month',
+              'For greater opportunities & growth',
+              proPrice,
+              periodText,
               [
                 'Higher profile visibility',
                 'Apply directly to job adverts',
                 'Job alerts',
-                'Post job adverts (Recruiters)',
+                'Advanced insights',
                 'Priority support'
               ],
               tier: 'Pro',
-              isPopular: !_isAnnual,
-            ),
-            16.0.height,
-            _buildPlanOption(
-              'Pro+',
-              'For serious growth',
-              '₦30,000',
-              '/ year',
-              [
-                'Everything in Pro',
-                'Advanced insights',
-                'Early access to features',
-                'Priority ranking',
-                'Custom profile link'
-              ],
-              tier: 'Pro+',
-              isPopular: _isAnnual,
+              isPopular: true,
             ),
             24.0.height,
 
@@ -162,7 +157,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             _buildPaymentMethodTile(),
             24.0.height,
 
-            // Disclaimer
+            // Disclaimer / Terms & Conditions
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
@@ -174,21 +169,44 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    12.0.width,
                     Expanded(
                       child: RichText(
                         text: TextSpan(
                           style: context.textTheme.bodySmall?.copyWith(color: AppColors.body, height: 1.4),
                           children: [
                             const TextSpan(text: 'You can cancel your subscription at any time. By continuing, you agree to our '),
-                            TextSpan(
-                              text: 'Terms of Service',
-                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () {
+                                  NavigationService.instance.push(
+                                    const WebviewScreen(
+                                      url: 'https://creatifyapp.com/terms',
+                                      routeName: 'Terms and Conditions',
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Terms and Conditions',
+                                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                              ),
                             ),
                             const TextSpan(text: ' and '),
-                            TextSpan(
-                              text: 'Privacy Policy',
-                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                            WidgetSpan(
+                              child: GestureDetector(
+                                onTap: () {
+                                  NavigationService.instance.push(
+                                    const WebviewScreen(
+                                      url: 'https://creatifyapp.com/privacy',
+                                      routeName: 'Privacy Policy',
+                                    ),
+                                  );
+                                },
+                                child: const Text(
+                                  'Privacy Policy',
+                                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
+                              ),
                             ),
                             const TextSpan(text: '.'),
                           ],
@@ -207,16 +225,22 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
               child: MainButton(
                 text: 'Subscribe to $_selectedTier',
                 isLoading: ref.watch(makeSubscriptionPaymentProvider).isLoading,
-                onPressed: _selectedTier == 'Free' ? null : () {
+                onPressed: () {
+                   if (_selectedTier == 'Free') {
+                     ToastDialog.showSuccess('You are on the Free plan', context);
+                     return;
+                   }
                    final plans = ref.read(fetchSubscriptionPlansProvider).value ?? [];
                    final targetInterval = _isAnnual ? 'annually' : 'monthly';
                    final plan = plans.firstWhere(
-                     (p) => p.name?.toLowerCase() == _selectedTier.toLowerCase().replaceAll('+', '').trim() &&
+                     (p) => p.name?.toLowerCase() == _selectedTier.toLowerCase() &&
                             p.interval?.toLowerCase() == targetInterval,
                      orElse: () => plans.isNotEmpty ? plans.first : SubscriptionsPlanDto(),
                    );
                    if (plan.id != null) {
                      ref.read(makeSubscriptionPaymentProvider.notifier).makeSubscriptionPayment(plan.id!);
+                   } else {
+                     ToastDialog.showError('Subscription plan initialized successfully', context);
                    }
                 },
               ),
@@ -317,7 +341,8 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                         Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.body)),
                         16.0.height,
                         Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter')),
-                        Text(period, style: const TextStyle(fontSize: 12, color: AppColors.body)),
+                        if (period.isNotEmpty)
+                          Text(period, style: const TextStyle(fontSize: 12, color: AppColors.body)),
                       ],
                     ),
                   ),
@@ -353,15 +378,18 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             ),
             if (isPopular)
               Positioned(
-                top: -10,
-                right: 30,
+                top: -12,
+                right: 20,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFF00796B),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text('Most popular', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Most popular',
+                    style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
           ],
@@ -373,35 +401,44 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
   Widget _buildPaymentMethodTile() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.grey200),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.grey50,
-                borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: () {
+           AppBottomSheet.showBottomSheet(
+             context,
+             widget: const FundWalletSheet(),
+           );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.grey200),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.grey50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.credit_card, color: Color(0xFF00796B), size: 24),
               ),
-              child: const Icon(Icons.credit_card_outlined, color: AppColors.subHeading),
-            ),
-            16.0.width,
-            const Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Add a payment method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                  Text('Secure and encrypted', style: TextStyle(fontSize: 11, color: AppColors.body)),
-                ],
+              16.0.width,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Add a payment method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131))),
+                    4.0.height,
+                    const Text('Secure and encrypted', style: TextStyle(fontSize: 12, color: AppColors.body)),
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right, color: AppColors.body),
-          ],
+              const Icon(Icons.chevron_right, color: AppColors.body, size: 20),
+            ],
+          ),
         ),
       ),
     );
