@@ -108,8 +108,16 @@ class CreatorService {
         options: Options(contentType: 'multipart/form-data'),
       );
 
-      return response.data['message'] ?? 'Success';
+      final resData = response.data;
+      if (resData is Map && resData['success'] == false) {
+        throw resData['message'] ?? 'Failed to upload profile image';
+      }
+
+      return (resData is Map ? (resData['message'] ?? resData['data']?['message']) : null) ?? 'Profile image updated successfully';
     } catch (e) {
+      if (e is ApiException) {
+        throw e.message;
+      }
       throw e.toString();
     }
   }

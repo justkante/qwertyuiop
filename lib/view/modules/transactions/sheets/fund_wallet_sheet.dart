@@ -151,6 +151,8 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
               return MainButton(
                 text: 'Fund',
                 isLoading: funding,
+                width: double.infinity,
+                borderRadius: 30,
                 fontSize: 15,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 onPressed: isCodeValid

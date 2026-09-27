@@ -160,7 +160,12 @@ class TransactionsService {
         },
       );
 
-      final data = response.data['data'];
+      final resData = response.data;
+      if (resData is Map && resData['success'] == false) {
+        throw resData['message'] ?? 'Failed to initialize payment';
+      }
+
+      final data = (resData is Map ? resData['data'] : null) ?? resData;
       if (data == null) {
         throw 'Failed to initialize payment: No data received from server';
       }
