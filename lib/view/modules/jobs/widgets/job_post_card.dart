@@ -65,16 +65,20 @@ class _JobPostCardState extends State<JobPostCard> {
   @override
   Widget build(BuildContext context) {
     final statusLower = widget.status.toLowerCase();
-    final isClosed = statusLower == 'closed';
-    final statusColor = switch (statusLower) {
-      'sent' => Colors.orange,
-      'viewed' => Colors.blue,
-      'accepted' => const Color(0xFF009688),
-      'rejected' => Colors.red,
-      'closed' => Colors.grey,
-      'active' => const Color(0xFF009688),
-      _ => Colors.transparent,
-    };
+    final isExpiredStatus = statusLower.contains('expired');
+    final isClosed = statusLower == 'closed' || isExpiredStatus;
+    final statusColor = isExpiredStatus
+        ? const Color(0xFFDC2626)
+        : switch (statusLower) {
+            'sent' => Colors.orange,
+            'viewed' => Colors.blue,
+            'accepted' => const Color(0xFF009688),
+            'rejected' => Colors.red,
+            'closed' => Colors.grey,
+            'active' => const Color(0xFF009688),
+            _ => Colors.transparent,
+          };
+    final displayStatus = isExpiredStatus ? 'Inactive - Job Expired' : widget.status.capitalize();
 
     return GestureDetector(
       onTap: widget.onTap,
@@ -113,7 +117,7 @@ class _JobPostCardState extends State<JobPostCard> {
                         ),
                         6.0.width,
                         Text(
-                          widget.status.capitalize(),
+                          displayStatus,
                           style: context.textTheme.bodySmall?.copyWith(
                             fontSize: 11,
                             color: AppColors.body,
