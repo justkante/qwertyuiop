@@ -125,11 +125,11 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         ),
         24.0.height,
 
-        // Social Media Icons - Transparent background, larger icons
+        // Social Media Icons using custom asset images
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _buildSocialIcon(Icons.chat_bubble, const Color(0xFF25D366), 'WhatsApp', () async {
+            _buildSocialIcon(AppImages.whatsappIcon, 'WhatsApp', () async {
               final text = Uri.encodeComponent("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl");
               final whatsappUrl = Uri.parse("whatsapp://send?text=$text");
               if (await canLaunchUrl(whatsappUrl)) {
@@ -139,7 +139,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
               }
             }),
             24.0.width,
-            _buildSocialIcon(Icons.camera_alt, const Color(0xFFE4405F), 'Instagram', () async {
+            _buildSocialIcon(AppImages.instagramIcon, 'Instagram', () async {
                final instagramUrl = Uri.parse("https://www.instagram.com/");
                if (await canLaunchUrl(instagramUrl)) {
                   await launchUrl(instagramUrl, mode: LaunchMode.externalApplication);
@@ -148,7 +148,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
                }
             }),
             24.0.width,
-            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2), 'Facebook', () async {
+            _buildSocialIcon(AppImages.facebookIcon, 'Facebook', () async {
                final fbUrl = Uri.parse("https://www.facebook.com/sharer/sharer.php?u=$profileUrl");
                if (await canLaunchUrl(fbUrl)) {
                   await launchUrl(fbUrl, mode: LaunchMode.externalApplication);
@@ -157,7 +157,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
                }
             }),
             24.0.width,
-            _buildSocialIcon(Icons.snapchat, const Color(0xFFFFFC00), 'Snapchat', () async {
+            _buildSocialIcon(AppImages.snapchatIcon, 'Snapchat', () async {
                final snapUrl = Uri.parse("https://www.snapchat.com/share?url=$profileUrl");
                if (await canLaunchUrl(snapUrl)) {
                   await launchUrl(snapUrl, mode: LaunchMode.externalApplication);
@@ -172,8 +172,8 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
         // Share Button - Capsulated and wider
         MainButton(
           text: 'Share Profile',
-          width: 320, // Making it significantly wider
-          borderRadius: 30, // Capsulated
+          width: 320,
+          borderRadius: 30,
           padding: const EdgeInsets.symmetric(vertical: 14),
           onPressed: () async {
              final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
@@ -184,12 +184,12 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
     );
   }
 
-  Widget _buildSocialIcon(IconData icon, Color color, String label, VoidCallback onTap) {
+  Widget _buildSocialIcon(String assetPath, String label, VoidCallback onTap) {
     return Column(
       children: [
         InkWell(
           onTap: onTap,
-          child: Icon(icon, color: color, size: 48), // Increased size
+          child: Image.asset(assetPath, width: 44, height: 44, fit: BoxFit.contain),
         ),
         6.0.height,
         Text(label, style: const TextStyle(fontSize: 10, color: AppColors.body, fontWeight: FontWeight.bold)),

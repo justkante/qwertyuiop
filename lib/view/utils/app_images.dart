@@ -129,6 +129,10 @@ class AppImages {
   static const String openExternal = 'assets/svg/open_external.svg';
   static const String info = 'assets/svg/info.svg';
   static const String stripe = 'assets/svg/stripe.svg';
+  static const String facebookIcon = 'assets/images/facebook.png';
+  static const String instagramIcon = 'assets/images/instagram.png';
+  static const String snapchatIcon = 'assets/images/snapchat.png';
+  static const String whatsappIcon = 'assets/images/whatsapp.png';
 
   static const String dummyAvatarSvg = 'assets/svg/dummy_avatar.svg';
 }
