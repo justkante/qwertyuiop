@@ -16,18 +16,48 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
   }) async {
     state = const AsyncValue.loading();
 
-    final response = await AsyncValue.guard(
-      () => ref.read(creatorRepository).filterCreators(
-            name: name,
-            priceMin: priceMin?.toString(),
-            priceMax: priceMax?.toString(),
-            category: category,
-            location: location,
-          ),
-    );
+    try {
+      List<CreatorProfileDto> list = [];
+      try {
+        list = await ref.read(creatorRepository).filterCreators(
+              name: name,
+              priceMin: priceMin?.toString(),
+              priceMax: priceMax?.toString(),
+              category: category,
+              location: location,
+            );
+      } catch (_) {}
 
-    if (!response.hasError) {
-      final list = response.value ?? [];
+      if (list.isEmpty || (location != null && location.isNotEmpty) || (name != null && name.isNotEmpty) || (category != null && category.isNotEmpty)) {
+        final allCreators = await ref.read(creatorRepository).filterCreators();
+
+        list = allCreators.where((creator) {
+          bool matchesName = true;
+          bool matchesLocation = true;
+          bool matchesCategory = true;
+
+          if (name != null && name.isNotEmpty) {
+            final q = name.toLowerCase();
+            matchesName = (creator.name?.toLowerCase().contains(q) ?? false) ||
+                          (creator.categories?.any((c) => c.name?.toLowerCase().contains(q) ?? false) ?? false);
+          }
+
+          if (location != null && location.isNotEmpty) {
+            final locLower = location.toLowerCase();
+            final creatorLoc = creator.location?.toLowerCase() ?? '';
+            final country = creator.countryCode?.toLowerCase() ?? '';
+            matchesLocation = creatorLoc.contains(locLower) || country.contains(locLower) || creatorLoc.contains(locLower.replaceAll(' ', ''));
+          }
+
+          if (category != null && category.isNotEmpty) {
+            final catLower = category.toLowerCase();
+            matchesCategory = creator.categories?.any((c) => c.name?.toLowerCase().contains(catLower) ?? false) ?? false;
+          }
+
+          return matchesName && matchesLocation && matchesCategory;
+        }).toList();
+      }
+
       // Sort by profile strength descending
       list.sort((a, b) {
         final strengthA = ProfileStrengthUtils.calculateStrengthForProfile(a);
@@ -36,7 +66,6 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
       });
       state = AsyncValue.data(list);
 
-      // Track Login Event
       mixpanel.trackEvent(
         'Search/Filter Performed',
         properties: {
@@ -47,8 +76,8 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           if (location != null) 'location': location,
         },
       );
-    } else {
-      state = response;
+    } catch (e) {
+      state = AsyncValue.error(e, StackTrace.current);
     }
   }
 
