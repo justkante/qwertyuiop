@@ -149,10 +149,10 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
                       (userData.countryCode == 'NG' ? 1000 : 5));
 
               return MainButton(
-                text: 'Fund Wallet',
+                text: 'Fund',
                 isLoading: funding,
-                fontSize: 18, // Increased
-                padding: const EdgeInsets.symmetric(vertical: 16), // Increased
+                fontSize: 15,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 onPressed: isCodeValid
                     ? () {
                         ref.read(fundWalletProvider.notifier).fundWallet(

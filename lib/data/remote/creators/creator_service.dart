@@ -93,10 +93,11 @@ class CreatorService {
 
   Future<String> uploadProfileImage(String filePath) async {
     try {
+      final filename = filePath.split(RegExp(r'[/\\]')).last;
       final formData = FormData.fromMap({
         'profile_image': await MultipartFile.fromFile(
           filePath,
-          filename: filePath.split('/').last,
+          filename: filename,
         ),
       });
 
@@ -107,7 +108,7 @@ class CreatorService {
         options: Options(contentType: 'multipart/form-data'),
       );
 
-      return response.data['message'];
+      return response.data['message'] ?? 'Success';
     } catch (e) {
       throw e.toString();
     }
