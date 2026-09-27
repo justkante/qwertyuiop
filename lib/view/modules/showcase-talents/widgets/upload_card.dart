@@ -28,90 +28,54 @@ class _UploadMediaCardState extends State<UploadMediaCard> {
       onTap: widget.onTap,
       child: CustomPaint(
         painter: DashedRectanglePainter(
-          borderRadius: 10,
+          borderRadius: 14,
           color: AppColors.spot500,
           strokeWidth: 1.0,
-          dashWidth: 10.0,
+          dashWidth: 8.0,
         ),
         child: Container(
           width: double.infinity,
           margin: const EdgeInsets.all(4),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: AppColors.grey50,
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: widget.isLoading
-                ? const Center(
-                    child: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator.adaptive(
-                        valueColor: AlwaysStoppedAnimation(AppColors.primary),
-                        strokeWidth: 2,
+          child: widget.isLoading
+              ? const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator.adaptive(
+                      valueColor: AlwaysStoppedAnimation(AppColors.primary),
+                      strokeWidth: 2,
+                    ),
+                  ),
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: SvgPicture.asset(
+                        AppImages.solidAdd,
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(AppColors.primary, BlendMode.srcIn),
                       ),
                     ),
-                  )
-                : SvgPicture.asset(AppImages.solidAdd),
-          ),
+                    10.0.height,
+                    Text(widget.title ?? 'Upload file', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131))),
+                    4.0.height,
+                    Text(widget.subtitle ?? 'Images, videos, or documents (Max 50MB)', style: const TextStyle(fontSize: 11, color: AppColors.body), textAlign: TextAlign.center),
+                  ],
+                ),
         ),
       ),
     );
   }
 }
-
-// class UploadedMediaCard extends StatelessWidget {
-//   final String? icon, title;
-//   final bool? isLoading;
-//   final Function()? onTap;
-//   const UploadedMediaCard({
-//     super.key,
-//     this.icon,
-//     this.title,
-//     this.isLoading,
-//     this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-//       decoration: BoxDecoration(
-//         borderRadius: BorderRadius.circular(12),
-//         color: AppColors.kGrey100,
-//       ),
-//       child: Row(
-//         children: [
-//           SvgPicture.asset(icon ?? AppImages.video),
-//           12.0.width,
-//           Expanded(
-//             flex: 4,
-//             child: Text(
-//               title ?? 'introduction.mp4',
-//               style: context.textTheme.bodyMedium?.copyWith(color: AppColors.black),
-//             ),
-//           ),
-//           const Spacer(),
-//           if (onTap != null) ...[
-//             isLoading ?? false
-//                 ? LoadingAnimationWidget.discreteCircle(
-//                     color: AppColors.kGrey600,
-//                     secondRingColor: AppColors.richBlue,
-//                     thirdRingColor: AppColors.roseCoral,
-//                     size: 20,
-//                   )
-//                 : InkWell(
-//                     onTap: onTap,
-//                     child: SvgPicture.asset(
-//                       AppImages.trash,
-//                       colorFilter: AppColors.kGrey600.colorFilterMode(),
-//                     ),
-//                   )
-//           ],
-//         ],
-//       ),
-//     );
-//   }
-// }
