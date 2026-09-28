@@ -30,9 +30,12 @@ class SearchTalentsView extends ConsumerStatefulWidget {
   ConsumerState<SearchTalentsView> createState() => _SearchTalentsViewState();
 }
 
-class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
+class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
+    with SingleTickerProviderStateMixin {
   final searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  late AnimationController _bounceController;
+  late Animation<double> _bounceAnimation;
   bool _showBackToTop = false;
 
   String _searchQuery = '';
@@ -53,6 +56,16 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
   void initState() {
     super.initState();
     searchController.addListener(_onSearchChanged);
+
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..repeat(reverse: true);
+
+    _bounceAnimation = Tween<double>(begin: 0, end: -6).animate(
+      CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
+    );
+
     _scrollController.addListener(() {
       if (_scrollController.offset > 100 && !_showBackToTop) {
         setState(() => _showBackToTop = true);
@@ -75,6 +88,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
     searchController.removeListener(_onSearchChanged);
     searchController.dispose();
     _scrollController.dispose();
+    _bounceController.dispose();
     super.dispose();
   }
 
@@ -86,11 +100,41 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: _showBackToTop
-          ? FloatingActionButton.extended(
-              onPressed: _scrollToTop,
-              backgroundColor: const Color(0xFF00796B),
-              icon: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
-              label: const Text('Back to top', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 90), // Floating above bottom nav bar
+              child: AnimatedBuilder(
+                animation: _bounceAnimation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _bounceAnimation.value),
+                    child: child,
+                  );
+                },
+                child: GestureDetector(
+                  onTap: _scrollToTop,
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.88),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFE0E0E0), width: 1.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.keyboard_arrow_up_rounded,
+                      color: Color(0xFF00796B),
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ),
             )
           : null,
       appBar: AppBar(
