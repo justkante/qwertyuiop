@@ -60,6 +60,8 @@ class HomeView extends ConsumerStatefulWidget {
 
 class _HomeViewState extends ConsumerState<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollController = ScrollController();
+  bool _showBackToTop = false;
 
   int _recommendedToggle = 0; // 0 for Creators, 1 for Jobs
 
@@ -130,9 +132,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.offset > 100 && !_showBackToTop) {
+        setState(() => _showBackToTop = true);
+      } else if (_scrollController.offset <= 100 && _showBackToTop) {
+        setState(() => _showBackToTop = false);
+      }
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initSequence();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -152,6 +167,20 @@ class _HomeViewState extends ConsumerState<HomeView> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF9F9F9),
       drawer: const HomeDrawer(),
+      floatingActionButton: _showBackToTop
+          ? FloatingActionButton.extended(
+              onPressed: () {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeInOut,
+                );
+              },
+              backgroundColor: const Color(0xFF00796B),
+              icon: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
+              label: const Text('Back to top', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+            )
+          : null,
       body: SafeArea(
         child: RefreshIndicator.adaptive(
           onRefresh: () async {
@@ -164,6 +193,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ref.invalidate(fetchSentBookingsProvider);
           },
           child: CustomScrollView(
+            controller: _scrollController,
             slivers: [
               // Header
               SliverToBoxAdapter(
@@ -505,7 +535,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         child: Container(
           height: 82,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          decoration: BoxDecoration(color: bgColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20), border: Border.all(color: bgColor.withValues(alpha: 0.4))),
+          decoration: BoxDecoration(color: bgColor.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(20), border: Border.all(color: bgColor.withValues(alpha: 0.7))),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -542,7 +572,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       child: Container(
         width: 165,
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: bgColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20), border: Border.all(color: bgColor.withValues(alpha: 0.4))),
+        decoration: BoxDecoration(color: bgColor.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(20), border: Border.all(color: bgColor.withValues(alpha: 0.7))),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -850,9 +880,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
         width: 155,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: bgColor.withValues(alpha: 0.2),
+          color: bgColor.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: bgColor.withValues(alpha: 0.35)),
+          border: Border.all(color: bgColor.withValues(alpha: 0.7)),
         ),
         child: Row(
           children: [

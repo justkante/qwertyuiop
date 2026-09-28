@@ -178,25 +178,37 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
   Widget _buildStatusCard(String label, int count, Color bgColor, Color iconColor, IconData icon) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.grey100),
+          color: bgColor.withValues(alpha: 0.35),
+          border: Border.all(color: bgColor.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-              child: Icon(icon, color: iconColor, size: 20), // Increased from 18
-            ),
-            12.0.width,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: AppColors.body)), // Increased from 10
-                Text('$count', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))), // Increased from 18
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+                  child: Icon(icon, color: iconColor, size: 16),
+                ),
+                6.0.width,
+                Text(
+                  label,
+                  style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w600),
+                  textAlign: TextAlign.center,
+                ),
               ],
+            ),
+            6.0.height,
+            Text(
+              '$count',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
