@@ -54,9 +54,9 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView> {
     super.initState();
     searchController.addListener(_onSearchChanged);
     _scrollController.addListener(() {
-      if (_scrollController.offset > 300 && !_showBackToTop) {
+      if (_scrollController.offset > 100 && !_showBackToTop) {
         setState(() => _showBackToTop = true);
-      } else if (_scrollController.offset <= 300 && _showBackToTop) {
+      } else if (_scrollController.offset <= 100 && _showBackToTop) {
         setState(() => _showBackToTop = false);
       }
     });
