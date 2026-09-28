@@ -1,3 +1,4 @@
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
@@ -230,15 +231,25 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
         final newVal = !hasAlerts;
         SharedPrefManager.jobAlertsEnabled = newVal;
         setState(() {});
-        if (newVal) {
-          ToastDialog.showSuccess('Job alerts activated!', context);
-        } else {
-          ToastDialog.showSuccess('Job alerts deactivated.', context);
+        try {
+          if (newVal) {
+            OneSignal.User.addTagWithKey("job_alerts", "true");
+            ToastDialog.showSuccess('Job alerts activated! You will receive push notifications when new jobs are posted.', context);
+          } else {
+            OneSignal.User.removeTag("job_alerts");
+            ToastDialog.showSuccess('Job alerts deactivated.', context);
+          }
+        } catch (_) {
+          if (newVal) {
+            ToastDialog.showSuccess('Job alerts activated!', context);
+          } else {
+            ToastDialog.showSuccess('Job alerts deactivated.', context);
+          }
         }
       },
       child: Text(
         hasAlerts ? 'Remove job alerts' : 'Set job alerts',
-        style: const TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 13),
       ),
     );
   }
