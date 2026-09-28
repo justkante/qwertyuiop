@@ -83,7 +83,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
         NavigationService.instance.push(
           FetchedCreatorProfileView(
             creatorId: widget.profile?.id ?? '',
-            isFavorite: _isFav,
+            creatorName: widget.profile?.name ?? 'Creator',
           ),
         );
       },
@@ -242,7 +242,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                       NavigationService.instance.push(
                         FetchedCreatorProfileView(
                           creatorId: widget.profile?.id ?? '',
-                          isFavorite: _isFav,
+                          creatorName: widget.profile?.name ?? 'Creator',
                         ),
                       );
                     },
@@ -343,7 +343,7 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
         NavigationService.instance.push(
           FetchedCreatorProfileView(
             creatorId: widget.profile?.id ?? '',
-            isFavorite: _isFav,
+            creatorName: widget.profile?.name ?? 'Creator',
           ),
         );
       },
