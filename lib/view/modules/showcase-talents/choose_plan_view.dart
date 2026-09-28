@@ -118,16 +118,18 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             ),
             24.0.height,
 
-            // Plans (Free and Pro only)
-            _buildPlanOption(
-              'Free',
-              'Get started on Creatify.',
-              'Free',
-              '',
-              ['Create a profile', 'Showcase your work', 'Browse and apply for jobs', 'Advanced insights'],
-              tier: 'Free',
-            ),
-            16.0.height,
+            // Plans (Free hidden when annual is selected)
+            if (!_isAnnual) ...[
+              _buildPlanOption(
+                'Free',
+                'Get started on Creatify.',
+                'Free',
+                '',
+                ['Create a profile', 'Showcase your work', 'Browse and apply for jobs', 'Advanced insights'],
+                tier: 'Free',
+              ),
+              16.0.height,
+            ],
             _buildPlanOption(
               'Pro',
               'For greater opportunities & growth',

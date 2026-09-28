@@ -619,22 +619,22 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
     final String currency = (userData.primaryCurrency ?? 'NGN').toUpperCase();
     final String country = (userData.countryCode ?? 'NG').toUpperCase();
 
-    double monthlyPrice;
+    double price;
 
     if (country == 'NG' || currency == 'NGN') {
-      monthlyPrice = 10000;
+      price = isAnnual ? 110000 : 10000;
     } else if (country == 'GB' || currency == 'GBP') {
-      monthlyPrice = 9.99;
+      price = isAnnual ? 110 : 9.99;
     } else {
       final rates = {
         'USD': 1.27, 'EUR': 1.18, 'CAD': 1.74, 'AUD': 1.91, 'BRL': 6.50,
         'AED': 4.66, 'SGD': 1.71, 'GHS': 18.5, 'KES': 165.0, 'ZAR': 23.5,
       };
       final rate = rates[currency] ?? 1.27;
-      monthlyPrice = 9.99 * rate;
+      final monthly = 9.99 * rate;
+      price = isAnnual ? monthly * 11 : monthly;
     }
 
-    final price = isAnnual ? monthlyPrice * 10 : monthlyPrice;
     final String unitText = isAnnual ? 'year' : 'month';
 
     return "${price.amountWithCurrency(currency)} / $unitText";
