@@ -3,6 +3,7 @@ import 'package:creatify_mobile/core/services/mixpanel_service.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/book_creator_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/fetched_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/home/rating/star_rating.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
@@ -80,8 +81,8 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
         });
 
         NavigationService.instance.push(
-          CreatorProfileView(
-            profile: widget.profile,
+          FetchedCreatorProfileView(
+            creatorId: widget.profile?.id ?? '',
             isFavorite: _isFav,
           ),
         );
@@ -239,8 +240,8 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                     color: const Color(0xFF00796B),
                     onPressed: () {
                       NavigationService.instance.push(
-                        CreatorProfileView(
-                          profile: widget.profile,
+                        FetchedCreatorProfileView(
+                          creatorId: widget.profile?.id ?? '',
                           isFavorite: _isFav,
                         ),
                       );
@@ -340,8 +341,8 @@ class _RecommendedCreatorsCardState extends ConsumerState<RecommendedCreatorsCar
         });
 
         NavigationService.instance.push(
-          CreatorProfileView(
-            profile: widget.profile,
+          FetchedCreatorProfileView(
+            creatorId: widget.profile?.id ?? '',
             isFavorite: _isFav,
           ),
         );
