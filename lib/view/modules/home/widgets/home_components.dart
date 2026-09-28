@@ -96,8 +96,8 @@ class ProfileStrengthWidget extends StatelessWidget {
     return Row(
       children: [
         Icon(
-          completed ? Icons.check_circle : Icons.radio_button_unchecked,
-          color: completed ? const Color(0xFF00BFA5) : AppColors.grey300,
+          Icons.star,
+          color: completed ? const Color(0xFFFFB800) : AppColors.grey300,
           size: 14,
         ),
         6.0.width,

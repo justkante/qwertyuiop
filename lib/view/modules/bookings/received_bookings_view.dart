@@ -178,7 +178,7 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
   Widget _buildStatusCard(String label, int count, Color bgColor, Color iconColor, IconData icon) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -188,21 +188,23 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-              child: Icon(icon, color: iconColor, size: 18),
+              child: Icon(icon, color: iconColor, size: 16),
             ),
-            8.0.width,
+            6.0.width,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    label,
-                    style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      label,
+                      style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500),
+                    ),
                   ),
                   2.0.height,
                   Text(
