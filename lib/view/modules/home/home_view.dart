@@ -120,6 +120,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
     });
   }
 
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -213,7 +220,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       Row(
                         children: [
                           Text(
-                            'Good morning, ${userData.name?.split(' ').first ?? 'User'}',
+                            '${_getGreeting()}, ${userData.name?.split(' ').first ?? 'User'}',
                             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
                           ),
                           4.0.width,
@@ -281,7 +288,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   child: Row(
                     children: [
                       _buildSmallActionBanner(
-                        'Post a job advert',
+                        'Post a job',
                         'Reach thousands\nof creative talent',
                         const Color(0xFFE0F2F1),
                         const Color(0xFF00BFA5),
@@ -496,9 +503,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          height: 82, // Equal height for both containers
+          height: 82,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
+          decoration: BoxDecoration(color: bgColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20), border: Border.all(color: bgColor.withValues(alpha: 0.4))),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -535,7 +542,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       child: Container(
         width: 165,
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
+        decoration: BoxDecoration(color: bgColor.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20), border: Border.all(color: bgColor.withValues(alpha: 0.4))),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -548,8 +555,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500, height: 1.1),
-                    maxLines: 1,
+                    style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w600, height: 1.1),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   2.0.height,
@@ -840,20 +847,35 @@ class _HomeViewState extends ConsumerState<HomeView> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Container(
-        width: 160, // Expanded width
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.grey100), borderRadius: BorderRadius.circular(20)),
-        child: Row( // Row for side-by-side
+        width: 155,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: bgColor.withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: bgColor.withValues(alpha: 0.35)),
+        ),
+        child: Row(
           children: [
-            Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: bgColor.withOpacity(0.2), shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 18)),
-            12.0.width,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 18),
+            ),
+            10.0.width,
             Expanded(
               child: Text(
-                title.replaceAll(' ', '\n'), // One word per line as requested
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1B3131), height: 1.2)
-              )
+                title,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1B3131),
+                  height: 1.2,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            const Icon(Icons.chevron_right, size: 16, color: AppColors.grey300),
+            const Icon(Icons.chevron_right, size: 14, color: AppColors.grey300),
           ],
         ),
       ),
