@@ -178,37 +178,39 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
   Widget _buildStatusCard(String label, int count, Color bgColor, Color iconColor, IconData icon) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
-          color: bgColor.withValues(alpha: 0.35),
-          border: Border.all(color: bgColor.withValues(alpha: 0.5)),
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.grey100),
         ),
-        child: Column(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
-                  child: Icon(icon, color: iconColor, size: 16),
-                ),
-                6.0.width,
-                Text(
-                  label,
-                  style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w600),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 18),
             ),
-            6.0.height,
-            Text(
-              '$count',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
-              textAlign: TextAlign.center,
+            8.0.width,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  2.0.height,
+                  Text(
+                    '$count',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
