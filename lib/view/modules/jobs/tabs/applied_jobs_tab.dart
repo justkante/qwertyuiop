@@ -125,14 +125,6 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
           ),
         ],
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 120), // Adjusted
-        child: FloatingActionButton(
-          onPressed: () {},
-          backgroundColor: AppColors.primary,
-          child: const Icon(Icons.tune, color: Colors.white),
-        ),
-      ),
     );
   }
 

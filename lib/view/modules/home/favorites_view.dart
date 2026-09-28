@@ -132,6 +132,7 @@ class _FavoritesViewState extends ConsumerState<FavoritesView> {
                 ref
                     .read(removeFromFavoriteCreatorsProvider.notifier)
                     .removeFromFavoriteCreators(creator.id ?? '');
+                ToastDialog.showSuccess('${creator.name ?? 'Creator'} removed from favorites', context);
               },
             );
           },

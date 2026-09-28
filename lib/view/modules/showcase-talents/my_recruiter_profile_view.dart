@@ -76,24 +76,25 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
   }
 
   void _onShareProfile() {
-    ref.watch(fetchRecruiterProfileProvider((ref.watch(userControllerProvider).id ?? '', null))).whenData((profile) {
-      AppDialog.showAppDialog(
-        context,
-        widget: ShareProfileWidget(
-          profile: CreatorProfileDto(
-            id: profile.id,
-            name: profile.name,
-            profileId: profile.id,
-            profileImage: profile.profileImage,
-            ratingsAndReviews: RatingsAndReviews(
-               averageRating: profile.ratingsAndReviews?.averageRating,
-               totalReviews: profile.ratingsAndReviews?.totalReviews,
-            ),
+    final userData = ref.read(userControllerProvider);
+    final recruiterProfile = ref.read(fetchRecruiterProfileProvider((userData.id ?? '', selectedTimeframeValue))).value;
+
+    AppDialog.showAppDialog(
+      context,
+      widget: ShareProfileWidget(
+        profile: CreatorProfileDto(
+          id: recruiterProfile?.id ?? userData.id,
+          name: recruiterProfile?.name ?? userData.name,
+          profileId: recruiterProfile?.id ?? userData.id,
+          profileImage: recruiterProfile?.profileImage ?? userData.profileImage,
+          ratingsAndReviews: RatingsAndReviews(
+             averageRating: recruiterProfile?.ratingsAndReviews?.averageRating ?? 0.0,
+             totalReviews: recruiterProfile?.ratingsAndReviews?.totalReviews ?? 0,
           ),
-          self: true,
         ),
-      );
-    });
+        self: true,
+      ),
+    );
   }
 
   @override
