@@ -1,5 +1,6 @@
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
+import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/dash_rectangle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
