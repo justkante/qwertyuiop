@@ -69,6 +69,39 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
               hintText: 'Search Name...',
             ),
           ),
+          8.0.height,
+
+          // Filter Chips (All, Unread, Read)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: ['All', 'Unread', 'Read'].map((f) {
+                final isSelected = ref.watch(chatFilterProvider) == f;
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () => ref.read(chatFilterProvider.notifier).state = f,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF00796B) : AppColors.grey50,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: isSelected ? const Color(0xFF00796B) : AppColors.grey200),
+                      ),
+                      child: Text(
+                        f,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : const Color(0xFF1B3131),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
           12.0.height,
           if (filteredConversationsAsync.isLoading) ...[
             const LineLoadingIndicator(loading: true),

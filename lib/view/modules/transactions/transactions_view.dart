@@ -241,39 +241,6 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
               ),
               24.0.height,
 
-              // Recent Transactions Header
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Recent Transactions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
-                    GestureDetector(
-                      onTap: () => NavigationService.instance.push(const AllTransactionsView()),
-                      child: const Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 13)),
-                    ),
-                  ],
-                ),
-              ),
-              8.0.height,
-
-              // Transactions List
-              transactionsAsync.when(
-                data: (data) {
-                  if (data.data == null || data.data!.isEmpty) return _buildEmptyState();
-                  return ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: data.data!.length > 3 ? 3 : data.data!.length,
-                    separatorBuilder: (_, __) => const Divider(color: AppColors.grey100, height: 1),
-                    itemBuilder: (context, index) => TransactionItem(transaction: data.data![index]),
-                  );
-                },
-                loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-                error: (e, s) => Center(child: Text(e.toString())),
-              ),
-              32.0.height,
-
               // Quick Actions
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -305,6 +272,39 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                     }),
                   ],
                 ),
+              ),
+              32.0.height,
+
+              // Recent Transactions Header
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Recent Transactions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
+                    GestureDetector(
+                      onTap: () => NavigationService.instance.push(const AllTransactionsView()),
+                      child: const Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 13)),
+                    ),
+                  ],
+                ),
+              ),
+              8.0.height,
+
+              // Transactions List
+              transactionsAsync.when(
+                data: (data) {
+                  if (data.data == null || data.data!.isEmpty) return _buildEmptyState();
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: data.data!.length > 3 ? 3 : data.data!.length,
+                    separatorBuilder: (_, __) => const Divider(color: AppColors.grey100, height: 1),
+                    itemBuilder: (context, index) => TransactionItem(transaction: data.data![index]),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+                error: (e, s) => Center(child: Text(e.toString())),
               ),
               140.0.height, // Extra padding for scrolling above nav bar
             ],

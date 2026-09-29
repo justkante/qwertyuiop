@@ -206,7 +206,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         children: [
                           InkWell(
                             onTap: () => _scaffoldKey.currentState?.openDrawer(),
-                            child: InitialAvatar(initials: userData.getInitials, size: 22),
+                            child: (userData.profileImage != null && userData.profileImage!.trim().isNotEmpty && userData.profileImage!.trim().startsWith('http'))
+                                ? CircleAvatar(
+                                    radius: 22,
+                                    backgroundImage: NetworkImage(userData.profileImage!),
+                                    backgroundColor: AppColors.grey100,
+                                  )
+                                : InitialAvatar(initials: userData.getInitials, size: 22),
                           ),
                           Container(
                             width: 10,

@@ -161,12 +161,13 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 24, left: 8),
-              child: CircleAvatar(
-                radius: 18,
-                backgroundImage: userData.profileImage != null
-                    ? NetworkImage(userData.profileImage!)
-                    : const AssetImage(AppImages.dummyAvatar) as ImageProvider,
-              ),
+              child: (userData.profileImage != null && userData.profileImage!.trim().isNotEmpty && userData.profileImage!.trim().startsWith('http'))
+                  ? CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(userData.profileImage!),
+                      backgroundColor: AppColors.grey100,
+                    )
+                  : InitialAvatar(initials: userData.getInitials, size: 18),
             ),
           ),
         ],
