@@ -163,24 +163,32 @@ final fetchMessagesProvider = FutureProvider.autoDispose
 
 // State provider for search query
 final searchQueryProvider = StateProvider<String>((ref) => '');
+final chatFilterProvider = StateProvider<String>((ref) => 'All');
 
-// Filtered conversations based on search query
+// Filtered conversations based on search query and chat filter
 final filteredConversationsProvider =
     Provider.autoDispose<AsyncValue<List<ConversationDto>>>((ref) {
   final conversationsAsync = ref.watch(fetchConversationsProvider);
   final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
+  final filter = ref.watch(chatFilterProvider);
 
   return conversationsAsync.when(
     data: (conversations) {
-      if (searchQuery.isEmpty) {
-        return AsyncValue.data(conversations);
+      var filtered = conversations;
+
+      if (filter == 'Unread') {
+        filtered = filtered.where((c) => (c.unreadCount ?? 0) > 0).toList();
+      } else if (filter == 'Read') {
+        filtered = filtered.where((c) => (c.unreadCount ?? 0) == 0).toList();
       }
 
-      final filtered = conversations.where((conversation) {
-        final name = conversation.otherUser?.name?.toLowerCase() ?? '';
-        final email = conversation.otherUser?.email?.toLowerCase() ?? '';
-        return name.contains(searchQuery) || email.contains(searchQuery);
-      }).toList();
+      if (searchQuery.isNotEmpty) {
+        filtered = filtered.where((conversation) {
+          final name = conversation.otherUser?.name?.toLowerCase() ?? '';
+          final email = conversation.otherUser?.email?.toLowerCase() ?? '';
+          return name.contains(searchQuery) || email.contains(searchQuery);
+        }).toList();
+      }
 
       return AsyncValue.data(filtered);
     },
