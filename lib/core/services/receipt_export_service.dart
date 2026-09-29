@@ -281,6 +281,58 @@ class ReceiptExportService {
     }
   }
 
+  static Future<void> exportStatementAsPdf(
+    List<TransactionItemDto> transactions,
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    try {
+      final userData = ref.watch(userControllerProvider);
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context pdfContext) {
+            return pw.Column(
+              cross: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Creatify Statement of Account', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 8),
+                pw.Text('Account Holder: ${userData.name ?? "User"}'),
+                pw.Text('Email: ${userData.email ?? ""}'),
+                pw.Text('Date Generated: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now())}'),
+                pw.SizedBox(height: 16),
+                pw.Table.fromTextArray(
+                  headers: ['Date', 'Type', 'Description', 'Amount', 'Status'],
+                  data: transactions.map((t) => [
+                    t.createdAt?.toFormattedDate() ?? '',
+                    t.type?.replaceAll('_', ' ') ?? '',
+                    t.description ?? '',
+                    '${t.currency ?? "NGN"} ${t.amount ?? 0}',
+                    t.status ?? 'Success',
+                  ]).toList(),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+
+      final output = await getTemporaryDirectory();
+      final file = File("${output.path}/Creatify_Statement_${DateTime.now().millisecondsSinceEpoch}.pdf");
+      await file.writeAsBytes(await pdf.save());
+
+      if (context.mounted) {
+        await AppUtils.shareFile(file, context);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ToastDialog.showError('Failed to generate statement: $e', context);
+      }
+    }
+  }
+
   /// Helper method to build PDF row
   static pw.Widget _buildPdfRow(
     String title,

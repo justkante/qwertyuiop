@@ -51,8 +51,9 @@ class _JobsMainViewState extends ConsumerState<JobsMainView> with SingleTickerPr
         title: Text(
           'Jobs',
           style: context.textTheme.displayMedium?.copyWith(
-            fontSize: 19,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
+            color: const Color(0xFF1B3131),
           ),
         ),
         centerTitle: true,

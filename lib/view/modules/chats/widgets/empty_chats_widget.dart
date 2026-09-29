@@ -44,14 +44,17 @@ class EmptyChatsWidget extends ConsumerWidget {
           ),
           28.0.height,
 
-          MainButton(
-            text: 'Find Opportunities',
-            borderRadius: 24,
-            fontSize: 14,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            onPressed: () {
-               ref.read(navBarController.notifier).index = 1; // Go to Discover/Search
-            },
+          SizedBox(
+            width: double.infinity,
+            child: MainButton(
+              text: 'Find Opportunities',
+              borderRadius: 24,
+              fontSize: 14,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              onPressed: () {
+                 ref.read(navBarController.notifier).index = 1; // Go to Discover/Search
+              },
+            ),
           ),
           32.0.height,
 

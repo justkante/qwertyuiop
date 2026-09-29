@@ -59,10 +59,12 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
         elevation: 0,
         title: Text(
           'Chats',
-          style: context.textTheme.bodyLarge?.copyWith(
+          style: context.textTheme.displayMedium?.copyWith(
+            fontSize: 22,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
-            fontSize: 18,
+            color: const Color(0xFF1B3131),
+          ),
+        ),
           ),
         ),
         centerTitle: true,

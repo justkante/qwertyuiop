@@ -1,5 +1,7 @@
 import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
+import 'package:creatify_mobile/core/services/receipt_export_service.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
+import 'package:creatify_mobile/core/utils/constants.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/payout_details_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/stripe_verification_info_view.dart';
@@ -209,7 +211,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                   onTap: () {
                     NavigationService.instance.push(
                       const WebviewScreen(
-                        url: 'https://creatifyapp.com/terms',
+                        url: Constants.termsAndConditionsUrl,
                         routeName: 'Terms and Conditions',
                       ),
                     );
@@ -293,13 +295,13 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                         }
                     }),
                     12.0.width,
-                    _buildQuickAction(Icons.download_outlined, 'Download\nstatement', () {
+                    _buildQuickAction(Icons.download_outlined, 'Download\nstatement', () async {
                          final txs = transactionsAsync.value?.data ?? [];
                          if (txs.isEmpty) {
                            ToastDialog.showError('No transactions available for statement export', context);
                            return;
                          }
-                         ToastDialog.showSuccess('Account statement downloaded successfully', context);
+                         await ReceiptExportService.exportStatementAsPdf(txs, context, ref);
                     }),
                   ],
                 ),
@@ -388,7 +390,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
             onPressed: () {
               NavigationService.instance.push(
                 const WebviewScreen(
-                  url: 'https://creatifyapp.com/terms',
+                  url: Constants.termsAndConditionsUrl,
                   routeName: 'Terms and Conditions',
                 ),
               );
