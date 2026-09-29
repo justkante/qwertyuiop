@@ -295,7 +295,7 @@ class ReceiptExportService {
           pageFormat: PdfPageFormat.a4,
           build: (pw.Context pdfContext) {
             return pw.Column(
-              cross: pw.CrossAxisAlignment.start,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text('Creatify Statement of Account', style: pw.TextStyle(fontSize: 20, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 8),
@@ -303,14 +303,14 @@ class ReceiptExportService {
                 pw.Text('Email: ${userData.email ?? ""}'),
                 pw.Text('Date Generated: ${DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now())}'),
                 pw.SizedBox(height: 16),
-                pw.Table.fromTextArray(
-                  headers: ['Date', 'Type', 'Description', 'Amount', 'Status'],
+                pw.TableHelper.fromTextArray(
+                  headers: ['Date', 'Type', 'Party/Category', 'Amount', 'Status'],
                   data: transactions.map((t) => [
                     t.createdAt?.toFormattedDate() ?? '',
-                    t.type?.replaceAll('_', ' ') ?? '',
-                    t.description ?? '',
-                    '${t.currency ?? "NGN"} ${t.amount ?? 0}',
-                    t.status ?? 'Success',
+                    t.type?.replaceAll('_', ' ').capitalize() ?? '',
+                    t.otherParty?.name ?? t.category ?? 'Transaction',
+                    '${t.amount ?? 0}',
+                    t.status?.capitalize() ?? 'Success',
                   ]).toList(),
                 ),
               ],
