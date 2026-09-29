@@ -8,15 +8,21 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class IncomingOutcomingCard extends ConsumerWidget {
   final String? title, amount;
   final bool isIncoming;
+  final Color? iconColor;
+
   const IncomingOutcomingCard({
     super.key,
     this.title,
     this.amount,
     this.isIncoming = true,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final effectiveColor = iconColor ?? (isIncoming ? const Color(0xFF00BFA5) : const Color(0xFFFF6F61));
+    final effectiveBgColor = isIncoming ? const Color(0xFFE0F2F1) : const Color(0xFFFFF1EF);
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -29,12 +35,12 @@ class IncomingOutcomingCard extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isIncoming ? const Color(0xFFE3F2FD) : const Color(0xFFFFF1EF),
+              color: effectiveBgColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
               isIncoming ? Icons.arrow_downward : Icons.arrow_upward,
-              color: isIncoming ? const Color(0xFF2196F3) : const Color(0xFFFF6F61),
+              color: effectiveColor,
               size: 16,
             ),
           ),
