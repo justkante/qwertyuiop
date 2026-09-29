@@ -182,15 +182,17 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                     children: [
                       Expanded(
                         child: IncomingOutcomingCard(
-                          isIncoming: true,
+                          title: 'Incoming',
                           amount: (data.summary?.totalIncoming ?? 0).amountWithCurrency(userData.primaryCurrency ?? 'NGN'),
+                          iconColor: const Color(0xFF00BFA5),
                         ),
                       ),
                       12.0.width,
                       Expanded(
                         child: IncomingOutcomingCard(
-                          isIncoming: false,
+                          title: 'Outgoing',
                           amount: (data.summary?.totalOutgoing ?? 0).amountWithCurrency(userData.primaryCurrency ?? 'NGN'),
+                          iconColor: const Color(0xFFFF6F61),
                         ),
                       ),
                     ],
@@ -219,17 +221,17 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.grey200),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.info_outline, color: Color(0xFF00796B), size: 18),
+                            const Icon(Icons.info_outline, color: Color(0xFF00796B), size: 18),
                             8.0.width,
-                            Text('How payouts work', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))),
+                            const Text('How payouts work', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))),
                           ],
                         ),
-                        Icon(Icons.chevron_right, color: AppColors.body, size: 18),
+                        const Icon(Icons.chevron_right, color: AppColors.body, size: 18),
                       ],
                     ),
                   ),
