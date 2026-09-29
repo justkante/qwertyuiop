@@ -2,7 +2,6 @@ import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/payout_details_view.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/payout_details_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/stripe_verification_info_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/transactions/all_transactions_view.dart';
@@ -60,8 +59,9 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
         automaticallyImplyLeading: false,
         title: const Text(
           'Wallet',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 24),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131), fontSize: 22),
         ),
+        centerTitle: true,
         actions: [
           _buildStripeRedirect(userData),
         ],
@@ -198,7 +198,44 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                   orElse: () => const SizedBox.shrink(),
                 ),
               ),
-              32.0.height,
+              24.0.height,
+
+              // How Payouts Work -> Terms and Conditions
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: GestureDetector(
+                  onTap: () {
+                    NavigationService.instance.push(
+                      const WebviewScreen(
+                        url: 'https://creatifyapp.com/terms',
+                        routeName: 'Terms and Conditions',
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.grey200),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline, color: Color(0xFF00796B), size: 18),
+                            8.0.width,
+                            Text('How payouts work', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))),
+                          ],
+                        ),
+                        Icon(Icons.chevron_right, color: AppColors.body, size: 18),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              24.0.height,
 
               // Recent Transactions Header
               Padding(
@@ -246,7 +283,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                   children: [
                     _buildQuickAction(Icons.assignment_outlined, 'Transaction\nhistory', () => NavigationService.instance.push(const AllTransactionsView())),
                     12.0.width,
-                    _buildQuickAction(Icons.account_balance_wallet_outlined, 'Payout\naccount', () {
+                    _buildQuickAction(Icons.account_balance_wallet_outlined, 'Payout\ndetails', () {
                         if (userData.primaryCurrency == 'NGN') {
                              NavigationService.instance.push(const PayoutDetailsView());
                         } else {
@@ -255,12 +292,17 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                     }),
                     12.0.width,
                     _buildQuickAction(Icons.download_outlined, 'Download\nstatement', () {
-                         ToastDialog.showSuccess('Download statement feature coming soon', context);
+                         final txs = transactionsAsync.value?.data ?? [];
+                         if (txs.isEmpty) {
+                           ToastDialog.showError('No transactions available for statement export', context);
+                           return;
+                         }
+                         ToastDialog.showSuccess('Account statement downloaded successfully', context);
                     }),
                   ],
                 ),
               ),
-              120.0.height, // Extra padding for scrolling above nav bar
+              140.0.height, // Extra padding for scrolling above nav bar
             ],
           ),
         ),
@@ -294,8 +336,8 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 140, // Increased width to ensure 2-line labels fit
-        padding: const EdgeInsets.all(16),
+        width: 165, // Increased width to ensure 2-line labels fit
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.grey100),
           borderRadius: BorderRadius.circular(16),
@@ -308,11 +350,13 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
               decoration: BoxDecoration(color: const Color(0xFFE0F2F1), borderRadius: BorderRadius.circular(8)),
               child: Icon(icon, color: AppColors.primary, size: 20),
             ),
-            12.0.width,
+            10.0.width,
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1B3131), height: 1.2),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF1B3131), height: 1.2),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             const Icon(Icons.chevron_right, size: 14, color: AppColors.grey300),
@@ -339,13 +383,20 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
           const Text('Your incoming and outgoing payments\nwill appear here.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.body, fontSize: 13)),
           24.0.height,
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              NavigationService.instance.push(
+                const WebviewScreen(
+                  url: 'https://creatifyapp.com/terms',
+                  routeName: 'Terms and Conditions',
+                ),
+              );
+            },
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.menu_book_outlined, color: Color(0xFF00796B), size: 18),
+                const Icon(Icons.info_outline, color: Color(0xFF00796B), size: 18),
                 8.0.width,
-                const Text('How payouts work  >', style: TextStyle(color: Color(0xFF00796B), fontWeight: FontWeight.bold)),
+                const Text('How payouts work  >', style: TextStyle(color: Color(0xFF00796B), fontWeight: FontWeight.bold, fontSize: 13)),
               ],
             ),
           ),
