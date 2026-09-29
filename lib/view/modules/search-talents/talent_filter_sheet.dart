@@ -41,6 +41,13 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   double? selectedRating;
   String? selectedAvailability;
 
+  // Track expanded sections
+  bool isCategoriesExpanded = true;
+  bool isRateExpanded = true;
+  bool isLocationExpanded = true;
+  bool isRatingExpanded = true;
+  bool isAvailabilityExpanded = true;
+
   // Track which top-level category is expanded
   String? expandedCategoryId;
 
@@ -52,10 +59,12 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   @override
   void initState() {
     super.initState();
-    // Initialize location if previously selected
     setState(() {
       selectedCategories = categoriesNotifier.value;
-      amountRange = RangeValues(minPriceNotifier.value, maxPriceNotifier.value);
+      amountRange = RangeValues(
+        minPriceNotifier.value.clamp(minAmount, maxAmount),
+        maxPriceNotifier.value.clamp(minAmount, maxAmount),
+      );
       locationController.text = locationNotifier.value?.name ?? '';
     });
   }
@@ -64,6 +73,22 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   void dispose() {
     locationController.dispose();
     super.dispose();
+  }
+
+  RangeValues _getSafeAmountRange(bool isInternational) {
+    final minVal = isInternational ? minInternationalAmount : minAmount;
+    final maxVal = maxAmount;
+    final current = isInternational ? internationalAmountRange : amountRange;
+
+    double start = current.start;
+    double end = current.end;
+
+    if (start < minVal) start = minVal;
+    if (start > maxVal) start = maxVal;
+    if (end < start) end = start;
+    if (end > maxVal) end = maxVal;
+
+    return RangeValues(start, end);
   }
 
   @override
@@ -121,37 +146,47 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                   ),
                   32.0.height,
 
-                  // By Categories
+                  // By Categories Dropdown
                   _buildFilterSection(
                     title: 'By Categories',
+                    isExpanded: isCategoriesExpanded,
+                    onToggle: () => setState(() => isCategoriesExpanded = !isCategoriesExpanded),
                     child: _buildCategoryFilter(),
                   ),
                   24.0.height,
 
-                  // By Rate
+                  // By Rate Dropdown
                   _buildFilterSection(
                     title: 'By Rate',
+                    isExpanded: isRateExpanded,
+                    onToggle: () => setState(() => isRateExpanded = !isRateExpanded),
                     child: _buildAmountFilter(),
                   ),
                   24.0.height,
 
-                  // By Location
+                  // By Location Dropdown
                   _buildFilterSection(
                     title: 'By Location',
+                    isExpanded: isLocationExpanded,
+                    onToggle: () => setState(() => isLocationExpanded = !isLocationExpanded),
                     child: _buildLocationFilter(),
                   ),
                   24.0.height,
 
-                  // By Rating
+                  // By Rating Dropdown
                   _buildFilterSection(
                     title: 'By Rating',
+                    isExpanded: isRatingExpanded,
+                    onToggle: () => setState(() => isRatingExpanded = !isRatingExpanded),
                     child: _buildRatingFilter(),
                   ),
                   24.0.height,
 
-                  // By Availability
+                  // By Availability Dropdown
                   _buildFilterSection(
                     title: 'By Availability',
+                    isExpanded: isAvailabilityExpanded,
+                    onToggle: () => setState(() => isAvailabilityExpanded = !isAvailabilityExpanded),
                     child: _buildAvailabilityFilter(),
                   ),
                   32.0.height,
@@ -189,20 +224,44 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
     );
   }
 
-  Widget _buildFilterSection({required String title, required Widget child}) {
+  Widget _buildFilterSection({
+    required String title,
+    required Widget child,
+    bool isExpanded = true,
+    VoidCallback? onToggle,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: context.textTheme.bodyLarge?.copyWith(
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-            color: AppColors.subHeading,
+        InkWell(
+          onTap: onToggle,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1B3131),
+                  ),
+                ),
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: AppColors.body,
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
-        8.0.height,
-        child,
+        if (isExpanded) ...[
+          8.0.height,
+          child,
+        ],
       ],
     );
   }
@@ -441,6 +500,8 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
 
   Widget _buildAmountFilter() {
     final userData = ref.watch(userControllerProvider);
+    final isInternational = userData.primaryCurrency != 'ngn';
+    final safeRange = _getSafeAmountRange(isInternational);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -461,10 +522,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                 ),
                 4.0.height,
                 Text(
-                  userData.primaryCurrency != 'ngn'
-                      ? internationalAmountRange.start
-                          .amountWithCurrency(userData.primaryCurrency ?? '')
-                      : amountRange.start.amountWithCurrency(userData.primaryCurrency ?? ''),
+                  safeRange.start.amountWithCurrency(userData.primaryCurrency ?? ''),
                   style: context.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.heading,
@@ -485,10 +543,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                 ),
                 4.0.height,
                 Text(
-                  userData.primaryCurrency != 'ngn'
-                      ? internationalAmountRange.end
-                          .amountWithCurrency(userData.primaryCurrency ?? '')
-                      : amountRange.end.amountWithCurrency(userData.primaryCurrency ?? ''),
+                  safeRange.end.amountWithCurrency(userData.primaryCurrency ?? ''),
                   style: context.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: AppColors.heading,
@@ -501,7 +556,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         ),
         8.0.height,
 
-        // Range Slider
+        // Range Slider with safe bounds
         SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: AppColors.spot500,
@@ -520,22 +575,17 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
             ),
           ),
           child: RangeSlider(
-            min: userData.primaryCurrency != 'ngn' ? minInternationalAmount : minAmount,
+            min: isInternational ? minInternationalAmount : minAmount,
             max: maxAmount,
-            values: userData.primaryCurrency != 'ngn' ? internationalAmountRange : amountRange,
+            values: safeRange,
             divisions: 100,
             labels: RangeLabels(
-              userData.primaryCurrency != 'ngn'
-                  ? internationalAmountRange.start
-                      .amountWithCurrency(userData.primaryCurrency ?? '')
-                  : amountRange.start.amountWithCurrency(userData.primaryCurrency ?? ''),
-              userData.primaryCurrency != 'ngn'
-                  ? internationalAmountRange.end.amountWithCurrency(userData.primaryCurrency ?? '')
-                  : amountRange.end.amountWithCurrency(userData.primaryCurrency ?? ''),
+              safeRange.start.amountWithCurrency(userData.primaryCurrency ?? ''),
+              safeRange.end.amountWithCurrency(userData.primaryCurrency ?? ''),
             ),
             onChanged: (RangeValues values) {
               setState(() {
-                if (userData.primaryCurrency != 'ngn') {
+                if (isInternational) {
                   internationalAmountRange = values;
                 } else {
                   amountRange = values;
@@ -551,9 +601,9 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              userData.primaryCurrency == 'ngn'
-                  ? minAmount.amountWithCurrency(userData.primaryCurrency ?? '')
-                  : minInternationalAmount.amountWithCurrency(userData.primaryCurrency ?? ''),
+              isInternational
+                  ? minInternationalAmount.amountWithCurrency(userData.primaryCurrency ?? '')
+                  : minAmount.amountWithCurrency(userData.primaryCurrency ?? ''),
               style: context.textTheme.bodySmall?.copyWith(
                 color: AppColors.body,
                 fontSize: 10,
@@ -593,7 +643,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
           }
         },
         child: const Icon(
-          Icons.map_outlined,
+          Icons.keyboard_arrow_down,
           color: AppColors.body,
           size: 20,
         ),
@@ -633,7 +683,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   void _applyFilters() {
     final userData = ref.read(userControllerProvider);
     final isInternational = userData.primaryCurrency != 'ngn';
-    final currentRange = isInternational ? internationalAmountRange : amountRange;
+    final currentRange = _getSafeAmountRange(isInternational);
     final currentMin = isInternational ? minInternationalAmount : minAmount;
 
     // Check if the filters are null

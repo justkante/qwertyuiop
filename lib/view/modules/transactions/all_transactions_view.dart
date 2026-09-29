@@ -157,19 +157,22 @@ class _AllTransactionsViewState extends ConsumerState<AllTransactionsView> {
                       if (filteredTransactions?.isEmpty == true)
                         SliverFillRemaining(
                           hasScrollBody: false,
-                          child: Column(
-                            children: [
-                              48.0.height,
-                              SvgPicture.asset(AppImages.transactionsIllustration),
-                              24.0.height,
-                              Text(
-                                'No transactions yet. Your incoming and outgoing payments will appear here',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                      color: AppColors.body,
-                                    ),
-                              ),
-                            ],
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: Column(
+                              children: [
+                                48.0.height,
+                                SvgPicture.asset(AppImages.transactionsIllustration),
+                                24.0.height,
+                                Text(
+                                  'No transactions yet. Your incoming and outgoing payments will appear here',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: AppColors.body,
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
                         )
                       else

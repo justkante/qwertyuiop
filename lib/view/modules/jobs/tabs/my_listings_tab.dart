@@ -53,6 +53,14 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
              (j.description?.toLowerCase() ?? '').contains(_searchQuery);
     }).toList();
 
+    filteredListings.sort((a, b) {
+      final aActive = a.effectiveStatus.toLowerCase() == 'active';
+      final bActive = b.effectiveStatus.toLowerCase() == 'active';
+      if (aActive && !bActive) return -1;
+      if (!aActive && bActive) return 1;
+      return 0;
+    });
+
     final activeCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'active').length;
     final draftCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'draft').length;
     final closedCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'closed').length;
