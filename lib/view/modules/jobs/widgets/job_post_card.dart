@@ -7,35 +7,35 @@ import 'package:flutter_svg/svg.dart';
 
 class JobPostCard extends StatefulWidget {
   final String title;
-  final String description; // Add this
+  final String description;
   final String location;
   final double price;
   final String currency;
   final String dateRange;
-  final String status; // Sent, Viewed, etc
-  final String? serviceName; // Add this
-  final int? applicationCount; // Add this
-  final List<String>? applicationAvatars; // Add this
+  final String status;
+  final String? serviceName;
+  final int? applicationCount;
+  final List<String>? applicationAvatars;
   final VoidCallback onTap;
-  final VoidCallback? onDelete; // Add this
-  final Function(bool)? onFavoriteToggle; // Add this
+  final VoidCallback? onDelete;
+  final Function(bool)? onFavoriteToggle;
   final bool initialFavorite;
 
   const JobPostCard({
     super.key,
     required this.title,
-    this.description = '', // Add this
+    this.description = '',
     required this.location,
     required this.price,
     required this.currency,
     required this.dateRange,
     required this.status,
-    this.serviceName, // Add this
-    this.applicationCount, // Add this
-    this.applicationAvatars, // Add this
+    this.serviceName,
+    this.applicationCount,
+    this.applicationAvatars,
     required this.onTap,
-    this.onDelete, // Add this
-    this.onFavoriteToggle, // Add this
+    this.onDelete,
+    this.onFavoriteToggle,
     this.initialFavorite = false,
   });
 
@@ -67,198 +67,118 @@ class _JobPostCardState extends State<JobPostCard> {
     final statusLower = widget.status.toLowerCase();
     final isExpiredStatus = statusLower.contains('expired');
     final isClosed = statusLower == 'closed' || isExpiredStatus;
-    final statusColor = isExpiredStatus
-        ? const Color(0xFFDC2626)
-        : switch (statusLower) {
-            'sent' => Colors.orange,
-            'viewed' => Colors.blue,
-            'accepted' => const Color(0xFF009688),
-            'rejected' => Colors.red,
-            'closed' => Colors.grey,
-            'active' => const Color(0xFF009688),
-            _ => Colors.transparent,
-          };
-    final displayStatus = isExpiredStatus ? 'Inactive - Job Expired' : widget.status.capitalize();
 
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isClosed ? AppColors.grey50 : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(color: AppColors.grey100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        child: Opacity(
-          opacity: isClosed ? 0.6 : 1.0,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Text(
                     widget.title,
-                    style: context.textTheme.bodyLarge?.copyWith(
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18, // Increased
+                      fontSize: 18,
+                      color: Color(0xFF1B3131),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      if (widget.status.isNotEmpty && statusLower != 'active') ...[
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: statusColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        6.0.width,
-                        Text(
-                          displayStatus,
-                          style: context.textTheme.bodySmall?.copyWith(
-                            fontSize: 11,
-                            color: AppColors.body,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        12.0.width,
-                      ],
-                      if (widget.onDelete != null) ...[
-                        GestureDetector(
-                          onTap: widget.onDelete,
-                          child: const Icon(
-                            Icons.delete_outline,
-                            size: 18,
-                            color: Colors.red,
-                          ),
-                        ),
-                        12.0.width,
-                      ],
-                      GestureDetector(
-                        onTap: () async {
-                          final newValue = !isFavorite;
-                          setState(() {
-                            isFavorite = newValue;
-                          });
-                          await widget.onFavoriteToggle?.call(newValue);
-                        },
-                        child: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_outline,
-                          size: 18,
-                          color: isFavorite ? Colors.red : AppColors.body,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              4.0.height,
-              if (widget.serviceName != null) ...[
-                Text(
-                  widget.serviceName!,
-                  style: const TextStyle(
-                    color: Color(0xFFFF6F61),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                4.0.height,
+                12.0.width,
+                GestureDetector(
+                  onTap: () async {
+                    final newValue = !isFavorite;
+                    setState(() {
+                      isFavorite = newValue;
+                    });
+                    await widget.onFavoriteToggle?.call(newValue);
+                  },
+                  child: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_outline,
+                    size: 22,
+                    color: isFavorite ? Colors.red : AppColors.grey400,
+                  ),
+                ),
               ],
-              Row(
-                children: [
-                  const Icon(Icons.location_on_outlined, size: 12, color: AppColors.body),
-                  4.0.width,
-                  Text(
-                    widget.location,
-                    style: context.textTheme.bodySmall?.copyWith(fontSize: 14, color: AppColors.body), // Increased
-                  ),
-                  12.0.width,
-                  Text(
-                    widget.price.amountWithCurrency(widget.currency),
-                    style: context.textTheme.bodySmall?.copyWith(
-                      fontSize: 14, // Increased
-                      color: const Color(0xFF009688),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              12.0.height,
-              Text(
-                widget.description.isNotEmpty
-                    ? widget.description.truncate(100)
-                    : 'No description available',
-                style: context.textTheme.bodySmall?.copyWith(
-                  fontSize: 14, // Increased
-                  color: AppColors.body,
-                  height: 1.4,
+            ),
+            8.0.height,
+            Row(
+              children: [
+                const Icon(Icons.location_on_outlined, size: 14, color: AppColors.body),
+                4.0.width,
+                Text(
+                  widget.location,
+                  style: const TextStyle(fontSize: 13, color: AppColors.body),
                 ),
-              ),
-              16.0.height,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.dateRange,
-                    style: context.textTheme.bodySmall?.copyWith(
-                      fontSize: 14, // Increased
-                      color: AppColors.body,
-                    ),
+                12.0.width,
+                Text(
+                  widget.price.amountWithCurrency(widget.currency),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF00796B),
+                    fontWeight: FontWeight.bold,
                   ),
-                  if (widget.applicationCount != null) ...[
-                    Row(
-                      children: [
-                        if (widget.applicationAvatars != null && widget.applicationAvatars!.isNotEmpty) ...[
-                          SizedBox(
-                            height: 20,
-                            width: (widget.applicationAvatars!.length * 12.0) + 8,
-                            child: Stack(
-                              children: List.generate(widget.applicationAvatars!.length, (index) {
-                                return Positioned(
-                                  left: index * 12.0,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 1.5),
-                                    ),
-                                    child: CircleAvatar(
-                                      radius: 8,
-                                      backgroundImage: NetworkImage(widget.applicationAvatars![index]),
-                                      backgroundColor: AppColors.grey100,
-                                    ),
-                                  ),
-                                );
-                              }),
-                            ),
-                          ),
-                          4.0.width,
-                        ],
-                        Text(
-                          '${widget.applicationCount} Applications',
-                          style: context.textTheme.bodySmall?.copyWith(fontSize: 10, color: AppColors.body),
-                        ),
-                      ],
-                    ),
-                  ] else if (!isClosed)
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF009688),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.chevron_right,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ),
-                ],
+                ),
+              ],
+            ),
+            12.0.height,
+            Text(
+              widget.description.isNotEmpty
+                  ? widget.description
+                  : 'If you no longer wish to receive these emails, you can Unsubscribe or Manage Preferences at any time.',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.body,
+                height: 1.4,
               ),
-            ],
-          ),
+            ),
+            16.0.height,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  widget.dateRange,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.body,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF00796B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.chevron_right,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
