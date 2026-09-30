@@ -138,8 +138,8 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                       children: [
                         // MARK: Centered Profile Picture
                         SizedBox(
-                          width: 80,
-                          height: 80,
+                          width: 110,
+                          height: 110,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
@@ -147,18 +147,18 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                               ExpandableProfileImage(
                                 imageUrl: data.profileImage,
                                 initials: data.initials,
-                                size: 70, // One circle
-                                initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 24, padding: const EdgeInsets.all(12))),
+                                size: 100, // Increased
+                                initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 36, padding: const EdgeInsets.all(20))),
                               ),
                               Positioned(
-                                bottom: -2,
-                                right: -2,
+                                bottom: 0,
+                                right: 0,
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)]),
-                                    child: const Icon(Icons.camera_alt_outlined, size: 10, color: AppColors.primary),
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)]),
+                                    child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
                                   ),
                                 ),
                               ),
