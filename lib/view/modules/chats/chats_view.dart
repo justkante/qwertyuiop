@@ -71,18 +71,19 @@ class _ChatsViewState extends ConsumerState<ChatsView> {
           ),
           8.0.height,
 
-          // Filter Chips (All, Unread, Read)
+          // Filter Chips (All, Unread) - Centered
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
-              children: ['All', 'Unread', 'Read'].map((f) {
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: ['All', 'Unread'].map((f) {
                 final isSelected = ref.watch(chatFilterProvider) == f;
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: GestureDetector(
                     onTap: () => ref.read(chatFilterProvider.notifier).state = f,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? const Color(0xFF00796B) : AppColors.grey50,
                         borderRadius: BorderRadius.circular(20),
