@@ -67,13 +67,19 @@ class MainButton extends StatelessWidget {
                     prefixIcon!,
                     8.0.width,
                   ],
-                  Text(
-                    text,
-                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: fontSize ?? 14,
-                          fontWeight: FontWeight.w600,
-                          color: textColor ?? Colors.white,
-                        ),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        text,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                              fontSize: fontSize ?? 14,
+                              fontWeight: FontWeight.w600,
+                              color: textColor ?? Colors.white,
+                            ),
+                      ),
+                    ),
                   ),
                 ],
               ),

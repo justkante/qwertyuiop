@@ -50,6 +50,7 @@ class _LogoutSheetState extends ConsumerState<DeleteAccountSheet> {
               child: MainButton(
                 text: 'Yes, Delete',
                 color: AppColors.highlightRed,
+                fontSize: 13,
                 onPressed: () {
                   context.pop();
                   NavigationService.instance.push(const DeleteAccountView());
@@ -62,6 +63,8 @@ class _LogoutSheetState extends ConsumerState<DeleteAccountSheet> {
                 text: 'No, Contact Support',
                 textColor: AppColors.black2,
                 color: AppColors.grey400,
+                fontSize: 12,
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
                 onPressed: () {
                   AppUtils.openLink(SocialPlatform.email);
                 },
