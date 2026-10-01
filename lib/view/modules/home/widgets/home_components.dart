@@ -78,10 +78,11 @@ class ProfileStrengthWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                12.0.height,
                 _buildCheckItem('Portfolio uploaded', onboardingStatus?.steps?.portfolio == 'completed'),
-                8.0.height,
+                10.0.height,
                 _buildCheckItem('Availability set', onboardingStatus?.steps?.availability == 'completed'),
-                8.0.height,
+                10.0.height,
                 _buildCheckItem('KYC verified', onboardingStatus?.steps?.kyc == 'completed'),
               ],
             ),
