@@ -27,17 +27,24 @@ class _AppTabarState extends ConsumerState<AppTabBar> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(30),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
           child: Container(
             height: 60.h,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.white.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.08),
                 width: 1,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -153,7 +160,7 @@ class _TabItemState extends ConsumerState<TabItem> {
               width: 22,
               height: 22,
               colorFilter: ColorFilter.mode(
-                isActive ? Colors.white : Colors.white.withOpacity(0.5),
+                isActive ? const Color(0xFF00796B) : Colors.black87,
                 BlendMode.srcIn,
               ),
             ),

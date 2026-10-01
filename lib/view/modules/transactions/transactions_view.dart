@@ -252,9 +252,9 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(
                   children: [
-                    _buildQuickAction(Icons.assignment_outlined, 'Transaction\nhistory', () => NavigationService.instance.push(const AllTransactionsView())),
+                    _buildQuickAction(Icons.assignment_outlined, 'Transaction\nhistory', const Color(0xFFE9F4FE), const Color(0xFF2196F3), () => NavigationService.instance.push(const AllTransactionsView())),
                     12.0.width,
-                    _buildQuickAction(Icons.account_balance_wallet_outlined, 'Payout\ndetails', () {
+                    _buildQuickAction(Icons.account_balance_wallet_outlined, 'Payout\ndetails', const Color(0xFFFFFDE7), const Color(0xFFF9A825), () {
                         if (userData.primaryCurrency == 'NGN') {
                              NavigationService.instance.push(const PayoutDetailsView());
                         } else {
@@ -262,7 +262,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
                         }
                     }),
                     12.0.width,
-                    _buildQuickAction(Icons.download_outlined, 'Download\nstatement', () async {
+                    _buildQuickAction(Icons.download_outlined, 'Download\nstatement', const Color(0xFFFCEBEC), const Color(0xFFFF6F61), () async {
                          final txs = transactionsAsync.value?.data ?? [];
                          if (txs.isEmpty) {
                            ToastDialog.showError('No transactions available for statement export', context);
@@ -336,23 +336,23 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
         });
   }
 
-  Widget _buildQuickAction(IconData icon, String label, VoidCallback onTap) {
+  Widget _buildQuickAction(IconData icon, String label, Color bgColor, Color iconColor, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 165, // Increased width to ensure 2-line labels fit
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        width: 155,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.grey100),
-          borderRadius: BorderRadius.circular(16),
-          color: Colors.white,
+          color: bgColor.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: bgColor.withValues(alpha: 0.7)),
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: const Color(0xFFE0F2F1), borderRadius: BorderRadius.circular(8)),
-              child: Icon(icon, color: AppColors.primary, size: 20),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 18),
             ),
             10.0.width,
             Expanded(
