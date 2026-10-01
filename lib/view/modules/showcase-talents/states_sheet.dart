@@ -22,6 +22,38 @@ class _BankSheetState extends ConsumerState<StateSheet> {
 
   String _searchQuery = '';
 
+  static final List<StatesItemDto> _globalCitiesFallback = [
+    // Brazil
+    StatesItemDto(id: 'São Paulo, Brazil', name: 'São Paulo, Brazil'),
+    StatesItemDto(id: 'Rio de Janeiro, Brazil', name: 'Rio de Janeiro, Brazil'),
+    StatesItemDto(id: 'Brasília, Brazil', name: 'Brasília, Brazil'),
+    StatesItemDto(id: 'Salvador, Brazil', name: 'Salvador, Brazil'),
+    StatesItemDto(id: 'Fortaleza, Brazil', name: 'Fortaleza, Brazil'),
+    StatesItemDto(id: 'Belo Horizonte, Brazil', name: 'Belo Horizonte, Brazil'),
+    StatesItemDto(id: 'Curitiba, Brazil', name: 'Curitiba, Brazil'),
+    StatesItemDto(id: 'Manaus, Brazil', name: 'Manaus, Brazil'),
+    StatesItemDto(id: 'Recife, Brazil', name: 'Recife, Brazil'),
+    StatesItemDto(id: 'Porto Alegre, Brazil', name: 'Porto Alegre, Brazil'),
+    // Nigeria
+    StatesItemDto(id: 'Lagos, Nigeria', name: 'Lagos, Nigeria'),
+    StatesItemDto(id: 'Abuja, Nigeria', name: 'Abuja, Nigeria'),
+    StatesItemDto(id: 'Port Harcourt, Nigeria', name: 'Port Harcourt, Nigeria'),
+    StatesItemDto(id: 'Ibadan, Nigeria', name: 'Ibadan, Nigeria'),
+    StatesItemDto(id: 'Kano, Nigeria', name: 'Kano, Nigeria'),
+    StatesItemDto(id: 'Enugu, Nigeria', name: 'Enugu, Nigeria'),
+    // International
+    StatesItemDto(id: 'New York, USA', name: 'New York, USA'),
+    StatesItemDto(id: 'Los Angeles, USA', name: 'Los Angeles, USA'),
+    StatesItemDto(id: 'London, UK', name: 'London, UK'),
+    StatesItemDto(id: 'Manchester, UK', name: 'Manchester, UK'),
+    StatesItemDto(id: 'Toronto, Canada', name: 'Toronto, Canada'),
+    StatesItemDto(id: 'Vancouver, Canada', name: 'Vancouver, Canada'),
+    StatesItemDto(id: 'Accra, Ghana', name: 'Accra, Ghana'),
+    StatesItemDto(id: 'Nairobi, Kenya', name: 'Nairobi, Kenya'),
+    StatesItemDto(id: 'Johannesburg, South Africa', name: 'Johannesburg, South Africa'),
+    StatesItemDto(id: 'Dubai, UAE', name: 'Dubai, UAE'),
+  ];
+
   void _onSearchChanged() {
     setState(() {
       _searchQuery = searchController.text.toLowerCase();
@@ -52,7 +84,7 @@ class _BankSheetState extends ConsumerState<StateSheet> {
         children: [
           12.0.height,
 
-          // MARK: Title
+          // Title
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -73,7 +105,7 @@ class _BankSheetState extends ConsumerState<StateSheet> {
           Expanded(
             child: Column(
               children: [
-                // MARK: Search Field
+                // Search Field
                 SearchTextInputField(
                   hintText: 'Search or type location...',
                   controller: searchController,
@@ -82,13 +114,24 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                 Expanded(
                   child: getStatesList.when(
                     data: (states) {
-                      final filteredStates = states
+                      final combinedList = [...states, ..._globalCitiesFallback];
+                      final uniqueMap = <String, StatesItemDto>{};
+                      for (var item in combinedList) {
+                        if (item.name != null && item.name!.isNotEmpty) {
+                          uniqueMap[item.name!.toLowerCase()] = item;
+                        }
+                      }
+                      final filteredStates = uniqueMap.values
                           .where((state) => state.name != null && state.name!.toLowerCase().contains(_searchQuery))
                           .toList();
 
                       return _buildStateList(filteredStates);
                     },
-                    error: (_, __) => _buildStateList([]),
+                    error: (_, __) => _buildStateList(
+                      _globalCitiesFallback
+                          .where((s) => s.name!.toLowerCase().contains(_searchQuery))
+                          .toList(),
+                    ),
                     loading: () => const Center(child: CircularProgressIndicator.adaptive()),
                   ),
                 ),
