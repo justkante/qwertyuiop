@@ -307,7 +307,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         creatorId: widget.creatorProfile.id,
                         creatorCategoryId: widget.creatorProfile.categories?.isNotEmpty == true
                             ? widget.creatorProfile.categories!.first.id
-                            : (widget.creatorProfile.categoryId ?? '1'),
+                            : (widget.creatorProfile.id ?? '1'),
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
