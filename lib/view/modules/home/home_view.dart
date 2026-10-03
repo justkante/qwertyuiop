@@ -157,7 +157,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: const Color(0xFFF9F9F9),
+      backgroundColor: Colors.white,
       drawer: const HomeDrawer(),
       body: SafeArea(
         child: RefreshIndicator.adaptive(
