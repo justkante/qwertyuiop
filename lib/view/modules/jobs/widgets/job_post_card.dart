@@ -71,112 +71,136 @@ class _JobPostCardState extends State<JobPostCard> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: isClosed ? AppColors.grey50 : Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.grey100),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Color(0xFF1B3131),
-                    ),
-                    maxLines: 1,
+            // Top Body (White Background)
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF1B3131),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      12.0.width,
+                      GestureDetector(
+                        onTap: () async {
+                          final newValue = !isFavorite;
+                          setState(() {
+                            isFavorite = newValue;
+                          });
+                          await widget.onFavoriteToggle?.call(newValue);
+                        },
+                        child: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_outline,
+                          size: 22,
+                          color: isFavorite ? Colors.red : AppColors.grey400,
+                        ),
+                      ),
+                    ],
+                  ),
+                  8.0.height,
+
+                  // Location and Price ON THE SAME LINE
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 15, color: AppColors.body),
+                      4.0.width,
+                      Text(
+                        widget.location.isNotEmpty ? widget.location : 'Lagos',
+                        style: const TextStyle(fontSize: 13, color: AppColors.body),
+                      ),
+                      16.0.width,
+                      const Icon(Icons.adjust_rounded, size: 14, color: Color(0xFF00796B)),
+                      4.0.width,
+                      Text(
+                        widget.price.amountWithCurrency(widget.currency),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF00796B),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  12.0.height,
+
+                  // Description Excerpt
+                  Text(
+                    widget.description.isNotEmpty
+                        ? widget.description
+                        : 'If you no longer wish to receive these emails, you can Unsubscribe or Manage Preferences at any time.',
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.body,
+                      height: 1.4,
+                    ),
                   ),
-                ),
-                12.0.width,
-                GestureDetector(
-                  onTap: () async {
-                    final newValue = !isFavorite;
-                    setState(() {
-                      isFavorite = newValue;
-                    });
-                    await widget.onFavoriteToggle?.call(newValue);
-                  },
-                  child: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_outline,
-                    size: 22,
-                    color: isFavorite ? Colors.red : AppColors.grey400,
-                  ),
-                ),
-              ],
-            ),
-            8.0.height,
-            Row(
-              children: [
-                const Icon(Icons.location_on_outlined, size: 14, color: AppColors.body),
-                4.0.width,
-                Text(
-                  widget.location,
-                  style: const TextStyle(fontSize: 13, color: AppColors.body),
-                ),
-                12.0.width,
-                Text(
-                  widget.price.amountWithCurrency(widget.currency),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF00796B),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            12.0.height,
-            Text(
-              widget.description.isNotEmpty
-                  ? widget.description
-                  : 'If you no longer wish to receive these emails, you can Unsubscribe or Manage Preferences at any time.',
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 13,
-                color: AppColors.body,
-                height: 1.4,
+                ],
               ),
             ),
-            16.0.height,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.dateRange,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: AppColors.body,
+
+            // Distinct Bottom Footer Strip (Grey Container with Shadow & Border)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+                border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.dateRange.isNotEmpty ? widget.dateRange : '12/07/26 - 14/07/26',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.body,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF00796B),
-                    shape: BoxShape.circle,
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF00796B),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.chevron_right,
+                      size: 16,
+                      color: Colors.white,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.chevron_right,
-                    size: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
