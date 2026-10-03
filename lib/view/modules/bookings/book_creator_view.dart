@@ -311,7 +311,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
-                        bookingType: 'delivery_based',
+                        bookingType: 'deliverable-based',
                       )
                     );
                   }
