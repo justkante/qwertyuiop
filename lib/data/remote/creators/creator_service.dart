@@ -27,6 +27,7 @@ import 'package:creatify_mobile/data/models/responses/stripe_dashboard_dto.dart'
 import 'package:creatify_mobile/data/models/responses/stripe_onboarding_data_dto.dart';
 import 'package:creatify_mobile/data/models/responses/subcriptions_plans_dto.dart';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 
 class CreatorService {
   final HttpService _networkService;
@@ -94,10 +95,14 @@ class CreatorService {
   Future<String> uploadProfileImage(String filePath) async {
     try {
       final filename = filePath.split(RegExp(r'[/\\]')).last;
+      final ext = filename.split('.').last.toLowerCase();
+      final mimeType = (ext == 'png') ? 'png' : ((ext == 'webp') ? 'webp' : 'jpeg');
+
       final formData = FormData.fromMap({
         'profile_image': await MultipartFile.fromFile(
           filePath,
           filename: filename,
+          contentType: MediaType('image', mimeType),
         ),
       });
 
@@ -142,10 +147,14 @@ class CreatorService {
     } catch (e) {
       return [
         BankItemDto(name: 'Access Bank', code: '044'),
-        BankItemDto(name: 'Guaranty Trust Bank (GTB)', code: '058'),
-        BankItemDto(name: 'United Bank for Africa (UBA)', code: '033'),
+        BankItemDto(name: 'Guaranty Trust Bank', code: '058'),
+        BankItemDto(name: 'First Bank of Nigeria', code: '011'),
+        BankItemDto(name: 'United Bank for Africa', code: '033'),
         BankItemDto(name: 'Zenith Bank', code: '057'),
-        BankItemDto(name: 'Union Bank of Nigeria', code: '032'),
+        BankItemDto(name: 'Kuda Bank', code: '50211'),
+        BankItemDto(name: 'OPay', code: '999992'),
+        BankItemDto(name: 'PalmPay', code: '999991'),
+        BankItemDto(name: 'Moniepoint', code: '50515'),
         BankItemDto(name: 'Wema Bank', code: '035'),
         BankItemDto(name: 'Sterling Bank', code: '232'),
         BankItemDto(name: 'Unity Bank', code: '215'),
