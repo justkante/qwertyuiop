@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/states_sheet.dart';
 
 class BookCreatorView extends ConsumerStatefulWidget {
   final CreatorProfileDto creatorProfile;
@@ -268,7 +269,44 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                       children: [
                         _buildLabel('Location'),
                         8.0.height,
-                        _buildTextField(locationController, 'e.g. Lagos, Nigeria or Remote', icon: Icons.location_on_outlined),
+                        InkWell(
+                          onTap: () async {
+                            final selectedState = await AppBottomSheet.showBottomSheet(
+                              context,
+                              widget: const StateSheet(),
+                            );
+                            if (selectedState != null) {
+                              setState(() {
+                                locationController.text = selectedState.name ?? '';
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey50,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.location_on_outlined, size: 18, color: AppColors.body),
+                                8.0.width,
+                                Expanded(
+                                  child: Text(
+                                    locationController.text.isEmpty ? 'Search location' : locationController.text,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -308,6 +346,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         creatorCategoryId: widget.creatorProfile.categories?.isNotEmpty == true
                             ? widget.creatorProfile.categories!.first.id
                             : (widget.creatorProfile.id ?? '1'),
+                        startDate: selectedStartDate?.unavailableDate ?? DateTime.now(),
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
