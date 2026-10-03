@@ -731,7 +731,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
   Widget _buildRecommendationsList(JobState state) {
     if (state.jobs.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommendations found', style: TextStyle(fontSize: 12, color: AppColors.body))));
     return SizedBox(
-      height: 150,
+      height: 185,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: state.jobs.length > 5 ? 5 : state.jobs.length,
@@ -742,106 +742,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Widget _buildRecommendationCard(dynamic job) {
-    return InkWell(
-      onTap: () {
-        NavigationService.instance.push(JobDetailView(job: JobDto.fromJson(job.toJson())));
-      },
-      child: Container(
-        width: 260,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: AppColors.grey200),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          job.title ?? '',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131)),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      8.0.width,
-                      InkWell(
-                        onTap: () {
-                          ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
-                        },
-                        child: Icon(
-                          job.isFavorited == true ? Icons.favorite : Icons.favorite_border,
-                          color: job.isFavorited == true ? Colors.red : AppColors.grey400,
-                          size: 20,
-                        ),
-                      ),
-                    ],
-                  ),
-                  8.0.height,
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 14, color: AppColors.body),
-                      4.0.width,
-                      Text(job.location ?? 'Lagos', style: const TextStyle(fontSize: 12, color: AppColors.body)),
-                      12.0.width,
-                      Text(
-                        num.parse(job.price.toString()).amountWithCurrency(job.currency ?? 'NGN'),
-                        style: const TextStyle(fontSize: 13, color: Color(0xFF00796B), fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  8.0.height,
-                  Text(
-                    (job.description != null && job.description.toString().isNotEmpty)
-                        ? job.description.toString()
-                        : 'If you no longer wish to receive these emails, you can Unsubscribe or Manage Preferences at any time.',
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 12, color: AppColors.body, height: 1.3),
-                  ),
-                ],
-              ),
-            ),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
-                border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('12/07/26 - 14/07/26', style: TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500)),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF00796B),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.chevron_right, size: 14, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return SizedBox(
+      width: 280,
+      child: JobPostCard(
+        title: job.title ?? '',
+        location: job.location ?? 'Lagos',
+        price: num.tryParse(job.price.toString())?.toDouble() ?? 0.0,
+        currency: job.currency ?? 'NGN',
+        dateRange: '12/07/26 - 14/07/26',
+        status: 'Active',
+        serviceName: job.category?.name,
+        description: job.description ?? '',
+        initialFavorite: job.isFavorited == true,
+        onFavoriteToggle: (val) {
+          ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
+        },
+        onTap: () {
+          NavigationService.instance.push(JobDetailView(job: JobDto.fromJson(job.toJson())));
+        },
       ),
     );
   }
