@@ -52,9 +52,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   final TextEditingController locationController = TextEditingController();
   final TextEditingController budgetController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
 
   String? selectedProjectType;
   CreatorUnavailabilityItemDto? selectedStartDate;
+  CreatorUnavailabilityItemDto? selectedEndDate;
   final List<String> projectTypes = ['UGC Video', 'Social Media Management', 'Content Creation', 'Other'];
   List<File> attachedFiles = [];
 
@@ -89,6 +91,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     locationController.dispose();
     budgetController.dispose();
     startDateController.dispose();
+    endDateController.dispose();
     super.dispose();
   }
 
@@ -249,7 +252,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               _buildTextArea(projectDescriptionController),
               20.0.height,
 
-              // Start Date & Location Row
+              // Proposed Start Date & Proposed End Date Row
               Row(
                 children: [
                   Expanded(
@@ -267,50 +270,56 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Location'),
+                        _buildLabel('Proposed End Date'),
                         8.0.height,
-                        InkWell(
-                          onTap: () async {
-                            final selectedState = await AppBottomSheet.showBottomSheet(
-                              context,
-                              widget: const StateSheet(),
-                            );
-                            if (selectedState != null) {
-                              setState(() {
-                                locationController.text = selectedState.name ?? '';
-                              });
-                            }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
-                            decoration: BoxDecoration(
-                              color: AppColors.grey50,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.location_on_outlined, size: 18, color: AppColors.body),
-                                8.0.width,
-                                Expanded(
-                                  child: Text(
-                                    locationController.text.isEmpty ? 'Search location' : locationController.text,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
-                              ],
-                            ),
-                          ),
-                        ),
+                        _buildEndDateField(),
                       ],
                     ),
                   ),
                 ],
+              ),
+              20.0.height,
+
+              // Location Dropdown
+              _buildLabel('Location'),
+              8.0.height,
+              InkWell(
+                onTap: () async {
+                  final selectedState = await AppBottomSheet.showBottomSheet(
+                    context,
+                    widget: const StateSheet(),
+                  );
+                  if (selectedState != null) {
+                    setState(() {
+                      locationController.text = selectedState.name ?? '';
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 18, color: AppColors.body),
+                      8.0.width,
+                      Expanded(
+                        child: Text(
+                          locationController.text.isEmpty ? 'Search location' : locationController.text,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
+                    ],
+                  ),
+                ),
               ),
               20.0.height,
 
@@ -347,7 +356,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                             ? widget.creatorProfile.categories!.first.id
                             : (widget.creatorProfile.id ?? '1'),
                         startDate: selectedStartDate?.unavailableDate ?? DateTime.now(),
-                        jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\n\n${projectDescriptionController.text}",
+                        jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: ${endDateController.text}\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
                         bookingType: 'deliverable-based',
@@ -456,14 +465,58 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
         child: Row(
           children: [
             const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.body),
-            12.0.width,
-            Text(startDateController.text.isEmpty ? 'Select date' : startDateController.text,
-              style: TextStyle(fontSize: 13, color: startDateController.text.isEmpty ? AppColors.body : Colors.black)),
+            8.0.width,
+            Expanded(
+              child: Text(
+                startDateController.text.isEmpty ? 'Select start date' : startDateController.text,
+                style: TextStyle(fontSize: 13, color: startDateController.text.isEmpty ? AppColors.body : Colors.black),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEndDateField() {
+    return InkWell(
+      onTap: () async {
+        final initial = selectedStartDate?.unavailableDate ?? DateTime.now();
+        final date = await showDatePicker(
+          context: context,
+          initialDate: initial,
+          firstDate: initial,
+          lastDate: DateTime.now().add(const Duration(days: 365)),
+        );
+        if (date != null) {
+          setState(() {
+            selectedEndDate = CreatorUnavailabilityItemDto(unavailableDate: date);
+            endDateController.text = DateFormat('dd/MM/yyyy').format(date);
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          children: [
+            const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.body),
+            8.0.width,
+            Expanded(
+              child: Text(
+                endDateController.text.isEmpty ? 'Select end date' : endDateController.text,
+                style: TextStyle(fontSize: 13, color: endDateController.text.isEmpty ? AppColors.body : Colors.black),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       ),
