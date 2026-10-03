@@ -45,6 +45,18 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
     return img != null && img.trim().isNotEmpty && img.trim().startsWith('http');
   }
 
+  bool get isUserOnline {
+    if (widget.profile?.isOnline == true) return true;
+    final lastSeen = widget.profile?.lastSeenAt?.toLowerCase() ?? '';
+    if (lastSeen.contains('just now') || lastSeen.contains('online')) {
+      return true;
+    }
+    if (lastSeen.contains('min ago') || lastSeen.contains('minute')) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -124,7 +136,7 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                       width: 16,
                       height: 16,
                       decoration: BoxDecoration(
-                        color: widget.profile?.isOnline == true ? Colors.green : Colors.grey,
+                        color: isUserOnline ? const Color(0xFF00BFA5) : const Color(0xFF9E9E9E),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
@@ -206,17 +218,25 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0F2F1),
+                          color: isUserOnline ? const Color(0xFFE0F2F1) : AppColors.grey100,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.access_time, color: Color(0xFF00BFA5), size: 14),
+                            Icon(
+                              Icons.access_time,
+                              color: isUserOnline ? const Color(0xFF00BFA5) : AppColors.body,
+                              size: 14,
+                            ),
                             4.0.width,
                             Text(
                               'Last active: ${widget.profile?.lastSeenAt ?? 'Just now'}',
-                              style: const TextStyle(color: Color(0xFF00BFA5), fontSize: 10, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: isUserOnline ? const Color(0xFF00796B) : AppColors.body,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
