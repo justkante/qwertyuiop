@@ -272,89 +272,75 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
       {'label': '4.5 & above', 'val': 4.5},
       {'label': '4.0 & above', 'val': 4.0},
       {'label': '3.5 & above', 'val': 3.5},
-      {'label': 'No reviews yet/New to Creatify', 'val': -1.0},
+      {'label': 'New to Creatify', 'val': -1.0},
     ];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: ratings.map((r) {
-        final label = r['label'] as String;
-        final val = r['val'] as double;
-        final isSelected = selectedRating == val;
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedRating = isSelected ? null : val;
-            });
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF00796B) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isSelected ? const Color(0xFF00796B) : AppColors.grey300),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.grey50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: DropdownButtonFormField<double>(
+        value: selectedRating,
+        decoration: const InputDecoration(
+          hintText: 'Select rating',
+          hintStyle: TextStyle(color: AppColors.body, fontSize: 13),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+        items: ratings.map((r) {
+          return DropdownMenuItem<double>(
+            value: r['val'] as double,
+            child: Text(
+              r['label'] as String,
+              style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.star, size: 14, color: isSelected ? Colors.white : Colors.orange),
-                6.0.width,
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : const Color(0xFF1B3131),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+        onChanged: (val) {
+          setState(() {
+            selectedRating = val;
+          });
+        },
+      ),
     );
   }
 
   Widget _buildAvailabilityFilter() {
     final options = ['Available now', 'Available this week', 'Available this month', 'Select dates'];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: options.map((opt) {
-        final isSelected = selectedAvailability == opt;
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedAvailability = isSelected ? null : opt;
-            });
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF00796B) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isSelected ? const Color(0xFF00796B) : AppColors.grey300),
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.grey50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: selectedAvailability,
+        decoration: const InputDecoration(
+          hintText: 'Select availability',
+          hintStyle: TextStyle(color: AppColors.body, fontSize: 13),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+        items: options.map((opt) {
+          return DropdownMenuItem<String>(
+            value: opt,
+            child: Text(
+              opt,
+              style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.calendar_today_outlined, size: 14, color: isSelected ? Colors.white : const Color(0xFF00BFA5)),
-                6.0.width,
-                Text(
-                  opt,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : const Color(0xFF1B3131),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+        onChanged: (val) {
+          setState(() {
+            selectedAvailability = val;
+          });
+        },
+      ),
     );
   }
 
@@ -627,7 +613,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   Widget _buildLocationFilter() {
     return TextInputField(
       controller: locationController,
-      hint: 'Search or select location (e.g. Brazil, Lagos)',
+      hint: 'Search location',
       inputType: TextInputType.text,
       validator: null,
       readOnly: false,
