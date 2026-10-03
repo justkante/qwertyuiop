@@ -61,7 +61,6 @@ class HomeView extends ConsumerStatefulWidget {
 class _HomeViewState extends ConsumerState<HomeView> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _scrollController = ScrollController();
-  bool _showBackToTop = false;
 
   int _recommendedToggle = 0; // 0 for Creators, 1 for Jobs
 
@@ -132,13 +131,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      if (_scrollController.offset > 100 && !_showBackToTop) {
-        setState(() => _showBackToTop = true);
-      } else if (_scrollController.offset <= 100 && _showBackToTop) {
-        setState(() => _showBackToTop = false);
-      }
-    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initSequence();
     });
@@ -167,20 +159,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF9F9F9),
       drawer: const HomeDrawer(),
-      floatingActionButton: _showBackToTop
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                _scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeInOut,
-                );
-              },
-              backgroundColor: const Color(0xFF00796B),
-              icon: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
-              label: const Text('Back to top', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
-            )
-          : null,
       body: SafeArea(
         child: RefreshIndicator.adaptive(
           onRefresh: () async {
@@ -769,62 +747,98 @@ class _HomeViewState extends ConsumerState<HomeView> {
         NavigationService.instance.push(JobDetailView(job: JobDto.fromJson(job.toJson())));
       },
       child: Container(
-        width: 240,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey100)),
+        width: 260,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.grey200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(child: Text(job.title ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131)), maxLines: 1, overflow: TextOverflow.ellipsis)),
-                InkWell(
-                  onTap: () {
-                    ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
-                  },
-                  child: Icon(
-                    job.isFavorited == true ? Icons.favorite : Icons.favorite_border,
-                    color: job.isFavorited == true ? Colors.red : AppColors.grey300,
-                    size: 20,
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          job.title ?? '',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      8.0.width,
+                      InkWell(
+                        onTap: () {
+                          ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
+                        },
+                        child: Icon(
+                          job.isFavorited == true ? Icons.favorite : Icons.favorite_border,
+                          color: job.isFavorited == true ? Colors.red : AppColors.grey400,
+                          size: 20,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  8.0.height,
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on_outlined, size: 14, color: AppColors.body),
+                      4.0.width,
+                      Text(job.location ?? 'Lagos', style: const TextStyle(fontSize: 12, color: AppColors.body)),
+                      12.0.width,
+                      Text(
+                        num.parse(job.price.toString()).amountWithCurrency(job.currency ?? 'NGN'),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF00796B), fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  8.0.height,
+                  Text(
+                    (job.description != null && job.description.toString().isNotEmpty)
+                        ? job.description.toString()
+                        : 'If you no longer wish to receive these emails, you can Unsubscribe or Manage Preferences at any time.',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 12, color: AppColors.body, height: 1.3),
+                  ),
+                ],
+              ),
             ),
-            12.0.height,
-            Row(
-              children: [
-                const Icon(Icons.location_on_outlined, size: 12, color: AppColors.body),
-                4.0.width,
-                Text(job.location ?? '', style: const TextStyle(fontSize: 11, color: AppColors.body)),
-              ],
-            ),
-            8.0.height,
-            Row(
-              children: [
-                const Icon(Icons.account_balance_wallet_outlined, size: 12, color: Color(0xFF00BFA5)),
-                4.0.width,
-                Text(num.parse(job.price.toString()).amountWithCurrency(job.currency ?? 'NGN'), style: const TextStyle(fontSize: 11, color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
-              ],
-            ),
-            16.0.height,
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.body),
-                    4.0.width,
-                    const Text('12/07/26 - 14/07/26', style: TextStyle(fontSize: 10, color: AppColors.body)),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(color: Color(0xFF00796B), shape: BoxShape.circle),
-                  child: const Icon(Icons.chevron_right, color: Colors.white, size: 14),
-                ),
-              ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3F4F6),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+                border: Border(top: BorderSide(color: Color(0xFFE5E7EB))),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('12/07/26 - 14/07/26', style: TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w500)),
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF00796B),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.chevron_right, size: 14, color: Colors.white),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
