@@ -1,10 +1,16 @@
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/onboarding_status_dto.dart';
 import 'package:creatify_mobile/data/models/responses/user_dto.dart';
-import 'package:creatify_mobile/core/utils/profile_strength_utils.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
+import 'package:creatify_mobile/view/theme/theme_extensions.dart';
+import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
+import 'package:creatify_mobile/view/utils/profile_strength_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class ProfileStrengthWidget extends StatelessWidget {
   final UserDto user;
@@ -75,19 +81,20 @@ class ProfileStrengthWidget extends StatelessWidget {
           16.0.width,
           Expanded(
             flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                12.0.height,
-                _buildCheckItem('Portfolio uploaded', onboardingStatus?.steps?.portfolio == 'completed'),
-                10.0.height,
-                _buildCheckItem('Availability set', onboardingStatus?.steps?.availability == 'completed'),
-                10.0.height,
-                _buildCheckItem('KYC verified', onboardingStatus?.steps?.kyc == 'completed'),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.only(top: 18), // Pushed down to occupy empty bottom space
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildCheckItem('Portfolio uploaded', onboardingStatus?.steps?.portfolio == 'completed'),
+                  8.0.height,
+                  _buildCheckItem('Availability set', onboardingStatus?.steps?.availability == 'completed'),
+                  8.0.height,
+                  _buildCheckItem('KYC verified', onboardingStatus?.steps?.kyc == 'completed'),
+                ],
+              ),
             ),
           ),
-          // const Icon(Icons.chevron_right, color: AppColors.body, size: 20), // Removed arrow
         ],
       ),
     );
@@ -98,7 +105,7 @@ class ProfileStrengthWidget extends StatelessWidget {
       children: [
         Icon(
           Icons.star,
-          color: completed ? const Color(0xFFFFB800) : AppColors.grey300,
+          color: completed ? const Color(0xFFFFD700) : AppColors.grey300,
           size: 14,
         ),
         6.0.width,
@@ -137,92 +144,49 @@ class MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        width: 165,
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: bgColor.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.grey100),
+          border: Border.all(color: bgColor.withValues(alpha: 0.7)),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: bgColor,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: iconColor, size: 18),
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 20),
             ),
-            12.0.width,
+            10.0.width,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     label,
-                    style: const TextStyle(fontSize: 13, color: AppColors.body, fontWeight: FontWeight.w500), // Increased from 11
-                    maxLines: 1,
+                    style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w600, height: 1.1),
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  2.0.height,
                   Text(
                     value,
-                    style: const TextStyle(
-                      fontSize: 20, // Increased from 18
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1B3131),
-                    ),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B3131)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.grey300, size: 16),
+            const Icon(Icons.chevron_right, size: 14, color: AppColors.grey300),
           ],
         ),
       ),
-    );
-  }
-}
-
-class SectionHeader extends StatelessWidget {
-  final String title;
-  final VoidCallback? onSeeAll;
-
-  const SectionHeader({
-    super.key,
-    required this.title,
-    this.onSeeAll,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20, // Increased
-            color: Color(0xFF1B3131),
-          ),
-        ),
-        if (onSeeAll != null)
-          InkWell(
-            onTap: onSeeAll,
-            child: Row(
-              children: [
-                const Text(
-                  'See all',
-                  style: TextStyle(color: Color(0xFF00BFA5), fontSize: 14, fontWeight: FontWeight.bold), // Increased
-                ),
-                4.0.width,
-                const Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
-              ],
-            ),
-          ),
-      ],
     );
   }
 }
