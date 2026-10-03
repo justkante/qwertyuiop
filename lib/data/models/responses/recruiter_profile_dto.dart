@@ -10,6 +10,8 @@ class RecruiterProfileDto {
   final String? name;
   final String? email;
   final String? profileImage;
+  final String? bio;
+  final String? location;
   final String? lastSeenAt;
   final bool? isPremium;
   final RatingsAndReviews? ratingsAndReviews;
@@ -20,6 +22,8 @@ class RecruiterProfileDto {
     this.name,
     this.profileImage,
     this.email,
+    this.bio,
+    this.location,
     this.ratingsAndReviews,
     this.lastSeenAt,
     this.analytics,
@@ -42,6 +46,8 @@ class RecruiterProfileDto {
     String? id,
     String? name,
     String? profileImage,
+    String? bio,
+    String? location,
     String? lastSeenAt,
     bool? isPremium,
     RatingsAndReviews? ratingsAndReviews,
@@ -53,6 +59,8 @@ class RecruiterProfileDto {
         name: name ?? this.name,
         profileImage: profileImage ?? this.profileImage,
         email: email ?? this.email,
+        bio: bio ?? this.bio,
+        location: location ?? this.location,
         isPremium: isPremium ?? this.isPremium,
         ratingsAndReviews: ratingsAndReviews ?? this.ratingsAndReviews,
         analytics: analytics ?? this.analytics,
@@ -64,6 +72,8 @@ class RecruiterProfileDto {
         name: json["name"],
         email: json["email"],
         profileImage: json["profile_image"],
+        bio: json["bio"],
+        location: json["location"],
         isPremium: json["is_premium"],
         ratingsAndReviews:
             json["reviews"] == null ? null : RatingsAndReviews.fromJson(json["reviews"]),
@@ -76,6 +86,8 @@ class RecruiterProfileDto {
         "name": name,
         "email": email,
         "profile_image": profileImage,
+        "bio": bio,
+        "location": location,
         "is_premium": isPremium,
         "reviews": ratingsAndReviews?.toJson(),
         "analytics": analytics?.toJson(),
