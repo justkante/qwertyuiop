@@ -1,4 +1,5 @@
 import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -114,6 +115,10 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                 Expanded(
                   child: getStatesList.when(
                     data: (states) {
+                      final userData = ref.watch(userControllerProvider);
+                      final userCountryCode = userData.countryCode?.toUpperCase() ?? 'BR';
+                      final isBrazil = userCountryCode == 'BR' || userData.primaryCurrency?.toUpperCase() == 'BRL';
+
                       final combinedList = [...states, ..._globalCitiesFallback];
                       final uniqueMap = <String, StatesItemDto>{};
                       for (var item in combinedList) {
@@ -121,9 +126,20 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                           uniqueMap[item.name!.toLowerCase()] = item;
                         }
                       }
-                      final filteredStates = uniqueMap.values
+                      var filteredStates = uniqueMap.values
                           .where((state) => state.name != null && state.name!.toLowerCase().contains(_searchQuery))
                           .toList();
+
+                      filteredStates.sort((a, b) {
+                        final aName = a.name?.toLowerCase() ?? '';
+                        final bName = b.name?.toLowerCase() ?? '';
+                        final aIsMatch = isBrazil ? aName.contains('brazil') : aName.contains(userCountryCode.toLowerCase());
+                        final bIsMatch = isBrazil ? bName.contains('brazil') : bName.contains(userCountryCode.toLowerCase());
+
+                        if (aIsMatch && !bIsMatch) return -1;
+                        if (!aIsMatch && bIsMatch) return 1;
+                        return 0;
+                      });
 
                       return _buildStateList(filteredStates);
                     },
