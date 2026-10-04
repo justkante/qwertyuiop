@@ -611,27 +611,44 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   }
 
   Widget _buildLocationFilter() {
-    return TextInputField(
-      controller: locationController,
-      hint: 'Search location',
-      inputType: TextInputType.text,
-      validator: null,
-      readOnly: false,
-      suffixIcon: InkWell(
-        onTap: () async {
-          selectedState = await AppBottomSheet.showBottomSheet(
-            context,
-            widget: const StateSheet(),
-          );
+    return InkWell(
+      onTap: () async {
+        selectedState = await AppBottomSheet.showBottomSheet(
+          context,
+          widget: const StateSheet(),
+        );
 
-          if (selectedState != null) {
+        if (selectedState != null) {
+          setState(() {
             locationController.text = selectedState?.name ?? '';
-          }
-        },
-        child: const Icon(
-          Icons.keyboard_arrow_down,
-          color: AppColors.body,
-          size: 20,
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.grey50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.grey200),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.location_on_outlined, size: 18, color: AppColors.body),
+            10.0.width,
+            Expanded(
+              child: Text(
+                locationController.text.isEmpty ? 'Search location' : locationController.text,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+          ],
         ),
       ),
     );
