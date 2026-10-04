@@ -62,6 +62,47 @@ class _JobPostCardState extends State<JobPostCard> {
     }
   }
 
+  Widget _buildStatusBadge(String status) {
+    final sLower = status.toLowerCase();
+    final isExpired = sLower.contains('expired') || sLower == 'closed' || sLower == 'inactive';
+    final isOnlineActive = sLower == 'active' || sLower == 'open';
+
+    final bgColor = isOnlineActive ? const Color(0xFFE0F2F1) : const Color(0xFFFCEBEC);
+    final dotColor = isOnlineActive ? const Color(0xFF00BFA5) : const Color(0xFFFF6F61);
+    final textColor = isOnlineActive ? const Color(0xFF00796B) : const Color(0xFFD32F2F);
+    final label = isExpired ? 'Inactive - Job Expired' : 'Active';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(
+              color: dotColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          6.0.width,
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final statusLower = widget.status.toLowerCase();
@@ -94,7 +135,7 @@ class _JobPostCardState extends State<JobPostCard> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Expanded(
                         child: Text(
@@ -108,20 +149,26 @@ class _JobPostCardState extends State<JobPostCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      12.0.width,
-                      GestureDetector(
-                        onTap: () async {
-                          final newValue = !isFavorite;
-                          setState(() {
-                            isFavorite = newValue;
-                          });
-                          await widget.onFavoriteToggle?.call(newValue);
-                        },
-                        child: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_outline,
-                          size: 22,
-                          color: isFavorite ? Colors.red : AppColors.grey400,
-                        ),
+                      8.0.width,
+                      Row(
+                        children: [
+                          _buildStatusBadge(widget.status),
+                          8.0.width,
+                          GestureDetector(
+                            onTap: () async {
+                              final newValue = !isFavorite;
+                              setState(() {
+                                isFavorite = newValue;
+                              });
+                              await widget.onFavoriteToggle?.call(newValue);
+                            },
+                            child: Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_outline,
+                              size: 22,
+                              color: isFavorite ? Colors.red : AppColors.grey400,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
