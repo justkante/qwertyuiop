@@ -24,7 +24,7 @@ class _BankSheetState extends ConsumerState<StateSheet> {
   String _searchQuery = '';
 
   static final List<StatesItemDto> _globalCitiesFallback = [
-    // Brazil
+    // Brazil (Prioritized at top)
     StatesItemDto(id: 'São Paulo, Brazil', name: 'São Paulo, Brazil'),
     StatesItemDto(id: 'Rio de Janeiro, Brazil', name: 'Rio de Janeiro, Brazil'),
     StatesItemDto(id: 'Brasília, Brazil', name: 'Brasília, Brazil'),
@@ -108,17 +108,13 @@ class _BankSheetState extends ConsumerState<StateSheet> {
               children: [
                 // Search Field
                 SearchTextInputField(
-                  hintText: 'Search or type location...',
+                  hintText: 'Search location',
                   controller: searchController,
                 ),
                 12.0.height,
                 Expanded(
                   child: getStatesList.when(
                     data: (states) {
-                      final userData = ref.watch(userControllerProvider);
-                      final userCountryCode = userData.countryCode?.toUpperCase() ?? 'BR';
-                      final isBrazil = userCountryCode == 'BR' || userData.primaryCurrency?.toUpperCase() == 'BRL';
-
                       final combinedList = [...states, ..._globalCitiesFallback];
                       final uniqueMap = <String, StatesItemDto>{};
                       for (var item in combinedList) {
@@ -130,14 +126,15 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                           .where((state) => state.name != null && state.name!.toLowerCase().contains(_searchQuery))
                           .toList();
 
+                      // Prioritize Brazil at the top by default
                       filteredStates.sort((a, b) {
                         final aName = a.name?.toLowerCase() ?? '';
                         final bName = b.name?.toLowerCase() ?? '';
-                        final aIsMatch = isBrazil ? aName.contains('brazil') : aName.contains(userCountryCode.toLowerCase());
-                        final bIsMatch = isBrazil ? bName.contains('brazil') : bName.contains(userCountryCode.toLowerCase());
+                        final aIsBrazil = aName.contains('brazil') || aName.contains('são paulo') || aName.contains('rio de janeiro');
+                        final bIsBrazil = bName.contains('brazil') || bName.contains('são paulo') || bName.contains('rio de janeiro');
 
-                        if (aIsMatch && !bIsMatch) return -1;
-                        if (!aIsMatch && bIsMatch) return 1;
+                        if (aIsBrazil && !bIsBrazil) return -1;
+                        if (!aIsBrazil && bIsBrazil) return 1;
                         return 0;
                       });
 
