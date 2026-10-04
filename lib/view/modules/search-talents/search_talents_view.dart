@@ -141,37 +141,15 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          'creatify',
-          style: TextStyle(
-            color: AppColors.primary,
-            fontSize: 26,
+        centerTitle: true,
+        title: Text(
+          'Find & Book Talents',
+          style: context.textTheme.displayMedium?.copyWith(
+            fontSize: 22,
             fontWeight: FontWeight.bold,
-            letterSpacing: -1,
+            color: const Color(0xFF1B3131),
           ),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-               if (userData.roles?.contains('recruiter') == true) {
-                 NavigationService.instance.push(const MyRecruiterProfileView());
-               } else {
-                 NavigationService.instance.push(const MyCreatorProfileView());
-               }
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 24, left: 8),
-              child: (userData.profileImage != null && userData.profileImage!.trim().isNotEmpty && userData.profileImage!.trim().startsWith('http'))
-                  ? CircleAvatar(
-                      radius: 18,
-                      backgroundImage: NetworkImage(userData.profileImage!),
-                      backgroundColor: AppColors.grey100,
-                    )
-                  : InitialAvatar(initials: userData.getInitials, size: 18),
-            ),
-          ),
-        ],
       ),
       body: RefreshIndicator.adaptive(
         onRefresh: () async {
@@ -183,29 +161,15 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              16.0.height,
+              12.0.height,
               Center(
-                child: Column(
-                  children: [
-                    Text(
-                      'Find & Book Talents',
-                      textAlign: TextAlign.center,
-                      style: context.textTheme.displayMedium?.copyWith(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF1B3131),
-                      ),
-                    ),
-                    4.0.height,
-                    Text(
-                      'Discover amazing creators for your next project',
-                      textAlign: TextAlign.center,
-                      style: context.textTheme.bodyMedium?.copyWith(color: AppColors.body, fontSize: 13),
-                    ),
-                  ],
+                child: Text(
+                  'Discover amazing creators for your next project',
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.bodyMedium?.copyWith(color: AppColors.body, fontSize: 13),
                 ),
               ),
-              24.0.height,
+              20.0.height,
 
               // Search Bar - Distinct light grey input field
               Container(
