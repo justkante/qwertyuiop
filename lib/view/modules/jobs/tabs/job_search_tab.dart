@@ -168,7 +168,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                     price: job.price ?? 0,
                     currency: job.currency ?? 'NGN',
                     dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate()} - ${job.expiresAt?.toFormattedDate()}' : '',
-                    status: job.status ?? '',
+                    status: job.effectiveStatus,
                     serviceName: job.category?.name, // Added
                     initialFavorite: job.isFavorited ?? false,
                     onFavoriteToggle: (val) {
