@@ -88,6 +88,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   @override
   void dispose() {
     _showcaseView.unregister();
+    tabController.dispose();
     super.dispose();
   }
 
@@ -116,49 +117,6 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
     NavigationService.instance.push(const ManageSubscriptionView());
   }
 
-  void _onEditAvailability() {
-    AppBottomSheet.showBottomSheet(
-      context,
-      widget: const EditAvailabilitySheet(),
-    );
-  }
-
-  void _onManagePortfolio() {
-    AppBottomSheet.showBottomSheet(
-      context,
-      widget: const AdjustPortfolioSheet(),
-    );
-  }
-
-  void _onPaymentPayouts() {
-    final userData = ref.watch(userControllerProvider);
-
-    if (userData.countryCode == 'NG') {
-      AppBottomSheet.showBottomSheet(
-        context,
-        widget: const PaymentAndPayoutSheet(),
-      );
-    } else {
-      setState(() => dashboardLoading = true);
-      ref.invalidate(getCreatorDashboardProvider);
-      ref.read(getCreatorDashboardProvider.future).then((value) {
-        if (!mounted) return;
-        setState(() => dashboardLoading = false);
-
-        NavigationService.instance.push(
-          WebviewScreen(
-            url: value.url ?? '',
-            routeName: "Payments and Payouts",
-          ),
-        );
-      }).catchError((error) {
-        if (!mounted) return;
-        ToastDialog.showError(error.toString(), context);
-        setState(() => dashboardLoading = false);
-      });
-    }
-  }
-
   void _onUpdateRatesCard() {
     NavigationService.instance.push(
       UpdateRatesCardSheet(
@@ -169,13 +127,6 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
               orElse: () => [],
             ),
       ),
-    );
-  }
-
-  void _onUpdateWorkMode() {
-    AppBottomSheet.showBottomSheet(
-      context,
-      widget: const UpdateWorkModeSheet(),
     );
   }
 
@@ -259,8 +210,8 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
                         SizedBox(
-                          width: 100,
-                          height: 100,
+                          width: 120,
+                          height: 120,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
@@ -268,11 +219,12 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                               ExpandableProfileImage(
                                 imageUrl: data.profileImage,
                                 initials: data.initials,
-                                size: 90,
+                                size: 110,
                                 initialsFallback: Center(
                                   child: InitialAvatar(
                                     initials: data.initials,
-                                    size: 30,
+                                    padding: const EdgeInsets.all(24),
+                                    size: 38,
                                   ),
                                 ),
                               ),
@@ -282,25 +234,25 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(6),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: const BoxDecoration(
                                       color: Colors.white,
                                       shape: BoxShape.circle,
-                                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
                                     ),
-                                    child: const Icon(Icons.camera_alt_outlined, size: 16, color: AppColors.primary),
+                                    child: const Icon(Icons.camera_alt_outlined, size: 20, color: AppColors.primary),
                                   ),
                                 ),
                               ),
                               Positioned(
-                                top: -8,
-                                right: -28,
+                                top: -6,
+                                right: -36,
                                 child: _buildUpgradeBadge(data),
                               ),
                             ],
                           ),
                         ),
-                        12.0.height,
+                        16.0.height,
 
                         // Name and verification
                         Column(
@@ -344,64 +296,80 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                         ),
                         24.0.height,
 
-                        if (!isOnboarded) ...[
-                           _buildOnboardingChecklist(),
-                           40.0.height,
-                        ] else ...[
-                          // Location and Niche
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildSmallInfoChip(Icons.location_on_outlined, data.location ?? 'Global'),
-                              12.0.width,
-                              _buildSmallInfoChip(Icons.work_outline, data.workMode?.toTitleCase() ?? 'Remote'),
-                            ],
-                          ),
-                          16.0.height,
+                        // Location and Niche
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildSmallInfoChip(Icons.location_on_outlined, data.location ?? 'Lagos, Nigeria'),
+                            12.0.width,
+                            _buildSmallInfoChip(Icons.work_outline, data.workMode?.toTitleCase() ?? 'Remote'),
+                          ],
+                        ),
+                        16.0.height,
 
-                          GestureDetector(
-                            onTap: _onUpdateRatesCard,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: AppColors.grey50,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    data.categories?.isEmpty == true ? 'No Niches Added' : data.categories!.map((e) => e.name).join(', '),
-                                    style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500),
-                                  ),
-                                  8.0.width,
-                                  const Icon(Icons.edit_outlined, size: 14, color: AppColors.body),
-                                ],
-                              ),
+                        GestureDetector(
+                          onTap: _onUpdateRatesCard,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppColors.grey50,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  data.categories?.isEmpty == true ? 'No Niches Added' : data.categories!.map((e) => e.name).join(', '),
+                                  style: const TextStyle(fontSize: 12, color: AppColors.body, fontWeight: FontWeight.w500),
+                                ),
+                                8.0.width,
+                                const Icon(Icons.edit_outlined, size: 14, color: AppColors.body),
+                              ],
                             ),
                           ),
-                          24.0.height,
+                        ),
+                        24.0.height,
 
-                          Row(
-                            children: [
-                              Expanded(child: MainButton(text: 'Edit Profile', color: const Color(0xFFE0F2F1), textColor: AppColors.primary, onPressed: () {
-                                 NavigationService.instance.push(const EditProfileView());
-                              })),
-                              12.0.width,
-                              Expanded(child: MainButton(text: 'View Public', color: AppColors.grey50, textColor: const Color(0xFF1B3131), onPressed: () {
-                                 NavigationService.instance.push(CreatorProfileView(profile: data));
-                              })),
-                            ],
-                          ),
-                          24.0.height,
+                        // Action Buttons: Edit Profile & View Public
+                        Row(
+                          children: [
+                            Expanded(
+                              child: MainButton(
+                                text: 'Edit Profile',
+                                color: const Color(0xFFE0F2F1),
+                                textColor: AppColors.primary,
+                                onPressed: () {
+                                  NavigationService.instance.push(const EditProfileView());
+                                },
+                              ),
+                            ),
+                            12.0.width,
+                            Expanded(
+                              child: MainButton(
+                                text: 'View Public',
+                                color: AppColors.grey50,
+                                textColor: const Color(0xFF1B3131),
+                                onPressed: () {
+                                  NavigationService.instance.push(CreatorProfileView(profile: data));
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        24.0.height,
 
-                          // MARK: Tabs
-                          _buildProfileTabs(),
+                        // If onboarding is incomplete, show complete onboarding banner here
+                        if (!isOnboarded) ...[
+                          _buildOnboardingChecklist(),
                           24.0.height,
-
-                          // Dynamic Content
-                          _buildTabContent(data, userData),
                         ],
+
+                        // MARK: Tabs
+                        _buildProfileTabs(),
+                        24.0.height,
+
+                        // Dynamic Content
+                        _buildTabContent(data, userData),
                         180.0.height, // Scrolling Padding
                       ],
                     );
@@ -446,25 +414,26 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
     return GestureDetector(
       onTap: _onUpgradeAccount,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: data.isPremium == true ? const Color(0xFFE0F2F1) : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+          border: Border.all(color: AppColors.grey200),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2))],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (data.isPremium == true)
-              SvgPicture.asset(AppImages.premiumBadge, height: 16)
+              SvgPicture.asset(AppImages.premiumBadge, height: 18)
             else
-              const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 16),
-            4.0.width,
+              const Icon(Icons.workspace_premium, color: Color(0xFFFFD700), size: 18),
+            6.0.width,
             Text(
               data.isPremium == true ? 'Premium' : 'Upgrade',
               style: TextStyle(
                 color: data.isPremium == true ? AppColors.primary : const Color(0xFF1B3131),
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
             ),
