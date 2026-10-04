@@ -17,7 +17,7 @@ import 'package:creatify_mobile/data/models/responses/niche_item_dto.dart';
 import 'package:creatify_mobile/data/models/responses/onboard_stripe_dto.dart';
 import 'package:creatify_mobile/data/models/responses/onboarding_status_dto.dart';
 import 'package:creatify_mobile/data/models/responses/payout_details_dto.dart';
-import 'package:creatify_mobile/data/models/responses/portfolio_dto.dart';
+import 'package:creatify_mobile/data/models/responses/portfolio_dto.dart' hide MediaType;
 import 'package:creatify_mobile/data/models/responses/recommended_creators_dto.dart';
 import 'package:creatify_mobile/data/models/responses/recruiter_profile_dto.dart' hide Category;
 import 'package:creatify_mobile/data/models/responses/referral_stats.dart';
