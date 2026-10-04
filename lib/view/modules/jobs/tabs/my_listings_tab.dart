@@ -163,7 +163,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                       serviceName: job.category?.name, // Added
                       applicationCount: job.applicationsCount ?? 0,
                       postedDate: job.createdAt?.toFormattedDate() ?? '',
-                      status: job.status ?? 'Active',
+                      status: job.effectiveStatus,
                       onTap: () => NavigationService.instance.push(JobDetailCreatorView(job: job)),
                       onViewApplicants: () => NavigationService.instance.push(JobDetailCreatorView(job: job)),
                       onEdit: () {

@@ -39,14 +39,14 @@ class MyListingJobCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusLower = status.toLowerCase();
-    final isExpiredStatus = statusLower.contains('expired');
+    final isExpiredStatus = statusLower.contains('expired') || statusLower == 'closed' || statusLower == 'inactive';
     final statusColor = isExpiredStatus
         ? const Color(0xFFDC2626)
         : statusLower == 'active'
             ? const Color(0xFF2E7D32)
             : statusLower == 'draft'
                 ? const Color(0xFFF59E0B)
-                : Colors.grey;
+                : const Color(0xFFDC2626);
 
     final statusBgColor = isExpiredStatus
         ? const Color(0xFFFEE2E2)
@@ -54,7 +54,7 @@ class MyListingJobCard extends StatelessWidget {
             ? const Color(0xFFE8F5E9)
             : statusLower == 'draft'
                 ? const Color(0xFFFEF3C7)
-                : const Color(0xFFF3F4F6);
+                : const Color(0xFFFEE2E2);
 
     final displayStatusText = isExpiredStatus ? 'Inactive - Job Expired' : status.capitalize();
 
