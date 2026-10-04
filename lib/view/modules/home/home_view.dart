@@ -204,8 +204,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
                       ),
                       const Spacer(),
                       const Text(
-                        'Creatify',
-                        style: TextStyle(color: Color(0xFF009688), fontSize: 24, fontWeight: FontWeight.bold),
+                        'creatify',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: -1,
+                        ),
                       ),
                       const Spacer(),
                       Stack(
