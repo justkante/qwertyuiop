@@ -259,8 +259,8 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                       children: [
                         // MARK: Centered Profile Picture with Upgrade Badge at Top Right
                         SizedBox(
-                          width: 110,
-                          height: 110,
+                          width: 100,
+                          height: 100,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
@@ -268,12 +268,11 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                               ExpandableProfileImage(
                                 imageUrl: data.profileImage,
                                 initials: data.initials,
-                                size: 100, // Increased
+                                size: 90,
                                 initialsFallback: Center(
                                   child: InitialAvatar(
                                     initials: data.initials,
-                                    padding: const EdgeInsets.all(20),
-                                    size: 36,
+                                    size: 30,
                                   ),
                                 ),
                               ),
@@ -283,25 +282,25 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                                 child: GestureDetector(
                                   onTap: _onEditProfileImage,
                                   child: Container(
-                                    padding: const EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(6),
                                     decoration: const BoxDecoration(
                                       color: Colors.white,
                                       shape: BoxShape.circle,
-                                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
+                                      boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
                                     ),
-                                    child: const Icon(Icons.camera_alt_outlined, size: 18, color: AppColors.primary),
+                                    child: const Icon(Icons.camera_alt_outlined, size: 16, color: AppColors.primary),
                                   ),
                                 ),
                               ),
                               Positioned(
-                                top: -5,
-                                right: -60,
+                                top: -8,
+                                right: -28,
                                 child: _buildUpgradeBadge(data),
                               ),
                             ],
                           ),
                         ),
-                        24.0.height,
+                        12.0.height,
 
                         // Name and verification
                         Column(
