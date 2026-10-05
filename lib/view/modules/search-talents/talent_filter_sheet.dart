@@ -233,35 +233,19 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          onTap: onToggle,
-          borderRadius: BorderRadius.circular(8),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: context.textTheme.bodyLarge?.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF1B3131),
-                  ),
-                ),
-                Icon(
-                  isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: AppColors.body,
-                  size: 20,
-                ),
-              ],
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Text(
+            title,
+            style: context.textTheme.bodyLarge?.copyWith(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF1B3131),
             ),
           ),
         ),
-        if (isExpanded) ...[
-          8.0.height,
-          child,
-        ],
+        8.0.height,
+        child,
       ],
     );
   }
@@ -633,8 +617,6 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         ),
         child: Row(
           children: [
-            const Icon(Icons.location_on_outlined, size: 18, color: AppColors.body),
-            10.0.width,
             Expanded(
               child: Text(
                 locationController.text.isEmpty ? 'Search location' : locationController.text,
