@@ -108,17 +108,18 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
               if (widget.length == null)
                 Container(
                   decoration: BoxDecoration(
-                    color: AppColors.grey50,
+                    color: const Color(0xFFF3F4F6),
                     borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
                   ),
                   child: TextField(
                     controller: searchController,
                     decoration: InputDecoration(
                       hintText: 'Search Name, Role...',
-                      hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
+                      hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
                       prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                     ),
                   ),
                 ),
