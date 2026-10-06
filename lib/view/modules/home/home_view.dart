@@ -256,31 +256,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.grey50,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: TextField(
-                      onSubmitted: (val) {
-                         if (val.isNotEmpty) {
-                            ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
-                            ref.read(custom_nav.navBarController.notifier).index = 1;
-                         }
+                  child: SearchTextInputField(
+                    hintText: 'Search creators, skills or locations',
+                    onSubmitted: (val) {
+                       if (val.isNotEmpty) {
+                          ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
+                          ref.read(custom_nav.navBarController.notifier).index = 1;
+                       }
+                    },
+                    trailingIcon: InkWell(
+                      onTap: () {
+                         AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
                       },
-                      decoration: InputDecoration(
-                        hintText: 'Search creators, skills or locations',
-                        hintStyle: const TextStyle(color: AppColors.body, fontSize: 13),
-                        prefixIcon: const Icon(Icons.search, color: AppColors.body, size: 22),
-                        suffixIcon: InkWell(
-                          onTap: () {
-                             AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
-                          },
-                          child: const Icon(Icons.tune, color: Colors.black, size: 22),
-                        ),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
+                      child: const Icon(Icons.tune, color: Colors.black, size: 20),
                     ),
                   ),
                 ),

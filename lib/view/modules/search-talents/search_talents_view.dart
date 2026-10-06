@@ -171,40 +171,18 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
               ),
               20.0.height,
 
-              // Search Bar - Distinct light grey input field
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: searchController,
-                        onFieldSubmitted: (val) {
-                           ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search name, skill, or keyword...',
-                          hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
-                          prefixIcon: const Icon(Icons.search, color: AppColors.body, size: 20),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                         AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.only(right: 16),
-                        child: Icon(Icons.tune, color: Colors.black, size: 20),
-                      ),
-                    ),
-                  ],
+              // Search Bar
+              SearchTextInputField(
+                controller: searchController,
+                hintText: 'Search name, skill, or keyword...',
+                onSubmitted: (val) {
+                   ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
+                },
+                trailingIcon: InkWell(
+                  onTap: () {
+                     AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
+                  },
+                  child: const Icon(Icons.tune, color: Colors.black, size: 20),
                 ),
               ),
               16.0.height,
