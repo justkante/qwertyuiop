@@ -73,7 +73,6 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                 ),
               ),
             ),
-            ),
             24.0.height,
 
             SingleChildScrollView(
