@@ -19,6 +19,7 @@ class TransactionLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontSize = titleSize ?? 14;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -26,7 +27,7 @@ class TransactionLine extends StatelessWidget {
           title ?? 'Cost',
           style: context.textTheme.bodyMedium?.copyWith(
             color: AppColors.body,
-            fontSize: titleSize ?? 15,
+            fontSize: fontSize,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -37,9 +38,9 @@ class TransactionLine extends StatelessWidget {
             textAlign: TextAlign.right,
             style: context.textTheme.bodyMedium?.copyWith(
               color: valueColor ?? AppColors.subHeading,
-              fontSize: valueSize ?? 16,
+              fontSize: fontSize,
               fontFamily: FontFamily.inter,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
