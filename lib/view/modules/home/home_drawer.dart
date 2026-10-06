@@ -85,11 +85,12 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Creatify',
-                    style: context.textTheme.displayMedium?.copyWith(
+                    'creatify',
+                    style: const TextStyle(
                       color: AppColors.primary,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
+                      letterSpacing: -1,
                     ),
                   ),
                   Text(
