@@ -93,19 +93,19 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                 children: [
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: AppColors.grey50,
+                        color: const Color(0xFFF3F4F6),
                         borderRadius: BorderRadius.circular(30),
+                        border: Border.all(color: const Color(0xFFE5E7EB)),
                       ),
                       child: TextField(
                         controller: searchController,
                         decoration: InputDecoration(
                           hintText: 'Search listing title...',
-                          hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13),
+                          hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
                           prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
                           border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                           suffixIcon: _searchQuery.isNotEmpty ? IconButton(
                             icon: const Icon(Icons.clear, size: 18),
                             onPressed: () => searchController.clear(),
