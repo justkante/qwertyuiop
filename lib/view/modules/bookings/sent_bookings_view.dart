@@ -102,22 +102,9 @@ class _SentBookingsViewState extends ConsumerState<SentBookingsView> {
               16.0.height,
 
               // Search Bar
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF3F4F6),
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
-                ),
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search Name, Role...',
-                    hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
-                    prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                  ),
-                ),
+              SearchTextInputField(
+                controller: searchController,
+                hintText: 'Search Name, Role...',
               ),
               24.0.height,
 
