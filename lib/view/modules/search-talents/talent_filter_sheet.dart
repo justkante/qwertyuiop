@@ -621,10 +621,10 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
             Expanded(
               child: Text(
                 locationController.text.isEmpty ? 'Search location' : locationController.text,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
-                  color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
-                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1B3131),
+                  fontWeight: FontWeight.bold,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
