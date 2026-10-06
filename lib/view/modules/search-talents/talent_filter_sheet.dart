@@ -609,11 +609,12 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        height: 52,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: AppColors.grey50,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.grey200),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
         ),
         child: Row(
           children: [
@@ -621,7 +622,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
               child: Text(
                 locationController.text.isEmpty ? 'Search location' : locationController.text,
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 15,
                   color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
                   fontWeight: FontWeight.w500,
                 ),
@@ -629,7 +630,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+            const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 22),
           ],
         ),
       ),
