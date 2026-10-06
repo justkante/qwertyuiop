@@ -16,6 +16,7 @@ import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/home_components.dart';
 import 'package:creatify_mobile/view/modules/jobs/jobs_main_view.dart' as jobs_view;
+import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/modules/search-talents/talent_filter_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
