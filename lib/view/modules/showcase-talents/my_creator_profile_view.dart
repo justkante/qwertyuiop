@@ -16,6 +16,7 @@ import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/upgr
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/uploaded_image_with_cancel.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/widgets/rate_card_carousel.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
@@ -629,38 +630,9 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
   }
 
   Widget _buildRatesCardTab(CreatorProfileDto data) {
-    if (data.categories?.isEmpty ?? true) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 40), child: Text('Rates card not set up.')));
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), border: Border.all(color: AppColors.grey200), color: AppColors.grey50),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: data.categories!.length,
-        separatorBuilder: (_, __) => 16.0.height,
-        itemBuilder: (context, index) {
-          var category = data.categories![index];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(category.name ?? '', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131), fontSize: 14)),
-              const Divider(color: AppColors.grey200),
-              8.0.height,
-              ...category.services?.map((pricing) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(pricing.serviceName ?? '', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                    Text("${pricing.price.amountWithCurrency(data.primaryCurrency ?? 'NGN')}/${pricing.pricingType?.split('_').last.toTitleCase()}",
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF6F61), fontSize: 13)),
-                  ],
-                ),
-              )) ?? [],
-            ],
-          );
-        },
-      ),
+    return RateCardCarousel(
+      categories: data.categories ?? [],
+      primaryCurrency: data.primaryCurrency ?? 'NGN',
     );
   }
 }
