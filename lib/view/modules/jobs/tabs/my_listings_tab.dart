@@ -3,6 +3,7 @@ import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
+import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../widgets/my_listing_job_card.dart';
@@ -92,26 +93,13 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: const Color(0xFFE5E7EB)),
-                      ),
-                      child: TextField(
-                        controller: searchController,
-                        decoration: InputDecoration(
-                          hintText: 'Search listing title...',
-                          hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
-                          prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                          suffixIcon: _searchQuery.isNotEmpty ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () => searchController.clear(),
-                          ) : null,
-                        ),
-                      ),
+                    child: SearchTextInputField(
+                      controller: searchController,
+                      hintText: 'Search listing title...',
+                      trailingIcon: _searchQuery.isNotEmpty ? InkWell(
+                        onTap: () => searchController.clear(),
+                        child: const Icon(Icons.clear, size: 18, color: AppColors.body),
+                      ) : null,
                     ),
                   ),
                   12.0.width,

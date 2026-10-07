@@ -6,6 +6,7 @@ import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
+import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../widgets/job_post_card.dart';
@@ -81,21 +82,8 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
           // Search Bar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search job, role...',
-                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
-                  prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                ),
-              ),
+            child: SearchTextInputField(
+              hintText: 'Search job, role...',
             ),
           ),
 
