@@ -13,6 +13,7 @@ import 'package:creatify_mobile/view/modules/showcase-talents/vm/favorite_creato
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/metrics_card.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/uploaded_image_with_cancel.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/widgets/rate_card_carousel.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/app_theme.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -405,95 +406,10 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
                                     },
                                   );
                           case 1:
-                            // Portfolio Videos
-                            return Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppColors.grey300),
-                                color: AppColors.grey50,
-                              ),
-                              child: ListView.separated(
-                                shrinkWrap: true,
-                                padding: EdgeInsets.zero,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  var category = data.categories?[index];
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        category?.name ?? '',
-                                        style: context.textTheme.bodyLarge?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.black2,
-                                        ),
-                                      ),
-                                      const Divider(
-                                        color: AppColors.black2,
-                                        height: 3,
-                                        thickness: 3,
-                                      ),
-                                      8.0.height,
-
-                                      // Pricings List
-                                      Column(
-                                        children: data.categories?[index].services
-                                                ?.map(
-                                                  (pricing) => Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Flexible(
-                                                        child: Text(
-                                                          pricing.serviceName ?? '',
-                                                          style: context.textTheme.bodyMedium
-                                                              ?.copyWith(
-                                                                  fontWeight: FontWeight.w500),
-                                                        ),
-                                                      ),
-                                                      Flexible(
-                                                        child: RichText(
-                                                          textAlign: TextAlign.end,
-                                                          text: TextSpan(
-                                                            text: userData.primaryCurrency ==
-                                                                    pricing.currency
-                                                                ? pricing.price.amountWithCurrency(
-                                                                    pricing.currency ?? '')
-                                                                : "${pricing.convertedPrice?.display}",
-                                                            style: context.textTheme.bodyMedium
-                                                                ?.copyWith(
-                                                              fontWeight: FontWeight.w500,
-                                                              color: AppColors.highlightCoral,
-                                                              fontFamily: FontFamily.inter,
-                                                            ),
-                                                            children: [
-                                                              TextSpan(
-                                                                text:
-                                                                    "/${pricing.pricingType?.split('_').last.toTitleCase()}",
-                                                                style: context.textTheme.bodySmall
-                                                                    ?.copyWith(
-                                                                  color: AppColors.subHeading,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-                                                .toList() ??
-                                            [],
-                                      ),
-                                    ],
-                                  );
-                                },
-                                separatorBuilder: (_, __) => 12.0.height,
-                                itemCount: data.categories?.length ?? 0,
-                              ),
+                            // Rates Card
+                            return RateCardCarousel(
+                              categories: data.categories ?? [],
+                              primaryCurrency: userData.primaryCurrency ?? 'NGN',
                             );
                           default:
                             return const SizedBox.shrink();
