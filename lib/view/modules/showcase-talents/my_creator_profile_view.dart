@@ -359,19 +359,19 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                         ),
                         24.0.height,
 
-                        // If onboarding is incomplete, show complete onboarding banner here
+                        // If onboarding is incomplete, show complete onboarding banner and hide everything below it
                         if (!isOnboarded) ...[
                           _buildOnboardingChecklist(),
+                          180.0.height,
+                        ] else ...[
+                          // MARK: Tabs
+                          _buildProfileTabs(),
                           24.0.height,
+
+                          // Dynamic Content
+                          _buildTabContent(data, userData),
+                          180.0.height, // Scrolling Padding
                         ],
-
-                        // MARK: Tabs
-                        _buildProfileTabs(),
-                        24.0.height,
-
-                        // Dynamic Content
-                        _buildTabContent(data, userData),
-                        180.0.height, // Scrolling Padding
                       ],
                     );
                   },
