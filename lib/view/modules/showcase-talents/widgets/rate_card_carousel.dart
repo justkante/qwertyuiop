@@ -41,7 +41,7 @@ class _RateCardCarouselState extends State<RateCardCarousel> {
     return Column(
       children: [
         SizedBox(
-          height: 240,
+          height: 260,
           child: PageView.builder(
             controller: _pageController,
             itemCount: widget.categories.length,
@@ -57,10 +57,6 @@ class _RateCardCarouselState extends State<RateCardCarousel> {
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(24),
-                  image: const DecorationImage(
-                    image: AssetImage(AppImages.curtain),
-                    fit: BoxFit.cover,
-                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.15),
@@ -69,60 +65,84 @@ class _RateCardCarouselState extends State<RateCardCarousel> {
                     ),
                   ],
                 ),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    color: Colors.black.withOpacity(0.45), // Dark overlay over curtain
-                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        category.name ?? '',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      // Top Curtain Header Section
+                      Container(
+                        height: 105,
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage(AppImages.curtain),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.black.withOpacity(0.2), Colors.black.withOpacity(0.75)],
+                            ),
+                          ),
+                          alignment: Alignment.bottomLeft,
+                          child: Text(
+                            category.name ?? '',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
-                      16.0.height,
-                      Expanded(
-                        child: ListView.separated(
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: category.services?.length ?? 0,
-                          separatorBuilder: (_, __) => 12.0.height,
-                          itemBuilder: (context, sIdx) {
-                            final pricing = category.services![sIdx];
-                            final unitStr = pricing.pricingType?.split('_').last.toTitleCase() ?? 'Job';
 
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    pricing.serviceName ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.w500,
+                      // Bottom Solid Dark Section for Services List
+                      Expanded(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          color: const Color(0xFF0B0B0B), // Solid black container as seen in screenshot
+                          child: ListView.separated(
+                            physics: const BouncingScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            itemCount: category.services?.length ?? 0,
+                            separatorBuilder: (_, __) => 12.0.height,
+                            itemBuilder: (context, sIdx) {
+                              final pricing = category.services![sIdx];
+                              final unitStr = pricing.pricingType?.split('_').last.toTitleCase() ?? 'Session';
+
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      pricing.serviceName ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
-                                ),
-                                12.0.width,
-                                Text(
-                                  "${pricing.price.amountWithCurrency(widget.primaryCurrency)}/$unitStr",
-                                  style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                  12.0.width,
+                                  Text(
+                                    "${pricing.price.amountWithCurrency(widget.primaryCurrency)}/$unitStr",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ],
