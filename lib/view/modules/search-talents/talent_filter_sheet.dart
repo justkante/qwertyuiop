@@ -609,29 +609,27 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         }
       },
       child: Container(
-        height: 52,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.grey50,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: AppColors.grey200),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                locationController.text.isEmpty ? 'Search location' : locationController.text,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF1B3131),
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            suffixIcon: Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+          ),
+          child: Text(
+            locationController.text.isEmpty ? 'Search location' : locationController.text,
+            style: TextStyle(
+              fontSize: 13,
+              color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
+              fontWeight: FontWeight.w500,
             ),
-            const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 22),
-          ],
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
     );
