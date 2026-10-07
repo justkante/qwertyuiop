@@ -4,6 +4,7 @@ import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import '../widgets/job_post_card.dart';
 import '../widgets/job_filter_sheet.dart';
 import '../job_details_view.dart';
@@ -37,39 +38,26 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar with integrated filter icon
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: const Color(0xFFE5E7EB)),
-              ),
-              child: TextField(
-                controller: _searchController,
-                onSubmitted: (val) {
-                  if (val.isNotEmpty) {
-                    ref.read(jobControllerProvider.notifier).addSearch(val);
-                    ref.read(jobControllerProvider.notifier).fetchJobs(filters: {'search': val});
-                  }
+            SearchTextInputField(
+              controller: _searchController,
+              hintText: 'Search Job, Role...',
+              onSubmitted: (val) {
+                if (val.isNotEmpty) {
+                  ref.read(jobControllerProvider.notifier).addSearch(val);
+                  ref.read(jobControllerProvider.notifier).fetchJobs(filters: {'search': val});
+                }
+              },
+              trailingIcon: InkWell(
+                onTap: () {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => const JobFilterSheet(),
+                  );
                 },
-                decoration: InputDecoration(
-                  hintText: 'Search Job, Role...',
-                  hintStyle: context.textTheme.bodySmall?.copyWith(fontSize: 13, color: AppColors.body),
-                  prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.body),
-                  suffixIcon: InkWell(
-                    onTap: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) => const JobFilterSheet(),
-                      );
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.only(right: 16),
-                      child: Icon(Icons.tune, color: Colors.black, size: 20),
-                    ),
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                child: const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Icon(Icons.tune, color: Colors.black, size: 20),
                 ),
               ),
             ),
