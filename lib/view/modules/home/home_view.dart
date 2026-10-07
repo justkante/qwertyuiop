@@ -604,14 +604,14 @@ class _HomeViewState extends ConsumerState<HomeView> {
             ),
           ),
           Positioned(
-            left: 12,
-            bottom: 12,
+            left: 14,
+            bottom: 14,
             child: MainButton(
               text: 'Browse jobs',
-              width: 105, // Original size
-              height: 30,
-              fontSize: 11,
-              borderRadius: 16,
+              width: 120, // Larger and bolder
+              height: 35,
+              fontSize: 12,
+              borderRadius: 18,
               padding: EdgeInsets.zero,
               color: const Color(0xFF00796B),
               onPressed: onTap,
