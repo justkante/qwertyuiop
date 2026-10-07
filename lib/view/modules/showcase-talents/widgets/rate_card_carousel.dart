@@ -5,7 +5,7 @@ import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:flutter/material.dart';
 
 class RateCardCarousel extends StatefulWidget {
-  final List<CategoryItemDto> categories;
+  final List<Category> categories;
   final String primaryCurrency;
   const RateCardCarousel({
     super.key,
