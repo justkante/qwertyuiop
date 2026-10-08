@@ -133,12 +133,12 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
                     ExpandableProfileImage(
                       imageUrl: data.profileImage,
                       initials: data.initials,
-                      size: 72,
+                      size: 80,
                       initialsFallback: Center(
                         child: InitialAvatar(
                           initials: data.initials,
-                          padding: const EdgeInsets.all(20),
-                          size: 26,
+                          padding: const EdgeInsets.all(16),
+                          size: 32,
                         ),
                       ),
                     ),

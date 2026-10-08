@@ -147,22 +147,15 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                    clipBehavior: Clip.none,
                    alignment: Alignment.center,
                    children: [
-                     Container(
-                       padding: const EdgeInsets.all(2),
-                       decoration: BoxDecoration(
-                         shape: BoxShape.circle,
-                         border: Border.all(color: AppColors.primary, width: 1.5),
-                       ),
-                       child: ExpandableProfileImage(
-                         imageUrl: widget.profile?.profileImage,
-                         initials: widget.profile?.initials ?? '',
-                         size: 60,
-                         initialsFallback: Center(
-                           child: InitialAvatar(
-                             initials: widget.profile?.initials ?? '',
-                             padding: const EdgeInsets.all(12),
-                             size: 24,
-                           ),
+                     ExpandableProfileImage(
+                       imageUrl: widget.profile?.profileImage,
+                       initials: widget.profile?.initials ?? '',
+                       size: 80,
+                       initialsFallback: Center(
+                         child: InitialAvatar(
+                           initials: widget.profile?.initials ?? '',
+                           padding: const EdgeInsets.all(16),
+                           size: 32,
                          ),
                        ),
                      ),
