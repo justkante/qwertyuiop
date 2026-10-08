@@ -98,9 +98,6 @@ class _FavoritesViewState extends ConsumerState<FavoritesView> {
     final removeFavoriteLoading = ref.watch(removeFromFavoriteCreatorsProvider).isLoading;
 
     ref.listen(removeFromFavoriteCreatorsProvider, (_, value) {
-      if (value is AsyncData) {
-        ToastDialog.showSuccess('Removed from Favourites', context);
-      }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
       }

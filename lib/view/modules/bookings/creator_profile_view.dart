@@ -99,7 +99,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
 
     ref.listen(removeFromFavoriteCreatorsProvider, (_, value) {
       if (value is AsyncData) {
-        ToastDialog.showSuccess('Removed from Favorites', context);
+        ToastDialog.showSuccess('${widget.profile?.name ?? 'Creator'} removed from favorites', context);
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
