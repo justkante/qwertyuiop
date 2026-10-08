@@ -100,6 +100,16 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
       }
     });
 
+    ref.listen(addToFavoriteCreatorsProvider, (_, value) {
+      if (value is AsyncData) {
+        ToastDialog.showSuccess('Account saved', context);
+        ref.invalidate(fetchCreatorProfileProvider((widget.creatorId, null)));
+      }
+      if (value is AsyncError) {
+        ToastDialog.showError(value.error.toString(), context);
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(

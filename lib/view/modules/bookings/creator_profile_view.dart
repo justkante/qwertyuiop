@@ -90,7 +90,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
 
     ref.listen(addToFavoriteCreatorsProvider, (_, value) {
       if (value is AsyncData) {
-        ToastDialog.showSuccess('Added to Favorites', context);
+        ToastDialog.showSuccess('Account saved', context);
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
