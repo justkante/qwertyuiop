@@ -129,35 +129,31 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                       final userData = ref.watch(userControllerProvider);
                       final userCountryCode = (userData.countryCode ?? 'NG').toUpperCase();
 
-                      // Dynamically prioritize cities matching the user's country code at the top
-                      filteredStates.sort((a, b) {
-                        final aName = a.name?.toLowerCase() ?? '';
-                        final bName = b.name?.toLowerCase() ?? '';
+                      // If no search query typed, strictly show user's home country cities
+                      if (_searchQuery.isEmpty) {
+                        if (userCountryCode == 'NG') {
+                          filteredStates = filteredStates.where((s) {
+                            final n = (s.name ?? '').toLowerCase();
+                            return n.contains('nigeria') || n.contains('lagos') || n.contains('abuja') || n.contains('port harcourt') || n.contains('ibadan') || n.contains('kano') || n.contains('enugu') || !n.contains(',');
+                          }).toList();
+                        } else if (userCountryCode == 'BR') {
+                          filteredStates = filteredStates.where((s) => (s.name ?? '').toLowerCase().contains('brazil')).toList();
+                        } else if (userCountryCode == 'US') {
+                          filteredStates = filteredStates.where((s) => (s.name ?? '').toLowerCase().contains('usa')).toList();
+                        } else if (userCountryCode == 'GB') {
+                          filteredStates = filteredStates.where((s) => (s.name ?? '').toLowerCase().contains('uk')).toList();
+                        } else if (userCountryCode == 'GH') {
+                          filteredStates = filteredStates.where((s) => (s.name ?? '').toLowerCase().contains('ghana')).toList();
+                        } else if (userCountryCode == 'KE') {
+                          filteredStates = filteredStates.where((s) => (s.name ?? '').toLowerCase().contains('kenya')).toList();
+                        } else if (userCountryCode == 'ZA') {
+                          filteredStates = filteredStates.where((s) => (s.name ?? '').toLowerCase().contains('south africa')).toList();
+                        } else if (userCountryCode == 'AE') {
+                          filteredStates = filteredStates.where((s) => (s.name ?? '').toLowerCase().contains('uae')).toList();
+                        }
+                      }
 
-                        final aIsUserCountry =
-                            (userCountryCode == 'NG' && (aName.contains('nigeria') || aName.contains('lagos') || aName.contains('abuja') || aName.contains('port harcourt') || aName.contains('ibadan'))) ||
-                            (userCountryCode == 'BR' && (aName.contains('brazil') || aName.contains('são paulo') || aName.contains('rio de janeiro'))) ||
-                            (userCountryCode == 'US' && (aName.contains('usa') || aName.contains('york') || aName.contains('angeles'))) ||
-                            (userCountryCode == 'GB' && (aName.contains('uk') || aName.contains('london') || aName.contains('manchester'))) ||
-                            (userCountryCode == 'GH' && aName.contains('ghana')) ||
-                            (userCountryCode == 'KE' && aName.contains('kenya')) ||
-                            (userCountryCode == 'ZA' && aName.contains('south africa')) ||
-                            (userCountryCode == 'AE' && aName.contains('uae'));
-
-                        final bIsUserCountry =
-                            (userCountryCode == 'NG' && (bName.contains('nigeria') || bName.contains('lagos') || bName.contains('abuja') || bName.contains('port harcourt') || bName.contains('ibadan'))) ||
-                            (userCountryCode == 'BR' && (bName.contains('brazil') || bName.contains('são paulo') || bName.contains('rio de janeiro'))) ||
-                            (userCountryCode == 'US' && (bName.contains('usa') || bName.contains('york') || bName.contains('angeles'))) ||
-                            (userCountryCode == 'GB' && (bName.contains('uk') || bName.contains('london') || bName.contains('manchester'))) ||
-                            (userCountryCode == 'GH' && bName.contains('ghana')) ||
-                            (userCountryCode == 'KE' && bName.contains('kenya')) ||
-                            (userCountryCode == 'ZA' && bName.contains('south africa')) ||
-                            (userCountryCode == 'AE' && bName.contains('uae'));
-
-                        if (aIsUserCountry && !bIsUserCountry) return -1;
-                        if (!aIsUserCountry && bIsUserCountry) return 1;
-                        return aName.compareTo(bName);
-                      });
+                      filteredStates.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
 
                       return _buildStateList(filteredStates);
                     },
