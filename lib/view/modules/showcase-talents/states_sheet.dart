@@ -126,16 +126,31 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                           .where((state) => state.name != null && state.name!.toLowerCase().contains(_searchQuery))
                           .toList();
 
-                      // Prioritize Brazil at the top by default
+                      final userData = ref.watch(userControllerProvider);
+                      final userCountry = (userData.countryName?.isNotEmpty == true
+                          ? userData.countryName!
+                          : (userData.countryCode ?? 'Nigeria')).toLowerCase();
+
+                      // Dynamically prioritize cities matching the user's country at the top
                       filteredStates.sort((a, b) {
                         final aName = a.name?.toLowerCase() ?? '';
                         final bName = b.name?.toLowerCase() ?? '';
-                        final aIsBrazil = aName.contains('brazil') || aName.contains('são paulo') || aName.contains('rio de janeiro');
-                        final bIsBrazil = bName.contains('brazil') || bName.contains('são paulo') || bName.contains('rio de janeiro');
 
-                        if (aIsBrazil && !bIsBrazil) return -1;
-                        if (!aIsBrazil && bIsBrazil) return 1;
-                        return 0;
+                        final aIsUserCountry = aName.contains(userCountry) ||
+                            (userCountry.contains('nigeria') && (aName.contains('nigeria') || aName.contains('lagos') || aName.contains('abuja') || aName.contains('port harcourt') || aName.contains('ibadan'))) ||
+                            (userCountry.contains('brazil') && (aName.contains('brazil') || aName.contains('são paulo') || aName.contains('rio de janeiro'))) ||
+                            ((userCountry.contains('united states') || userCountry.contains('usa') || userCountry == 'us') && (aName.contains('usa') || aName.contains('york') || aName.contains('angeles'))) ||
+                            ((userCountry.contains('united kingdom') || userCountry.contains('uk') || userCountry == 'gb') && (aName.contains('uk') || aName.contains('london') || aName.contains('manchester')));
+
+                        final bIsUserCountry = bName.contains(userCountry) ||
+                            (userCountry.contains('nigeria') && (bName.contains('nigeria') || bName.contains('lagos') || bName.contains('abuja') || bName.contains('port harcourt') || bName.contains('ibadan'))) ||
+                            (userCountry.contains('brazil') && (bName.contains('brazil') || bName.contains('são paulo') || bName.contains('rio de janeiro'))) ||
+                            ((userCountry.contains('united states') || userCountry.contains('usa') || userCountry == 'us') && (bName.contains('usa') || bName.contains('york') || bName.contains('angeles'))) ||
+                            ((userCountry.contains('united kingdom') || userCountry.contains('uk') || userCountry == 'gb') && (bName.contains('uk') || bName.contains('london') || bName.contains('manchester')));
+
+                        if (aIsUserCountry && !bIsUserCountry) return -1;
+                        if (!aIsUserCountry && bIsUserCountry) return 1;
+                        return aName.compareTo(bName);
                       });
 
                       return _buildStateList(filteredStates);
