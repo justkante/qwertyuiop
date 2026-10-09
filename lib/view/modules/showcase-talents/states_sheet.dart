@@ -24,7 +24,14 @@ class _BankSheetState extends ConsumerState<StateSheet> {
   String _searchQuery = '';
 
   static final List<StatesItemDto> _globalCitiesFallback = [
-    // Brazil (Prioritized at top)
+    // Nigeria
+    StatesItemDto(id: 'Lagos, Nigeria', name: 'Lagos, Nigeria'),
+    StatesItemDto(id: 'Abuja, Nigeria', name: 'Abuja, Nigeria'),
+    StatesItemDto(id: 'Port Harcourt, Nigeria', name: 'Port Harcourt, Nigeria'),
+    StatesItemDto(id: 'Ibadan, Nigeria', name: 'Ibadan, Nigeria'),
+    StatesItemDto(id: 'Kano, Nigeria', name: 'Kano, Nigeria'),
+    StatesItemDto(id: 'Enugu, Nigeria', name: 'Enugu, Nigeria'),
+    // Brazil
     StatesItemDto(id: 'São Paulo, Brazil', name: 'São Paulo, Brazil'),
     StatesItemDto(id: 'Rio de Janeiro, Brazil', name: 'Rio de Janeiro, Brazil'),
     StatesItemDto(id: 'Brasília, Brazil', name: 'Brasília, Brazil'),
@@ -35,13 +42,6 @@ class _BankSheetState extends ConsumerState<StateSheet> {
     StatesItemDto(id: 'Manaus, Brazil', name: 'Manaus, Brazil'),
     StatesItemDto(id: 'Recife, Brazil', name: 'Recife, Brazil'),
     StatesItemDto(id: 'Porto Alegre, Brazil', name: 'Porto Alegre, Brazil'),
-    // Nigeria
-    StatesItemDto(id: 'Lagos, Nigeria', name: 'Lagos, Nigeria'),
-    StatesItemDto(id: 'Abuja, Nigeria', name: 'Abuja, Nigeria'),
-    StatesItemDto(id: 'Port Harcourt, Nigeria', name: 'Port Harcourt, Nigeria'),
-    StatesItemDto(id: 'Ibadan, Nigeria', name: 'Ibadan, Nigeria'),
-    StatesItemDto(id: 'Kano, Nigeria', name: 'Kano, Nigeria'),
-    StatesItemDto(id: 'Enugu, Nigeria', name: 'Enugu, Nigeria'),
     // International
     StatesItemDto(id: 'New York, USA', name: 'New York, USA'),
     StatesItemDto(id: 'Los Angeles, USA', name: 'Los Angeles, USA'),
@@ -127,26 +127,32 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                           .toList();
 
                       final userData = ref.watch(userControllerProvider);
-                      final userCountry = (userData.countryName?.isNotEmpty == true
-                          ? userData.countryName!
-                          : (userData.countryCode ?? 'Nigeria')).toLowerCase();
+                      final userCountryCode = (userData.countryCode ?? 'NG').toUpperCase();
 
-                      // Dynamically prioritize cities matching the user's country at the top
+                      // Dynamically prioritize cities matching the user's country code at the top
                       filteredStates.sort((a, b) {
                         final aName = a.name?.toLowerCase() ?? '';
                         final bName = b.name?.toLowerCase() ?? '';
 
-                        final aIsUserCountry = aName.contains(userCountry) ||
-                            (userCountry.contains('nigeria') && (aName.contains('nigeria') || aName.contains('lagos') || aName.contains('abuja') || aName.contains('port harcourt') || aName.contains('ibadan'))) ||
-                            (userCountry.contains('brazil') && (aName.contains('brazil') || aName.contains('são paulo') || aName.contains('rio de janeiro'))) ||
-                            ((userCountry.contains('united states') || userCountry.contains('usa') || userCountry == 'us') && (aName.contains('usa') || aName.contains('york') || aName.contains('angeles'))) ||
-                            ((userCountry.contains('united kingdom') || userCountry.contains('uk') || userCountry == 'gb') && (aName.contains('uk') || aName.contains('london') || aName.contains('manchester')));
+                        final aIsUserCountry =
+                            (userCountryCode == 'NG' && (aName.contains('nigeria') || aName.contains('lagos') || aName.contains('abuja') || aName.contains('port harcourt') || aName.contains('ibadan'))) ||
+                            (userCountryCode == 'BR' && (aName.contains('brazil') || aName.contains('são paulo') || aName.contains('rio de janeiro'))) ||
+                            (userCountryCode == 'US' && (aName.contains('usa') || aName.contains('york') || aName.contains('angeles'))) ||
+                            (userCountryCode == 'GB' && (aName.contains('uk') || aName.contains('london') || aName.contains('manchester'))) ||
+                            (userCountryCode == 'GH' && aName.contains('ghana')) ||
+                            (userCountryCode == 'KE' && aName.contains('kenya')) ||
+                            (userCountryCode == 'ZA' && aName.contains('south africa')) ||
+                            (userCountryCode == 'AE' && aName.contains('uae'));
 
-                        final bIsUserCountry = bName.contains(userCountry) ||
-                            (userCountry.contains('nigeria') && (bName.contains('nigeria') || bName.contains('lagos') || bName.contains('abuja') || bName.contains('port harcourt') || bName.contains('ibadan'))) ||
-                            (userCountry.contains('brazil') && (bName.contains('brazil') || bName.contains('são paulo') || bName.contains('rio de janeiro'))) ||
-                            ((userCountry.contains('united states') || userCountry.contains('usa') || userCountry == 'us') && (bName.contains('usa') || bName.contains('york') || bName.contains('angeles'))) ||
-                            ((userCountry.contains('united kingdom') || userCountry.contains('uk') || userCountry == 'gb') && (bName.contains('uk') || bName.contains('london') || bName.contains('manchester')));
+                        final bIsUserCountry =
+                            (userCountryCode == 'NG' && (bName.contains('nigeria') || bName.contains('lagos') || bName.contains('abuja') || bName.contains('port harcourt') || bName.contains('ibadan'))) ||
+                            (userCountryCode == 'BR' && (bName.contains('brazil') || bName.contains('são paulo') || bName.contains('rio de janeiro'))) ||
+                            (userCountryCode == 'US' && (bName.contains('usa') || bName.contains('york') || bName.contains('angeles'))) ||
+                            (userCountryCode == 'GB' && (bName.contains('uk') || bName.contains('london') || bName.contains('manchester'))) ||
+                            (userCountryCode == 'GH' && bName.contains('ghana')) ||
+                            (userCountryCode == 'KE' && bName.contains('kenya')) ||
+                            (userCountryCode == 'ZA' && bName.contains('south africa')) ||
+                            (userCountryCode == 'AE' && bName.contains('uae'));
 
                         if (aIsUserCountry && !bIsUserCountry) return -1;
                         if (!aIsUserCountry && bIsUserCountry) return 1;
