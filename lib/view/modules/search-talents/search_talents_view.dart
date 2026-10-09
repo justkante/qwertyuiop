@@ -170,7 +170,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
                   style: context.textTheme.bodyMedium?.copyWith(color: AppColors.body, fontSize: 13),
                 ),
               ),
-              20.0.height,
+              8.0.height,
 
               // Search Bar
               SearchTextInputField(

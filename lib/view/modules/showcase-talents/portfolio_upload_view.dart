@@ -64,7 +64,11 @@ class _PortfolioUploadViewState extends ConsumerState<PortfolioUploadView> {
         });
       }
       if (value is AsyncError) {
-        ToastDialog.showError(value.error.toString(), context);
+        final errStr = value.error.toString();
+        final displayErr = errStr.contains('Cloudinary')
+            ? 'Media upload service unavailable. Please contact support.'
+            : errStr;
+        ToastDialog.showError(displayErr, context);
       }
     });
 

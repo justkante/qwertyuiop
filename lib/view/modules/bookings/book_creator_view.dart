@@ -349,6 +349,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     return;
                   }
                   if (_formKey.currentState!.validate()) {
+                    final calcDays = (selectedEndDate != null && selectedStartDate != null)
+                        ? (selectedEndDate!.unavailableDate!.difference(selectedStartDate!.unavailableDate!).inDays + 1)
+                        : 1;
+                    final durationStr = "${calcDays > 0 ? calcDays : 1} Days";
+
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
                         creatorId: widget.creatorProfile.id,
@@ -360,6 +365,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         location: locationController.text,
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
                         bookingType: 'deliverable-based',
+                        duration: durationStr,
                       )
                     );
                   }

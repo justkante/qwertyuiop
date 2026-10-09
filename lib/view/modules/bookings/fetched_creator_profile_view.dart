@@ -140,19 +140,21 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // MARK: Profile Image and Name
-                    ExpandableProfileImage(
-                      imageUrl: data.profileImage,
-                      initials: data.initials,
-                      size: 80,
-                      initialsFallback: Center(
-                        child: InitialAvatar(
-                          initials: data.initials,
-                          padding: const EdgeInsets.all(16),
-                          size: 32,
+                    Center(
+                      child: ExpandableProfileImage(
+                        imageUrl: data.profileImage,
+                        initials: data.initials,
+                        size: 80,
+                        initialsFallback: Center(
+                          child: InitialAvatar(
+                            initials: data.initials,
+                            padding: const EdgeInsets.all(16),
+                            size: 32,
+                          ),
                         ),
                       ),
                     ),
-                    8.0.height,
+                    6.0.height,
                     Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,

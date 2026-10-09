@@ -62,18 +62,6 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
               ),
             ),
             24.0.height,
-
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: jobState.jobs.isNotEmpty
-                  ? jobState.jobs.take(5).map((job) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: _buildFilterTag(job.category?.name ?? ''),
-                    )).toList()
-                  : [],
-              ),
-            ),
             16.0.height,
 
             Text(

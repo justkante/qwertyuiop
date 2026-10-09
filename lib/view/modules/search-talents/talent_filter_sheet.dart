@@ -625,7 +625,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
             style: TextStyle(
               fontSize: 13,
               color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
