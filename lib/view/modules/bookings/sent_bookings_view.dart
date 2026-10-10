@@ -13,7 +13,8 @@ import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
 
 class SentBookingsView extends ConsumerStatefulWidget {
-  const SentBookingsView({super.key});
+  final int? length;
+  const SentBookingsView({super.key, this.length});
 
   @override
   ConsumerState<SentBookingsView> createState() => _SentBookingsViewState();

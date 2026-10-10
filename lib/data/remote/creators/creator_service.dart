@@ -1,4 +1,8 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:creatify_mobile/core/error/api_exception.dart';
+import 'package:creatify_mobile/core/services/cloudinary_service.dart';
 import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/core/http/http_service.dart';
 import 'package:creatify_mobile/core/utils/app_url.dart';
@@ -94,17 +98,34 @@ class CreatorService {
 
   Future<String> uploadProfileImage(String filePath) async {
     try {
+      String? cloudinaryUrl;
+      try {
+        cloudinaryUrl = await CloudinaryService.uploadFile(File(filePath));
+        log('Uploaded profile image to Cloudinary: $cloudinaryUrl');
+      } catch (e) {
+        log('Direct Cloudinary upload log: $e');
+      }
+
       final filename = filePath.split(RegExp(r'[/\\]')).last;
       final ext = filename.split('.').last.toLowerCase();
       final mimeType = (ext == 'png') ? 'png' : ((ext == 'webp') ? 'webp' : 'jpeg');
 
-      final formData = FormData.fromMap({
+      final mapData = <String, dynamic>{
         'profile_image': await MultipartFile.fromFile(
           filePath,
           filename: filename,
           contentType: MediaType('image', mimeType),
         ),
-      });
+      };
+
+      if (cloudinaryUrl != null) {
+        mapData['url'] = cloudinaryUrl;
+        mapData['profile_image_url'] = cloudinaryUrl;
+        mapData['image_url'] = cloudinaryUrl;
+        mapData['cloudinary_url'] = cloudinaryUrl;
+      }
+
+      final formData = FormData.fromMap(mapData);
 
       final response = await _networkService.request(
         endpoints.editProfileImage,
@@ -266,6 +287,7 @@ class CreatorService {
         endpoints.uploadCreatorPortfolio,
         RequestMethod.post,
         data: FormData.fromMap(portfolioData),
+        options: Options(contentType: 'multipart/form-data'),
       );
 
       return response.data['message'];

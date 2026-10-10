@@ -161,6 +161,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
       backgroundColor: Colors.white,
       drawer: const HomeDrawer(),
       body: SafeArea(
+        bottom: false,
         child: RefreshIndicator.adaptive(
           onRefresh: () async {
             await ref.read(userControllerProvider.notifier).refreshUser();

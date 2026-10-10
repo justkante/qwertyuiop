@@ -71,21 +71,11 @@ Future<XFile> _compressVideo(XFile file) async {
 }
 
 Future<XFile> _compressImage(XFile file) async {
-  final bytes = await file.readAsBytes();
+  return file;
+}
 
-  final compressed = await FlutterImageCompress.compressWithList(
-    bytes,
-    minHeight: 1920,
-    minWidth: 1080,
-    quality: 85,
-    format: CompressFormat.jpeg,
-  );
-
-  final dir = await getTemporaryDirectory();
-  final targetPath = '${dir.path}/compressed_${DateTime.now().millisecondsSinceEpoch}.jpg';
-  final compressedFile = await File(targetPath).writeAsBytes(compressed);
-
-  return XFile(compressedFile.path);
+Future<XFile> getCompressedProfileImage(XFile originalFile) async {
+  return originalFile;
 }
 
 /// Select/Upload an Image from Device Gallery
@@ -121,7 +111,8 @@ Future<File?> pickImageFromCamera({CameraDevice? cameraSide}) async {
       return null;
     }
 
-    File imagePath = File(returnImage.path);
+    final compressedImage = await getCompressedFile(returnImage);
+    File imagePath = File(compressedImage.path);
     _validateFileSize(imagePath, false);
     return imagePath;
   } catch (e) {

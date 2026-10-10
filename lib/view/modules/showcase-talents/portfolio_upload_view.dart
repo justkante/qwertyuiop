@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:creatify_mobile/core/services/cloudinary_service.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/portfolio_vm.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/widgets/upload_card.dart';
@@ -15,6 +16,7 @@ import 'package:creatify_mobile/view/utils/file_and_image_picker.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -64,11 +66,7 @@ class _PortfolioUploadViewState extends ConsumerState<PortfolioUploadView> {
         });
       }
       if (value is AsyncError) {
-        final errStr = value.error.toString();
-        final displayErr = errStr.contains('Cloudinary')
-            ? 'Media upload service unavailable. Please contact support.'
-            : errStr;
-        ToastDialog.showError(displayErr, context);
+        ToastDialog.showError(value.error.toString(), context);
       }
     });
 
@@ -213,12 +211,39 @@ class _PortfolioUploadViewState extends ConsumerState<PortfolioUploadView> {
                     }
 
                     if (uploadFile != null) {
-                      // Upload the file to portfolio
-                      await ref.read(uploadToPortfolioProvider.notifier).uploadToPortfolio(
-                        {
-                          'file': await MultipartFile.fromFile(uploadFile.path),
-                        },
-                      );
+                      String? uploadedUrl;
+                      try {
+                        uploadedUrl = await CloudinaryService.uploadFile(uploadFile);
+                      } catch (e) {
+                        log("Cloudinary direct upload log: $e");
+                      }
+
+                      final filename = uploadFile.path.split(RegExp(r'[/\\]')).last;
+                      final ext = filename.split('.').last.toLowerCase();
+                      final isVideo = ['mp4', 'mov', 'avi', 'mkv'].contains(ext);
+                      final isPdf = ext == 'pdf';
+                      final mediaTypeHeader = isVideo 
+                          ? MediaType('video', ext) 
+                          : isPdf 
+                              ? MediaType('application', 'pdf')
+                              : MediaType('image', (ext == 'png' || ext == 'webp') ? ext : 'jpeg');
+
+                      final mapData = <String, dynamic>{
+                        'file': await MultipartFile.fromFile(
+                          uploadFile.path,
+                          filename: filename,
+                          contentType: mediaTypeHeader,
+                        ),
+                      };
+
+                      if (uploadedUrl != null) {
+                        mapData['url'] = uploadedUrl;
+                        mapData['file_url'] = uploadedUrl;
+                        mapData['media_url'] = uploadedUrl;
+                      }
+
+                      // Upload to portfolio
+                      await ref.read(uploadToPortfolioProvider.notifier).uploadToPortfolio(mapData);
                     }
                   }
                 },

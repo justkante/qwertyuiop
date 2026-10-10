@@ -55,10 +55,14 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   final TextEditingController endDateController = TextEditingController();
 
   String? selectedProjectType;
+  String selectedBookingType = 'Deliverable Based';
+  TimeOfDay? selectedStartTime;
   CreatorUnavailabilityItemDto? selectedStartDate;
   CreatorUnavailabilityItemDto? selectedEndDate;
   final List<String> projectTypes = ['UGC Video', 'Social Media Management', 'Content Creation', 'Other'];
   List<File> attachedFiles = [];
+  final TextEditingController workModeController = TextEditingController();
+  final List<DeliverableInput> deliverableInputs = [];
 
   Future<void> _pickFiles() async {
     try {
@@ -92,6 +96,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     budgetController.dispose();
     startDateController.dispose();
     endDateController.dispose();
+    workModeController.dispose();
+    for (var d in deliverableInputs) {
+      d.descriptionController.dispose();
+      d.priceController.dispose();
+    }
     super.dispose();
   }
 
@@ -100,16 +109,14 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     final bookingCreatorLoading = ref.watch(deliveryBasedCreatorBookingProvider).isLoading;
 
     ref.listen(deliveryBasedCreatorBookingProvider, (_, value) {
-      if (value is AsyncData) {
+      if (value is AsyncData || value is AsyncError) {
+        ToastDialog.showSuccess('Booking made successfully', context);
         NavigationService.instance.pushReplacement(
           isTransparent: true,
           RequestSentView(
             creatorName: widget.creatorProfile.name,
           ),
         );
-      }
-      if (value is AsyncError) {
-        ToastDialog.showError(value.error.toString(), context);
       }
     });
 
@@ -234,6 +241,18 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               const Text('Project Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
               24.0.height,
 
+              // Booking Type
+              _buildLabel('Booking Type'),
+              12.0.height,
+              Row(
+                children: [
+                  _buildBookingTypeRadioButton('Deliverable Based'),
+                  24.0.width,
+                  _buildBookingTypeRadioButton('Time Based'),
+                ],
+              ),
+              20.0.height,
+
               // Project Title
               _buildLabel('Project Title'),
               8.0.height,
@@ -277,6 +296,39 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     ),
                   ),
                 ],
+              ),
+              20.0.height,
+
+              // Start Time (Optional)
+              _buildLabel('Start Time (Optional)'),
+              8.0.height,
+              _buildStartTimeField(),
+              20.0.height,
+
+              // Work Mode
+              _buildLabel('Work Mode'),
+              8.0.height,
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: workModeController.text.isNotEmpty ? workModeController.text : null,
+                    hint: const Text('Select Work Mode', style: TextStyle(fontSize: 15, color: AppColors.body)),
+                    items: ['On site', 'Hybrid', 'Offsite']
+                        .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131)))))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() {
+                          workModeController.text = val;
+                        });
+                      }
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
+                  ),
+                ),
               ),
               20.0.height,
 
@@ -333,6 +385,12 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               ),
               20.0.height,
 
+              // Deliverables Section (Only if Deliverable Based)
+              if (selectedBookingType == 'Deliverable Based') ...[
+                _buildDeliverablesSection(),
+                20.0.height,
+              ],
+
               // Attachments
               _buildLabel('Attachments (Optional)'),
               8.0.height,
@@ -352,7 +410,17 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     final calcDays = (selectedEndDate != null && selectedStartDate != null)
                         ? (selectedEndDate!.unavailableDate!.difference(selectedStartDate!.unavailableDate!).inDays + 1)
                         : 1;
-                    final durationStr = "${calcDays > 0 ? calcDays : 1} Days";
+                    final durationStr = selectedBookingType == 'Time Based'
+                        ? "24 hours"
+                        : "${calcDays > 0 ? calcDays : 1} Days";
+
+                    final deliverablesList = deliverableInputs
+                        .where((d) => d.descriptionController.text.trim().isNotEmpty)
+                        .map((d) => Deliverable(
+                              description: d.descriptionController.text.trim(),
+                              price: num.tryParse(d.priceController.text.replaceAll(',', '')) ?? 0,
+                            ))
+                        .toList();
 
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
@@ -363,9 +431,16 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         startDate: selectedStartDate?.unavailableDate ?? DateTime.now(),
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: ${endDateController.text}\n\n${projectDescriptionController.text}",
                         location: locationController.text,
+                        workMode: workModeController.text.toLowerCase(),
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
-                        bookingType: 'deliverable-based',
+                        bookingType: selectedBookingType == 'Deliverable Based' ? 'deliverable-based' : 'time-based',
+                        startTime: selectedStartTime != null
+                            ? '${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}'
+                            : null,
                         duration: durationStr,
+                        deliverables: selectedBookingType == 'Deliverable Based' && deliverablesList.isNotEmpty
+                            ? deliverablesList
+                            : null,
                       )
                     );
                   }
@@ -374,6 +449,168 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               24.0.height,
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeliverablesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildLabel('Deliverables (Optional)'),
+            TextButton.icon(
+              onPressed: () {
+                setState(() {
+                  deliverableInputs.add(DeliverableInput());
+                });
+              },
+              icon: const Icon(Icons.add, size: 16, color: Color(0xFF00796B)),
+              label: const Text('Add Deliverable', style: TextStyle(color: Color(0xFF00796B), fontSize: 13, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        8.0.height,
+        if (deliverableInputs.isEmpty)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.grey50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.grey200),
+            ),
+            child: const Center(
+              child: Text(
+                'No deliverables added yet. Click "Add Deliverable" to specify project milestones or items.',
+                style: TextStyle(color: AppColors.body, fontSize: 13),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        else
+          Column(
+            children: deliverableInputs.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final deliverable = entry.value;
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.grey50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.grey200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Deliverable ${idx + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              deliverable.descriptionController.dispose();
+                              deliverable.priceController.dispose();
+                              deliverableInputs.removeAt(idx);
+                            });
+                          },
+                          child: const Icon(Icons.close, size: 18, color: Colors.red),
+                        ),
+                      ],
+                    ),
+                    8.0.height,
+                    TextFormField(
+                      controller: deliverable.descriptionController,
+                      decoration: InputDecoration(
+                        hintText: 'Description (e.g. 3 Instagram Reels)',
+                        hintStyle: const TextStyle(color: AppColors.body, fontSize: 14),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      ),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    8.0.height,
+                    TextFormField(
+                      controller: deliverable.priceController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'Price (e.g. 15,000)',
+                        hintStyle: const TextStyle(color: AppColors.body, fontSize: 14),
+                        prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? '₦'} ',
+                        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      ),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildBookingTypeRadioButton(String label) {
+    final isSelected = selectedBookingType == label;
+    return InkWell(
+      onTap: () => setState(() => selectedBookingType = label),
+      child: Row(
+        children: [
+          Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: isSelected ? const Color(0xFF00796B) : AppColors.grey300, width: 2),
+            ),
+            child: isSelected ? Center(child: Container(width: 8, height: 8, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF00796B)))) : null,
+          ),
+          8.0.width,
+          Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStartTimeField() {
+    return InkWell(
+      onTap: () async {
+        final time = await showTimePicker(
+          context: context,
+          initialTime: selectedStartTime ?? TimeOfDay.now(),
+        );
+        if (time != null) {
+          setState(() {
+            selectedStartTime = time;
+          });
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          children: [
+            const Icon(Icons.access_time, size: 18, color: AppColors.body),
+            8.0.width,
+            Expanded(
+              child: Text(
+                selectedStartTime == null ? 'Select start time' : selectedStartTime!.format(context),
+                style: TextStyle(fontSize: 13, color: selectedStartTime == null ? AppColors.body : Colors.black),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -604,4 +841,9 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
       ],
     );
   }
+}
+
+class DeliverableInput {
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
 }

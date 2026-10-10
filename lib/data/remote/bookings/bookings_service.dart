@@ -25,7 +25,7 @@ class BookingsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return (response.data is Map ? response.data['message'] : null) ?? 'Booking created successfully';
     } catch (e) {
       throw e.toString();
     }

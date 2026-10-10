@@ -100,9 +100,8 @@ class BookCreatorReq {
         if (duration != null && duration != "") "duration": duration,
         if (location != null && location != "") "location": location,
         if (price != null) "price": price,
-        if (deliverables != null)
-          "deliverables":
-              deliverables == null ? [] : List<dynamic>.from(deliverables!.map((x) => x.toJson())),
+        if (deliverables != null && deliverables!.isNotEmpty)
+          "deliverables": List<dynamic>.from(deliverables!.map((x) => x.toJson())),
       };
 }
 

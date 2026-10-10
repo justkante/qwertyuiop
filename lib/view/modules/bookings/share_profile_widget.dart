@@ -9,7 +9,6 @@ import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
-import 'package:creatify_mobile/view/widgets/snackbar.dart' as snackbar;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -130,7 +129,8 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _buildSocialIcon(AppImages.whatsappIcon, 'WhatsApp', () async {
-              final text = Uri.encodeComponent("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl");
+              final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
+              final text = Uri.encodeComponent(message);
               final whatsappUrl = Uri.parse("whatsapp://send?text=$text");
               final apiWhatsappUrl = Uri.parse("https://api.whatsapp.com/send?text=$text");
 
@@ -140,25 +140,30 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
                  await launchUrl(apiWhatsappUrl, mode: LaunchMode.externalApplication);
               } else {
                  if (!mounted) return;
-                 AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+                 AppUtils.shareLink(message, context);
               }
             }),
             24.0.width,
             _buildSocialIcon(AppImages.instagramIcon, 'Instagram', () async {
-               final instaStoryUrl = Uri.parse("instagram-stories://share?source_application=com.creatify.mobile");
-               final instaUrl = Uri.parse("instagram://story-camera");
+               final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
+               final instaStoryUrl = Uri.parse("instagram-stories://share");
+               final instaAppUrl = Uri.parse("instagram://app");
+               final instaWebUrl = Uri.parse("https://www.instagram.com/");
 
                if (await canLaunchUrl(instaStoryUrl)) {
                   await launchUrl(instaStoryUrl);
-               } else if (await canLaunchUrl(instaUrl)) {
-                  await launchUrl(instaUrl);
+               } else if (await canLaunchUrl(instaAppUrl)) {
+                  await launchUrl(instaAppUrl);
+               } else if (await canLaunchUrl(instaWebUrl)) {
+                  await launchUrl(instaWebUrl, mode: LaunchMode.externalApplication);
                } else {
                   if (!mounted) return;
-                  AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+                  AppUtils.shareLink(message, context);
                }
             }),
             24.0.width,
             _buildSocialIcon(AppImages.facebookIcon, 'Facebook', () async {
+               final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
                final fbStoryUrl = Uri.parse("facebook-stories://share");
                final fbSharerUrl = Uri.parse("https://www.facebook.com/sharer/sharer.php?u=${Uri.encodeComponent(profileUrl)}");
 
@@ -168,14 +173,15 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
                   await launchUrl(fbSharerUrl, mode: LaunchMode.externalApplication);
                } else {
                   if (!mounted) return;
-                  AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+                  AppUtils.shareLink(message, context);
                }
             }),
             24.0.width,
             _buildSocialIcon(AppImages.snapchatIcon, 'Snapchat', () async {
+               final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
                final snapStoryUrl = Uri.parse("snapchat://creativekit/camera");
                final snapUrl = Uri.parse("snapchat://");
-               final snapWebUrl = Uri.parse("https://www.snapchat.com/share?url=${Uri.encodeComponent(profileUrl)}");
+               final snapWebUrl = Uri.parse("https://www.snapchat.com/");
 
                if (await canLaunchUrl(snapStoryUrl)) {
                   await launchUrl(snapStoryUrl);
@@ -185,7 +191,7 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
                   await launchUrl(snapWebUrl, mode: LaunchMode.externalApplication);
                } else {
                   if (!mounted) return;
-                  AppUtils.shareLink("Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl", context);
+                  AppUtils.shareLink(message, context);
                }
             }),
           ],

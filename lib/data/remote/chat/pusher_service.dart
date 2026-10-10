@@ -50,10 +50,16 @@ class PusherService {
     }
 
     try {
+      final apiKey = environmentNotifier.value == 'dev' ? Env.pusherAppKey : Env.prodPusherAppKey;
+      if (apiKey.isEmpty) {
+        log('Warning: Pusher API Key is empty or missing. Skipping Pusher initialization.');
+        return;
+      }
+
       _pusher = PusherChannelsFlutter.getInstance();
 
       await _pusher!.init(
-        apiKey: environmentNotifier.value == 'dev' ? Env.pusherAppKey : Env.prodPusherAppKey,
+        apiKey: apiKey,
         cluster: Env.pusherCluster,
         onConnectionStateChange: _onConnectionStateChange,
         onError: _onError,

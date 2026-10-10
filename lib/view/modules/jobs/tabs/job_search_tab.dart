@@ -20,6 +20,7 @@ class JobSearchTab extends ConsumerStatefulWidget {
 
 class _JobSearchTabState extends ConsumerState<JobSearchTab> {
   final TextEditingController _searchController = TextEditingController();
+  final List<String> _recentSearches = [];
 
   @override
   void dispose() {
@@ -27,9 +28,22 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
     super.dispose();
   }
 
+  void _onSearch(String query) {
+    final trimmed = query.trim();
+    if (trimmed.isNotEmpty) {
+      setState(() {
+        if (!_recentSearches.contains(trimmed)) {
+          _recentSearches.insert(0, trimmed);
+        }
+      });
+      ref.read(jobControllerProvider.notifier).fetchJobs(filters: {'search': trimmed});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final jobState = ref.watch(jobControllerProvider);
+    final hasActiveSearch = _searchController.text.trim().isNotEmpty;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -41,12 +55,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
             SearchTextInputField(
               controller: _searchController,
               hintText: 'Search Job, Role...',
-              onSubmitted: (val) {
-                if (val.isNotEmpty) {
-                  ref.read(jobControllerProvider.notifier).addSearch(val);
-                  ref.read(jobControllerProvider.notifier).fetchJobs(filters: {'search': val});
-                }
-              },
+              onSubmitted: _onSearch,
               trailingIcon: InkWell(
                 onTap: () {
                   showModalBottomSheet(
@@ -62,15 +71,9 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
               ),
             ),
             24.0.height,
-            16.0.height,
 
-            Text(
-              '${jobState.jobs.length} Search Result',
-              style: context.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.body),
-            ),
-            16.0.height,
-
-            if (jobState.recentSearches.isNotEmpty) ...[
+            // Recent Searches (Only user's immediate typed searches)
+            if (_recentSearches.isNotEmpty) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -83,19 +86,32 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                   ),
                   TextButton(
                     onPressed: () {
-                      ref.read(jobControllerProvider.notifier).clearSearches();
+                      setState(() {
+                        _recentSearches.clear();
+                      });
                     },
                     child: const Text('Clear all', style: TextStyle(color: Color(0xFFFF6F61), fontSize: 10)),
                   ),
                 ],
               ),
               Column(
-                children: jobState.recentSearches.map((search) => _buildRecentSearchItem(context, search.query ?? '', search.id ?? '')).toList(),
+                children: _recentSearches.map((search) => _buildRecentSearchItem(context, search)).toList(),
               ),
               16.0.height,
             ],
 
-            if (jobState.recentSearches.isEmpty && jobState.jobs.isEmpty && !jobState.isLoading)
+            // Section Header (Search Results vs Recommended Jobs)
+            Text(
+              hasActiveSearch
+                  ? '${jobState.jobs.length} Search Result${jobState.jobs.length == 1 ? '' : 's'}'
+                  : 'Recommended Jobs',
+              style: context.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: AppColors.body),
+            ),
+            16.0.height,
+
+            if (jobState.isLoading)
+              const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: CircularProgressIndicator.adaptive()))
+            else if (jobState.jobs.isEmpty)
               Center(
                 child: Column(
                   children: [
@@ -105,20 +121,15 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                       child: const Icon(Icons.search, size: 40, color: Color(0xFFFF6F61)),
                     ),
                     12.0.height,
-                    Text('You don\'t have any active searches\nyet', textAlign: TextAlign.center, style: TextStyle(color: AppColors.body, fontSize: 12)),
+                    Text(
+                      hasActiveSearch ? 'No jobs match your search' : 'No jobs available right now',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: AppColors.body, fontSize: 12),
+                    ),
                   ],
                 ),
-              ),
-
-            if (jobState.jobs.isNotEmpty) ...[
-              Text(
-                'Recommended for you',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.body,
-                ),
-              ),
-              16.0.height,
+              )
+            else
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
@@ -134,7 +145,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                     currency: job.currency ?? 'NGN',
                     dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate()} - ${job.expiresAt?.toFormattedDate()}' : '',
                     status: job.effectiveStatus,
-                    serviceName: job.category?.name, // Added
+                    serviceName: job.category?.name,
                     initialFavorite: job.isFavorited ?? false,
                     onFavoriteToggle: (val) {
                       ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
@@ -145,12 +156,11 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
                   );
                 },
               ),
-            ],
           ],
         ),
       ),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 120), // Adjusted to be above nav bar
+        padding: const EdgeInsets.only(bottom: 120),
         child: FloatingActionButton(
           onPressed: () {
             NavigationService.instance.push(const UploadJobView());
@@ -163,41 +173,29 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
     );
   }
 
-  Widget _buildRecentSearchItem(BuildContext context, String text, String id) {
+  Widget _buildRecentSearchItem(BuildContext context, String text) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(text, style: const TextStyle(color: AppColors.body, fontSize: 13)),
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                _searchController.text = text;
+                _onSearch(text);
+              },
+              child: Text(text, style: const TextStyle(color: AppColors.body, fontSize: 13)),
+            ),
+          ),
           InkWell(
             onTap: () {
-              ref.read(jobControllerProvider.notifier).removeSearch(id);
+              setState(() {
+                _recentSearches.remove(text);
+              });
             },
             child: const Icon(Icons.close, size: 14, color: Color(0xFFFF6F61)),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFilterTag(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.grey50,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.grey100),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            text,
-            style: const TextStyle(fontSize: 10, color: AppColors.body),
-          ),
-          4.0.width,
-          const Icon(Icons.close, size: 12, color: Colors.red),
         ],
       ),
     );
