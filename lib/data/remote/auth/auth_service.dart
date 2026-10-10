@@ -40,6 +40,10 @@ class AuthService {
 
       return user;
     } catch (e) {
+      final cachedUser = _hiveStorage.get(StorageKey.userProfileData.name);
+      if (cachedUser != null && cachedUser is UserDto) {
+        return cachedUser;
+      }
       throw e.toString();
     }
   }
