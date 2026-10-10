@@ -1,6 +1,7 @@
 import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/recommended_creators_dto.dart';
+import 'package:creatify_mobile/view/theme/app_theme.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/bookings/received_bookings_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/sheets/rate_recruiter_sheet.dart';
@@ -205,14 +206,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         ],
                       ),
                       const Spacer(),
-                      const Text(
-                        'creatify',
-                        style: TextStyle(
-                          color: AppColors.primary,
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: -1,
-                        ),
+                      SvgPicture.asset(
+                        'assets/svg/logo.svg',
+                        height: 28,
                       ),
                       const Spacer(),
                       Stack(
@@ -266,12 +262,6 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ref.read(custom_nav.navBarController.notifier).index = 1;
                        }
                     },
-                    trailingIcon: InkWell(
-                      onTap: () {
-                         AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
-                      },
-                      child: const Icon(Icons.tune, color: Colors.black, size: 20),
-                    ),
                   ),
                 ),
               ),

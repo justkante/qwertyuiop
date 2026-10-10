@@ -1,4 +1,5 @@
 import 'package:creatify_mobile/core/utils/constants.dart';
+import 'package:creatify_mobile/view/theme/app_theme.dart';
 import 'package:creatify_mobile/view/modules/bookings/draft_bookings_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/home/ambassador_page_view.dart';
@@ -84,14 +85,9 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'creatify',
-                    style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: -1,
-                    ),
+                  SvgPicture.asset(
+                    'assets/svg/logo.svg',
+                    height: 36,
                   ),
                   Text(
                     'Find. Book. Create.',
