@@ -227,6 +227,7 @@ class _AdjustPortfolioSheetState extends ConsumerState<AdjustPortfolioSheet> {
                               mapData['url'] = uploadedUrl;
                               mapData['file_url'] = uploadedUrl;
                               mapData['media_url'] = uploadedUrl;
+                              mapData['cloudinary_url'] = uploadedUrl;
                             }
 
                             // Upload the file to portfolio

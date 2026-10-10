@@ -6,7 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 
 class CloudinaryService {
-  static const String cloudName = "Root";
+  static const String cloudName = "dpjqqx2e3";
   static const String apiKey = "683971691777398";
   static const String apiSecret = "-5_PhnW0U0yypLhtrFN3JsyUJfc";
 
@@ -51,6 +51,10 @@ class CloudinaryService {
       }
 
       throw Exception('Cloudinary response error: ${response.statusMessage}');
+    } on DioException catch (e) {
+      final errorMsg = e.response?.data != null ? jsonEncode(e.response?.data) : (e.message ?? e.toString());
+      log('Cloudinary Upload Dio Exception: $errorMsg');
+      throw 'Cloudinary upload failed: $errorMsg';
     } catch (e) {
       log('Cloudinary Upload Error: $e');
       throw 'Cloudinary upload failed: $e';

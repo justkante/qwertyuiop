@@ -240,6 +240,7 @@ class _PortfolioUploadViewState extends ConsumerState<PortfolioUploadView> {
                         mapData['url'] = uploadedUrl;
                         mapData['file_url'] = uploadedUrl;
                         mapData['media_url'] = uploadedUrl;
+                        mapData['cloudinary_url'] = uploadedUrl;
                       }
 
                       // Upload to portfolio
