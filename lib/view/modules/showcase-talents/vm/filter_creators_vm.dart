@@ -71,7 +71,13 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           if (availability != null && availability.isNotEmpty) {
             final lastActive = creator.lastSeenAt?.toLowerCase() ?? '';
             if (availability == 'Available now') {
-              matchesAvailability = lastActive.contains('just now') || lastActive.contains('online') || lastActive.contains('m ago') || lastActive.contains('h ago');
+              matchesAvailability = creator.isOnline == true ||
+                  lastActive.contains('just now') ||
+                  lastActive == 'online' ||
+                  lastActive == 'active now' ||
+                  ((lastActive.contains('min') || lastActive.contains('mins') || lastActive.contains('min ago')) &&
+                      !lastActive.contains('mo') &&
+                      !lastActive.contains('month'));
             } else {
               matchesAvailability = true;
             }

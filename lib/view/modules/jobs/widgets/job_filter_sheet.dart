@@ -26,7 +26,7 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
@@ -36,25 +36,22 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const SizedBox(width: 24),
-                Text(
-                  'Filter Jobs',
-                  style: context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
-            Center(
-              child: Text(
-                'Narrow down your job search',
-                style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
               ),
+            ),
+            8.0.height,
+            Text(
+              'Filter Jobs',
+              style: context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 22),
+            ),
+            4.0.height,
+            Text(
+              'Narrow down your job search',
+              style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
             ),
             24.0.height,
 

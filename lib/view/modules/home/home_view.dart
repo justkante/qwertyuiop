@@ -20,6 +20,8 @@ import 'package:creatify_mobile/view/modules/jobs/jobs_main_view.dart' as jobs_v
 import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/modules/search-talents/talent_filter_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/adjust_portfolio_sheet.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/edit_availability_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/onboarding_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
@@ -263,6 +265,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ref.read(custom_nav.navBarController.notifier).index = 1;
                        }
                     },
+                    trailingIcon: InkWell(
+                      onTap: () {
+                        ref.read(custom_nav.navBarController.notifier).index = 1;
+                        AppBottomSheet.showBottomSheet(context, widget: const TalentFilterSheet());
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(right: 8),
+                        child: Icon(Icons.tune, color: Colors.black, size: 20),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -797,13 +809,11 @@ class _HomeViewState extends ConsumerState<HomeView> {
       child: Row(
         children: [
           _buildQuickActionCard('Update portfolio', Icons.image_outlined, const Color(0xFFE9F4FE), const Color(0xFF2196F3), () {
-               ref.read(custom_nav.navBarController.notifier).index = 0; // Go home
-               NavigationService.instance.push(const MyCreatorProfileView());
+               AppBottomSheet.showBottomSheet(context, widget: const AdjustPortfolioSheet());
           }),
           12.0.width,
           _buildQuickActionCard('Set availability', Icons.calendar_month_outlined, const Color(0xFFFFFDE7), const Color(0xFFF9A825), () {
-               ref.read(custom_nav.navBarController.notifier).index = 0;
-               NavigationService.instance.push(const MyCreatorProfileView());
+               AppBottomSheet.showBottomSheet(context, widget: const EditAvailabilitySheet());
           }),
           12.0.width,
           _buildQuickActionCard('View applications', Icons.assignment_outlined, const Color(0xFFFCEBEC), const Color(0xFFFF6F61), () {

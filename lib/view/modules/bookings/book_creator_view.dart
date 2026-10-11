@@ -8,6 +8,7 @@ import 'package:creatify_mobile/data/models/responses/draft_booking_item_dto.dar
 import 'package:creatify_mobile/data/models/responses/unavailability_time_item_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/sheets/creator_unavailabliity_sheet.dart';
 import 'package:creatify_mobile/view/modules/bookings/request_sent_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/fetched_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/delivery_based_booking_vm.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
@@ -223,7 +224,12 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     ),
                     TextButton(
                       onPressed: () {
-                         NavigationService.instance.pop();
+                         NavigationService.instance.push(
+                           FetchedCreatorProfileView(
+                             creatorId: widget.creatorProfile.id ?? '',
+                             creatorName: widget.creatorProfile.name ?? 'Creator',
+                           ),
+                         );
                       },
                       child: Row(
                         children: [
@@ -299,8 +305,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               ),
               20.0.height,
 
-              // Start Time (Optional)
-              _buildLabel('Start Time (Optional)'),
+              // Start Time
+              _buildLabel('Start Time'),
               8.0.height,
               _buildStartTimeField(),
               20.0.height,
@@ -381,7 +387,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               _buildTextField(
                 budgetController,
                 'e.g. 50,000',
-                prefix: Text('${ref.watch(userControllerProvider).primaryCurrency ?? '₦'} ', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black))
+                prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? '₦'} ',
               ),
               20.0.height,
 
@@ -531,6 +537,10 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         fillColor: Colors.white,
                         filled: true,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       ),
                       style: const TextStyle(fontSize: 14),
@@ -547,6 +557,10 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         fillColor: Colors.white,
                         filled: true,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+                        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       ),
                       style: const TextStyle(fontSize: 14),
@@ -623,7 +637,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint, {IconData? icon, Widget? prefix}) {
+  Widget _buildTextField(TextEditingController controller, String hint, {IconData? icon, String? prefixText}) {
     return TextFormField(
       controller: controller,
       enableInteractiveSelection: true,
@@ -632,10 +646,16 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: AppColors.body, fontSize: 15),
-        prefixIcon: icon != null ? Icon(icon, color: AppColors.body, size: 22) : prefix,
+        prefixText: prefixText,
+        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 16),
+        prefixIcon: icon != null ? Icon(icon, color: AppColors.body, size: 22) : null,
         fillColor: AppColors.grey50,
         filled: true,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
       validator: (val) => (val == null || val.trim().isEmpty) ? 'Required' : null,
@@ -676,6 +696,10 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
             filled: true,
             counterText: "",
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.all(16),
           ),
           validator: validateGeneric,

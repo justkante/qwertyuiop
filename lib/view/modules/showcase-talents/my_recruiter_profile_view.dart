@@ -377,15 +377,21 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
 
   Widget _buildMetricItem(String label, String value, IconData icon, Color bgColor, Color iconColor) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(border: Border.all(color: AppColors.grey100), borderRadius: BorderRadius.circular(12)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(padding: const EdgeInsets.all(6), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 14)),
-          6.0.height,
-          Text(label, style: const TextStyle(fontSize: 8, color: AppColors.body, fontWeight: FontWeight.w600)),
-          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
+          Container(padding: const EdgeInsets.all(5), decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle), child: Icon(icon, color: iconColor, size: 14)),
+          4.0.height,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label, maxLines: 1, style: const TextStyle(fontSize: 11, color: AppColors.body, fontWeight: FontWeight.w600)),
+          ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(value, maxLines: 1, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1B3131))),
+          ),
         ],
       ),
     );

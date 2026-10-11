@@ -108,7 +108,7 @@ class ComparePlansView extends ConsumerWidget {
                     context,
                     'Free',
                     'Get started',
-                    'Free',
+                    '',
                     '',
                     'Current Plan',
                     isCurrent: true,

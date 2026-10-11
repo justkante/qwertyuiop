@@ -44,7 +44,7 @@ class MainButton extends StatelessWidget {
               onPressed!();
             },
       child: Container(
-        width: width,
+        width: width ?? double.infinity,
         height: height,
         padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
         decoration: BoxDecoration(
@@ -61,7 +61,7 @@ class MainButton extends StatelessWidget {
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 children: [
                   if (prefixIcon != null) ...[
                     prefixIcon!,

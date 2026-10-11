@@ -33,14 +33,37 @@ class SearchTalentsView extends ConsumerStatefulWidget {
 }
 
 class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, RouteAware {
   final searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late AnimationController _bounceController;
   late Animation<double> _bounceAnimation;
   bool _showBackToTop = false;
+  bool _isRefreshing = false;
+  double _dragDistance = 0;
 
   String _searchQuery = '';
+
+  void _triggerRefresh() {
+    if (_isRefreshing) return;
+    setState(() {
+      _isRefreshing = true;
+    });
+    clearFilters();
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
 
   void _onSearchChanged() {
     setState(() {
@@ -52,6 +75,26 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
     ref.read(hasSearchFiltersProvider.notifier).state = false;
     ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators();
     searchController.clear();
+    locationNotifier.value = null;
+    minPriceNotifier.value = 1000;
+    maxPriceNotifier.value = 10000000;
+    categoriesNotifier.value = {};
+  }
+
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    _resetSearch();
+  }
+
+  void _resetSearch() {
+    if (mounted) {
+      setState(() {
+        searchController.clear();
+        _searchQuery = '';
+      });
+      clearFilters();
+    }
   }
 
   @override
@@ -87,6 +130,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     searchController.removeListener(_onSearchChanged);
     searchController.dispose();
     _scrollController.dispose();
@@ -96,6 +140,12 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(navBarController, (previous, next) {
+      if (next == 1 && previous != 1) {
+        _resetSearch();
+      }
+    });
+
     final userData = ref.watch(userControllerProvider);
     final creators = ref.watch(filter_vm.filterCreatorsProvider);
 
@@ -154,15 +204,16 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
       ),
       body: RefreshIndicator.adaptive(
         onRefresh: () async {
-          clearFilters();
+          _triggerRefresh();
         },
         child: SingleChildScrollView(
           controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              12.0.height,
+              4.0.height,
               Center(
                 child: Text(
                   'Discover amazing creators for your next project',
@@ -170,7 +221,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
                   style: context.textTheme.bodyMedium?.copyWith(color: AppColors.body, fontSize: 13),
                 ),
               ),
-              8.0.height,
+              6.0.height,
 
               // Search Bar
               SearchTextInputField(
@@ -259,31 +310,38 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
               16.0.height,
 
               // List of creators
-              creators.when(
-                data: (data) => ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: data.length,
-                  separatorBuilder: (_, __) => 16.0.height,
-                  itemBuilder: (context, index) {
-                    final creator = data[index];
-                    return CreatorsCard(
-                      profile: creator,
-                      isFavorite: creator.isFavorited ?? false,
-                      onFavoriteToggle: () {
-                        if (creator.isFavorited == true) {
-                          ref.read(removeFromFavoriteCreatorsProvider.notifier).removeFromFavoriteCreators(creator.id ?? '');
-                        } else {
-                          ref.read(addToFavoriteCreatorsProvider.notifier).addToFavoriteCreators(creator.id ?? '');
-                        }
-                      },
-                    );
-                  },
-                ),
-                loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-                error: (e, s) => Center(child: Text(e.toString())),
-              ),
-              40.0.height,
+              _isRefreshing
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 80),
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
+                    )
+                  : creators.when(
+                      data: (data) => ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: data.length,
+                        separatorBuilder: (_, __) => 16.0.height,
+                        itemBuilder: (context, index) {
+                          final creator = data[index];
+                          return CreatorsCard(
+                            profile: creator,
+                            isFavorite: creator.isFavorited ?? false,
+                            onFavoriteToggle: () {
+                              if (creator.isFavorited == true) {
+                                ref.read(removeFromFavoriteCreatorsProvider.notifier).removeFromFavoriteCreators(creator.id ?? '');
+                              } else {
+                                ref.read(addToFavoriteCreatorsProvider.notifier).addToFavoriteCreators(creator.id ?? '');
+                              }
+                            },
+                          );
+                        },
+                      ),
+                      loading: () => const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 80), child: CircularProgressIndicator.adaptive())),
+                      error: (e, s) => Center(child: Text(e.toString())),
+                    ),
+              16.0.height,
             ],
           ),
         ),

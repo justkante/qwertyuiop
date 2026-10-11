@@ -267,19 +267,24 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
       ),
       child: DropdownButtonFormField<double>(
         value: selectedRating,
+        isExpanded: true,
+        style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
         decoration: const InputDecoration(
-          hintText: 'Select rating',
-          hintStyle: TextStyle(color: AppColors.body, fontSize: 13),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          suffixIcon: Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
         ),
-        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+        icon: const SizedBox.shrink(),
+        hint: const Text(
+          'Select rating',
+          style: TextStyle(color: AppColors.body, fontSize: 13, fontWeight: FontWeight.w400),
+        ),
         items: ratings.map((r) {
           return DropdownMenuItem<double>(
             value: r['val'] as double,
             child: Text(
               r['label'] as String,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
             ),
           );
         }).toList(),
@@ -303,19 +308,24 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
       ),
       child: DropdownButtonFormField<String>(
         value: selectedAvailability,
+        isExpanded: true,
+        style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
         decoration: const InputDecoration(
-          hintText: 'Select availability',
-          hintStyle: TextStyle(color: AppColors.body, fontSize: 13),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          suffixIcon: Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
         ),
-        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+        icon: const SizedBox.shrink(),
+        hint: const Text(
+          'Select availability',
+          style: TextStyle(color: AppColors.body, fontSize: 13, fontWeight: FontWeight.w400),
+        ),
         items: options.map((opt) {
           return DropdownMenuItem<String>(
             value: opt,
             child: Text(
               opt,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
             ),
           );
         }).toList(),

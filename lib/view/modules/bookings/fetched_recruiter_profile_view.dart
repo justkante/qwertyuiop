@@ -234,6 +234,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
       decoration: BoxDecoration(color: AppColors.grey100, borderRadius: BorderRadius.circular(30)),
       child: TabBar(
         controller: tabController,
+        indicatorSize: TabBarIndicatorSize.tab,
         indicator: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(30)),
         labelColor: Colors.black,
         unselectedLabelColor: AppColors.body,

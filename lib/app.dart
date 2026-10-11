@@ -280,6 +280,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
               child: MaterialApp(
                 title: "Creatify",
                 navigatorKey: NavigationService.instance.navigatorKey,
+                navigatorObservers: [routeObserver],
                 debugShowCheckedModeBanner: false,
                 theme: themeData(),
                 key: navigatorKey,

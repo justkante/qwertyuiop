@@ -95,7 +95,10 @@ class _PaymentAndPayoutSheetState extends ConsumerState<PaymentAndPayoutSheet> {
         });
       }
       if (value is AsyncError) {
-        ToastDialog.showError('Unable to auto-verify account name. Please enter manually.', context);
+        ToastDialog.showError(value.error.toString(), context);
+        setState(() {
+          accountName.clear();
+        });
       }
     });
 
@@ -201,7 +204,7 @@ class _PaymentAndPayoutSheetState extends ConsumerState<PaymentAndPayoutSheet> {
                       header: 'Account Name',
                       controller: accountName,
                       hint: 'Enter Account Name',
-                      readOnly: false, // Editable if auto-resolve fails
+                      readOnly: true,
                       inputType: TextInputType.text,
                       suffixIcon: (resolvingBankAccount || fetchingPayoutDetails)
                           ? CircularProgressIndicator.adaptive(

@@ -2,6 +2,7 @@ import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
+import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
@@ -18,14 +19,38 @@ class JobSearchTab extends ConsumerStatefulWidget {
   ConsumerState<JobSearchTab> createState() => _JobSearchTabState();
 }
 
-class _JobSearchTabState extends ConsumerState<JobSearchTab> {
+class _JobSearchTabState extends ConsumerState<JobSearchTab> with RouteAware {
   final TextEditingController _searchController = TextEditingController();
-  final List<String> _recentSearches = [];
+  List<String> _recentSearches = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    super.didPopNext();
+    _resetSearch();
+  }
+
+  void _resetSearch() {
+    if (mounted) {
+      setState(() {
+        _searchController.clear();
+        _recentSearches.clear();
+      });
+      ref.read(jobControllerProvider.notifier).clearSearches();
+      ref.read(jobControllerProvider.notifier).fetchJobs();
+    }
   }
 
   void _onSearch(String query) {
@@ -42,13 +67,28 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(navBarController, (previous, next) {
+      if (next == 2 && previous != 2) {
+        _resetSearch();
+      }
+    });
     final jobState = ref.watch(jobControllerProvider);
     final hasActiveSearch = _searchController.text.trim().isNotEmpty;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(24, 0, 24, 150),
-        child: Column(
+      body: RefreshIndicator.adaptive(
+        onRefresh: () async {
+          final query = _searchController.text.trim();
+          if (query.isNotEmpty) {
+            await ref.read(jobControllerProvider.notifier).fetchJobs(filters: {'search': query});
+          } else {
+            await ref.read(jobControllerProvider.notifier).fetchJobs();
+          }
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 150),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar with integrated filter icon
@@ -159,6 +199,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> {
           ],
         ),
       ),
+    ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 120),
         child: FloatingActionButton(

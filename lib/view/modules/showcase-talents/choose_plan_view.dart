@@ -1,4 +1,5 @@
 import 'package:creatify_mobile/data/models/responses/subcriptions_plans_dto.dart';
+import 'package:creatify_mobile/data/models/responses/make_subcription_payment_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
@@ -43,6 +44,21 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
         ? 110000.amountWithCurrency(currency)
         : 10000.amountWithCurrency(currency);
     final periodText = _isAnnual ? '/ year' : '/ month';
+
+    ref.listen(makeSubscriptionPaymentProvider, (_, value) {
+      if (value is AsyncData<MakeSubcriptionPaymentDto>) {
+        NavigationService.instance.push(
+          WebviewScreen(
+            url: value.value.authorizationUrl ?? '',
+            paymentReference: value.value.paymentReference,
+            routeName: 'Subscription Payment',
+          ),
+        );
+      }
+      if (value is AsyncError) {
+        ToastDialog.showError(value.error.toString(), context);
+      }
+    });
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -123,7 +139,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
               _buildPlanOption(
                 'Free',
                 'Get started on Creatify.',
-                'Free',
+                '',
                 '',
                 ['Create a profile', 'Showcase your work', 'Browse and apply for jobs', 'Advanced insights'],
                 tier: 'Free',

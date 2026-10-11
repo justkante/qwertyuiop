@@ -11,6 +11,7 @@ import 'package:creatify_mobile/core/storage/hive-storage/hive_storage.dart';
 import 'package:creatify_mobile/core/storage/hive-storage/hive_storage_service.dart';
 import 'package:creatify_mobile/core/third-party/environment.dart';
 import 'package:creatify_mobile/core/utils/logger.dart';
+import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 EventBus eventBus = EventBus();
@@ -63,6 +64,7 @@ Future<void> main() async {
         // Configure Session Replay
         options.replay.sessionSampleRate = 0.1;
         options.replay.onErrorSampleRate = 1.0;
+        options.privacy.unmask<WebviewScreen>();
       },
       appRunner: () => runApp(
         SentryWidget(

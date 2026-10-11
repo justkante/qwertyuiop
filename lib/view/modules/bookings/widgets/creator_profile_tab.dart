@@ -16,29 +16,24 @@ class CreatorProfileTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.zero,
-      width: 270.w,
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: AppColors.grey50,
-        borderRadius: BorderRadius.circular(40),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: TabBar(
         controller: _tabController,
         physics: const NeverScrollableScrollPhysics(),
-        labelStyle: context.textTheme.bodySmall?.copyWith(
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
-        ),
-        unselectedLabelStyle: context.textTheme.bodySmall?.copyWith(
-          fontWeight: FontWeight.w500,
-          color: AppColors.btnText,
-        ),
-        indicatorPadding: const EdgeInsets.all(8),
-        indicator: BoxDecoration(
-          borderRadius: BorderRadius.circular(40),
-          color: Colors.white,
-        ),
         indicatorSize: TabBarIndicatorSize.tab,
+        indicator: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+        ),
+        labelColor: Colors.black,
+        unselectedLabelColor: AppColors.body,
+        labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
         dividerColor: Colors.transparent,
         overlayColor: WidgetStateProperty.resolveWith<Color?>(
           (states) => Colors.transparent,

@@ -47,14 +47,62 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
 
   bool get isUserOnline {
     if (widget.profile?.isOnline == true) return true;
-    final lastSeen = widget.profile?.lastSeenAt?.toLowerCase() ?? '';
-    if (lastSeen.contains('just now') || lastSeen.contains('online')) {
+    final lastSeenRaw = widget.profile?.lastSeenAt;
+    if (lastSeenRaw == null || lastSeenRaw.isEmpty) return false;
+
+    // Try parsing ISO date
+    final parsed = DateTime.tryParse(lastSeenRaw);
+    if (parsed != null) {
+      final diff = DateTime.now().difference(parsed.toLocal());
+      return diff.inMinutes < 5 && !diff.isNegative;
+    }
+
+    final lastSeen = lastSeenRaw.toLowerCase().trim();
+    if (lastSeen == 'online' || lastSeen.contains('just now') || lastSeen == 'active now') {
       return true;
     }
-    if (lastSeen.contains('min ago') || lastSeen.contains('minute')) {
+
+    // Check for minutes ago (exclude "mo" for months!)
+    if ((lastSeen.contains('min') || lastSeen.contains('mins') || lastSeen.contains('m ago')) &&
+        !lastSeen.contains('mo') &&
+        !lastSeen.contains('month')) {
+      final match = RegExp(r'(\d+)\s*(min|m|mins)').firstMatch(lastSeen);
+      if (match != null) {
+        final mins = int.tryParse(match.group(1) ?? '') ?? 999;
+        return mins <= 5;
+      }
       return true;
     }
     return false;
+  }
+
+  String get displayLastActiveText {
+    final raw = widget.profile?.lastSeenAt;
+    if (raw == null || raw.isEmpty) {
+      return isUserOnline ? 'Active now' : 'Inactive';
+    }
+
+    final parsed = DateTime.tryParse(raw);
+    if (parsed != null) {
+      final diff = DateTime.now().difference(parsed.toLocal());
+      if (diff.inMinutes < 1) {
+        return 'Just now';
+      } else if (diff.inMinutes < 60) {
+        return '${diff.inMinutes}m ago';
+      } else if (diff.inHours < 24) {
+        return '${diff.inHours}h ago';
+      } else if (diff.inDays < 30) {
+        return '${diff.inDays}d ago';
+      } else if (diff.inDays < 365) {
+        final months = (diff.inDays / 30).floor();
+        return '${months}mo ago';
+      } else {
+        final years = (diff.inDays / 365).floor();
+        return '${years}y ago';
+      }
+    }
+
+    return raw;
   }
 
   @override
@@ -231,7 +279,9 @@ class _CreatorsCardState extends ConsumerState<CreatorsCard> {
                             ),
                             4.0.width,
                             Text(
-                              'Last active: ${widget.profile?.lastSeenAt ?? 'Just now'}',
+                              isUserOnline
+                                  ? 'Active now'
+                                  : 'Last active: $displayLastActiveText',
                               style: TextStyle(
                                 color: isUserOnline ? const Color(0xFF00796B) : AppColors.body,
                                 fontSize: 10,

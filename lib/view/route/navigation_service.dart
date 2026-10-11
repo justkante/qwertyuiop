@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 /// A singleton service that handles all navigation in the app
 class NavigationService {
   NavigationService._();

@@ -3,21 +3,19 @@ import 'dart:developer';
 import 'package:creatify_mobile/core/env/env.dart';
 import 'package:creatify_mobile/main.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/payout_details_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/portfolio_upload_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/rates_card_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/set_availability_view.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/stripe_verification_info_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/vm/stripe_creator_onboard_vm.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/start_onboarding_vm.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
-import 'package:creatify_mobile/view/widgets/linear_loading.dart';
+import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dojah_kyc/flutter_dojah_kyc.dart';
@@ -53,9 +51,8 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
       "level": "1",
     };
 
-    final rawWidgetId = environmentNotifier.value == 'dev' ? Env.dojohWidgetId : Env.prodDojahWidgetId;
     dojahConfigObj = {
-      "widget_id": rawWidgetId.isNotEmpty ? rawWidgetId : "6451234567890abcdef12345",
+      "widget_id": "68d12ff4f42ef83ae2339316",
     };
   }
 
@@ -63,9 +60,9 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
     log('Widget ID: ${dojahConfigObj['widget_id']}, ENV: ${environmentNotifier.value}');
     //Initialize the Dojah Widget
     final DojahKYC dojahKYC = DojahKYC(
-      appId: "",
+      appId: "692d312324af1f656a3baba4",
       title: 'KYC Verification',
-      publicKey: "",
+      publicKey: "prod_pk_ktitGxzcNu6RVYogNBEr18foV",
       type: "custom",
       metaData: dojahKycMetaData,
       config: dojahConfigObj,
@@ -102,8 +99,9 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
           }
         },
         onError: (err) {
-          if (kDebugMode) {
-            log('error: $err');
+          log('Dojah error: $err');
+          if (context.mounted) {
+            ToastDialog.showError('KYC Service: $err', context);
           }
         },
       );
@@ -119,159 +117,165 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
   @override
   Widget build(BuildContext context) {
     final onboardingStatus = ref.watch(getOnboardingStatusProvider);
-    final stripeOnboardingStatus = ref.watch(stripeCreatorOnboardProvider);
-    final userData = ref.watch(userControllerProvider);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Image.asset(
-          AppImages.logo,
-          height: 56,
-          width: 56,
-        ),
-        14.0.height,
-        Text(
-          'Set up Creator Profile',
-          style: context.textTheme.headlineSmall?.copyWith(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+    ref.listen(startOnboardingProvider, (_, value) {
+      if (value is AsyncData) {
+        openDojah();
+      }
+      if (value is AsyncError) {
+        ToastDialog.showError(value.error.toString(), context);
+      }
+    });
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            AppImages.logo,
+            height: 56,
+            width: 56,
           ),
-        ),
-        8.0.height,
-        Text(
-          "Just get started — you can update your rates, portfolio, and availability anytime after setup.",
-          textAlign: TextAlign.center,
-          style: context.textTheme.bodySmall,
-        ),
-        32.0.height,
-        if (stripeOnboardingStatus.isLoading || onboardingStatus.isLoading) ...[
-          const LineLoadingIndicator(loading: true),
-          12.0.height,
-        ],
-        onboardingStatus.when(
-          data: (data) {
-            return Column(
-              children: [
-                for (var kycItem in [
-                  if (userData.countryCode == 'NG') ...[
+          14.0.height,
+          Text(
+            'Set up Creator Profile',
+            style: context.textTheme.headlineSmall?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          8.0.height,
+          Text(
+            "Complete a few quick steps to get verified and start getting booked",
+            textAlign: TextAlign.center,
+            style: context.textTheme.bodySmall,
+          ),
+          32.0.height,
+          onboardingStatus.when(
+            data: (data) {
+              return Column(
+                children: [
+                  for (var kycItem in [
                     (
                       AppImages.kyc,
                       'KYC Requirements',
                       data.steps?.kyc ?? 'not_started',
                       () {
-                        openDojah();
-                      },
+                        if (data.steps?.kyc == 'completed') {
+                          ToastDialog.showSuccess('KYC Verification Completed', context);
+                        } else {
+                          ref.read(startOnboardingProvider.notifier).startOnboarding();
+                        }
+                      }
                     ),
                     (
                       AppImages.bank,
                       'Payout Details',
                       data.steps?.payout ?? 'not_started',
-                      () {
-                        NavigationService.instance.push(const PayoutDetailsView());
-                      }
+                      () => context.push(const PayoutDetailsView()),
                     ),
-                  ] else ...[
                     (
-                      AppImages.kyc,
-                      'KYC and Payout Setup',
-                      data.steps?.kyc ?? 'not_started',
-                      () {
-                        NavigationService.instance.push(const StripeVerificationInfoView());
-                      },
+                      AppImages.clipboard,
+                      'Rates Card',
+                      data.steps?.categories ?? 'not_started',
+                      () => context.push(const RatesCardView()),
                     ),
-                  ],
-                  (
-                    AppImages.clipboard,
-                    'Rates Card',
-                    data.steps?.categories ?? 'not_started',
-                    () {
-                      NavigationService.instance.push(const RatesCardView());
-                    }
-                  ),
-                  (
-                    AppImages.suitcase,
-                    'Portfolio',
-                    data.steps?.portfolio ?? 'not_started',
-                    () {
-                      NavigationService.instance.push(const PortfolioUploadView());
-                    }
-                  ),
-                  (
-                    AppImages.calendarLine,
-                    'Availability',
-                    data.steps?.availability ?? 'not_started',
-                    () {
-                      NavigationService.instance.push(const SetAvailabilityView());
-                    }
-                  ),
-                ])
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: KycItem(
-                      image: kycItem.$1,
-                      title: kycItem.$2,
-                      status: kycItem.$3,
-                      onTap: kycItem.$4,
+                    (
+                      AppImages.suitcase,
+                      'Portfolio',
+                      data.steps?.portfolio ?? 'not_started',
+                      () => context.push(const PortfolioUploadView()),
                     ),
-                  ),
-                if ((data.isOnboarded == true || data.completedAt != null)) ...[
+                    (
+                      AppImages.calendarLine,
+                      'Availability',
+                      data.steps?.availability ?? 'not_started',
+                      () => context.push(const SetAvailabilityView()),
+                    ),
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: KycItem(
+                        image: kycItem.$1,
+                        title: kycItem.$2,
+                        status: kycItem.$3,
+                        onTap: kycItem.$4,
+                      ),
+                    ),
                   32.0.height,
                   MainButton(
-                    text: 'Continue to Profile',
-                    onPressed: () async {
-                      await ref.read(userControllerProvider.notifier).refreshUser();
-                      if (context.mounted) {
-                        context.pop();
-                        NavigationService.instance.push(const MyCreatorProfileView());
+                    text:
+                        (data.isOnboarded != true || data.completedAt == null) ? 'Start' : 'Continue',
+                    isLoading: ref.watch(startOnboardingProvider).isLoading,
+                    onPressed: () {
+                      switch (data.nextStep) {
+                        case 1:
+                          ref.read(startOnboardingProvider.notifier).startOnboarding();
+                          break;
+                        case 2:
+                          context.push(const PayoutDetailsView());
+                          break;
+                        case 3:
+                          context.push(const RatesCardView());
+                          break;
+                        case 4:
+                          context.push(const PortfolioUploadView());
+                          break;
+                        case 5:
+                          if (data.steps?.portfolio == 'in_progress') {
+                            context.push(const PortfolioUploadView());
+                          } else {
+                            context.push(const SetAvailabilityView());
+                          }
+                          break;
+                        case 6:
+                          context.pop();
+                          break;
+                        default:
+                          break;
                       }
                     },
                   ),
                 ],
-              ],
-            );
-          },
-          loading: () => const CircularProgressIndicator.adaptive(),
-          error: (error, stackTrace) {
-            return Center(
-              child: Text(
-                'Error: $error',
-                textAlign: TextAlign.center,
-              ),
-            );
-          },
-        ),
-        12.0.height,
-      ],
+              );
+            },
+            loading: () => const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 40), child: CircularProgressIndicator.adaptive())),
+            error: (error, stackTrace) {
+              return Center(
+                child: Text(
+                  'Error: $error',
+                  textAlign: TextAlign.center,
+                ),
+              );
+            },
+          ),
+          12.0.height,
+        ],
+      ),
     );
   }
 }
 
 class KycItem extends StatelessWidget {
   final String image, title, status;
-  final Function()? onTap;
-  final bool isLoading;
+  final VoidCallback? onTap;
   const KycItem({
     super.key,
     required this.image,
     required this.title,
     required this.status,
-    this.isLoading = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: switch (status) {
-        'not_started' || 'in_progress' || 'abandoned' || 'failed' => onTap,
-        'completed' when title.contains('Portfolio') => onTap,
-        'pending' || 'completed' || _ => null,
-      },
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.grey100,
+          color: AppColors.grey50,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -296,7 +300,7 @@ class KycItem extends StatelessWidget {
                 color: switch (status) {
                   'completed' => AppColors.primary,
                   'failed' => AppColors.kErrorColor,
-                  'in_progress' || 'abandoned' => AppColors.yellow600,
+                  'in_progress' => AppColors.yellow600,
                   'pending' => AppColors.yellow600,
                   'not_started' => AppColors.btnInactive,
                   _ => AppColors.btnInactive,
@@ -307,39 +311,17 @@ class KycItem extends StatelessWidget {
                 switch (status) {
                   'completed' => 'Done',
                   'failed' => 'Failed',
-                  'in_progress' || 'abandoned' => 'In Progress',
+                  'in_progress' => 'In Progress',
                   'pending' => 'Pending',
-                  'not_started' || _ => 'Not Started',
+                  'not_started' => 'Not Started',
+                  _ => 'Not Started',
                 },
                 style: context.textTheme.bodySmall?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-            isLoading
-                ? const CircularProgressIndicator.adaptive()
-                : switch (status) {
-                    'not_started' || 'in_progress' || 'abandoned' || 'failed' => Padding(
-                        padding: const EdgeInsets.only(left: 12),
-                        child: SvgPicture.asset(
-                          AppImages.chevronRight,
-                          height: 18,
-                          width: 18,
-                          colorFilter: AppColors.black2.colorFilterMode(),
-                        ),
-                      ),
-                    'completed' when title.contains('Portfolio') => Padding(
-                        padding: const EdgeInsets.only(left: 12),
-                        child: SvgPicture.asset(
-                          AppImages.chevronRight,
-                          height: 18,
-                          width: 18,
-                          colorFilter: AppColors.black2.colorFilterMode(),
-                        ),
-                      ),
-                    'completed' || 'pending' || _ => const SizedBox.shrink(),
-                  },
+            )
           ],
         ),
       ),
