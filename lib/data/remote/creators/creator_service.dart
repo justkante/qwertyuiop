@@ -652,7 +652,7 @@ class CreatorService {
     }
   }
 
-  Future<String> updateProfile(String? referralCode, String? countryCode) async {
+  Future<String> updateProfile(String? referralCode, String? countryCode, {String? email}) async {
     try {
       final response = await _networkService.request(
         endpoints.updateProfile,
@@ -660,6 +660,7 @@ class CreatorService {
         data: {
           if (referralCode != null) 'referral_code': referralCode,
           if (countryCode != null) 'country_code': countryCode,
+          if (email != null) 'email': email,
         },
       );
 

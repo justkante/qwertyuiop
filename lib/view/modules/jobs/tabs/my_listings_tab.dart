@@ -62,9 +62,9 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
       return 0;
     });
 
-    final activeCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'active').length;
+    final activeCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'active' && !j.isExpired).length;
     final draftCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'draft').length;
-    final closedCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'closed').length;
+    final closedCount = jobState.myListings.where((j) => j.status?.toLowerCase() == 'closed' || j.isExpired || j.status?.toLowerCase() == 'inactive').length;
 
     return Scaffold(
       backgroundColor: Colors.white,

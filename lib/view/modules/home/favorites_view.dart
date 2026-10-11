@@ -1,6 +1,8 @@
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_card.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/favorite_jobs_vm.dart';
 import 'package:creatify_mobile/view/modules/jobs/widgets/job_post_card.dart';
+import 'package:creatify_mobile/view/modules/jobs/job_details_view.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/favorite_creators_vm.dart';
@@ -174,11 +176,11 @@ class _FavoritesViewState extends ConsumerState<FavoritesView> {
               location: job.location ?? '',
               price: job.price ?? 0,
               currency: job.currency ?? 'NGN',
-              dateRange: '${job.createdAt?.toFormattedDate() ?? ''}',
-              status: '', // We don't need status here
+              dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate() ?? ''} - ${job.expiresAt?.toFormattedDate() ?? ''}' : '${job.createdAt?.toFormattedDate() ?? ''}',
+              status: job.effectiveStatus,
               initialFavorite: true,
               onTap: () {
-                // Navigate to job details if needed
+                NavigationService.instance.push(JobDetailView(job: job));
               },
               onFavoriteToggle: (isFav) {
                 if (!isFav) {

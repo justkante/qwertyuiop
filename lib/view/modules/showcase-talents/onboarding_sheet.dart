@@ -53,8 +53,9 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
       "level": "1",
     };
 
+    final rawWidgetId = environmentNotifier.value == 'dev' ? Env.dojohWidgetId : Env.prodDojahWidgetId;
     dojahConfigObj = {
-      "widget_id": environmentNotifier.value == 'dev' ? Env.dojohWidgetId : Env.prodDojahWidgetId,
+      "widget_id": rawWidgetId.isNotEmpty ? rawWidgetId : "6451234567890abcdef12345",
     };
   }
 

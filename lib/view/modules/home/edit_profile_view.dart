@@ -1,4 +1,3 @@
-import 'package:creatify_mobile/view/modules/home/support_view.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/update_profile_vm.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -26,20 +25,31 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
   final TextEditingController _countryController = TextEditingController();
 
   bool referralCodeEditted = false;
+  bool emailEditted = false;
   bool hasUsedReferrerCode = false;
   String _initialReferrerCode = '';
+  String _initialEmail = '';
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with existing user data
     final userData = ref.read(userControllerProvider);
     _fullNameController.text = userData.name ?? '';
-    _emailController.text = userData.authStrategy != 'apple' ? userData.email ?? '' : '';
+    _initialEmail = userData.email ?? '';
+    _emailController.text = _initialEmail;
     _initialReferrerCode = userData.referredByCode ?? '';
     _referrerCodeController.text = _initialReferrerCode;
     _countryController.text = "${userData.countryFlag} ${userData.countryCode}";
     hasUsedReferrerCode = userData.hasUsedReferralCode ?? false;
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _emailController.dispose();
+    _referrerCodeController.dispose();
+    _countryController.dispose();
+    super.dispose();
   }
 
   @override
@@ -49,7 +59,7 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
     ref.listen(updateProfileProvider, (_, value) {
       if (value is AsyncData) {
         context.pop();
-        ToastDialog.showSuccess('Referrer\'s code updated successfully!', context);
+        ToastDialog.showSuccess('Profile updated successfully!', context);
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
@@ -95,34 +105,20 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
                 ),
               ),
               18.0.height,
-              if (_emailController.text.isNotEmpty) ...[
-                TextInputField(
-                  header: 'Email',
-                  controller: _emailController,
-                  hint: 'Enter your email address',
-                  inputType: TextInputType.emailAddress,
-                  textCapitalization: TextCapitalization.none,
-                  readOnly: true,
-                  maxLines: 1,
-                  validator: validateGeneric,
-                ),
-                4.0.height,
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: GestureDetector(
-                    onTap: () {
-                      NavigationService.instance.push(const SupportView());
-                    },
-                    child: Text(
-                      '[Change email]',
-                      style: context.textTheme.bodySmall?.copyWith(
-                        color: AppColors.body,
-                      ),
-                    ),
-                  ),
-                ),
-                18.0.height,
-              ],
+              TextInputField(
+                header: 'Email',
+                controller: _emailController,
+                hint: 'Enter your email address',
+                inputType: TextInputType.emailAddress,
+                textCapitalization: TextCapitalization.none,
+                readOnly: false, // Editable!
+                maxLines: 1,
+                onChanged: (value) {
+                  setState(() => emailEditted = value != _initialEmail);
+                },
+                validator: validateEmail,
+              ),
+              18.0.height,
               TextInputField(
                 header: 'Referrer Code',
                 controller: _referrerCodeController,
@@ -181,18 +177,21 @@ class _EditProfileViewState extends ConsumerState<EditProfileView> {
             children: [
               ListenableBuilder(
                 listenable: Listenable.merge([
-                  _fullNameController,
                   _emailController,
                   _referrerCodeController,
                 ]),
                 builder: (context, _) {
+                  final canSave = (referralCodeEditted && !hasUsedReferrerCode) || emailEditted;
+
                   return MainButton(
                     text: 'Save Changes',
                     isLoading: applyingCode,
-                    onPressed: referralCodeEditted && !hasUsedReferrerCode
+                    onPressed: canSave
                         ? () {
                             ref.read(updateProfileProvider.notifier).updateProfile(
-                                referralCode: _referrerCodeController.text.trim().toUpperCase());
+                                  referralCode: referralCodeEditted ? _referrerCodeController.text.trim().toUpperCase() : null,
+                                  email: emailEditted ? _emailController.text.trim() : null,
+                                );
                           }
                         : null,
                   );

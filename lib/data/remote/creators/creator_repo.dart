@@ -61,7 +61,7 @@ abstract class CreatorRepo {
   Future<String> claimReferralReward();
   Future<String> claimAmbassadorCommission();
   Future<AmbassadorStats> getAmbassadorReferredUsers();
-  Future<String> updateProfile({String? referralCode, String? countryCode});
+  Future<String> updateProfile({String? referralCode, String? countryCode, String? email});
   Future<StripeOnboardDto> stripeOnboardCreator();
   Future<StripeDashboardDto> getStripeDashboardLink();
   Future<RecommendedCreatorsDto> recommendedCreators();
@@ -253,8 +253,8 @@ class CreatorRepoImpl implements CreatorRepo {
   }
 
   @override
-  Future<String> updateProfile({String? referralCode, String? countryCode}) async {
-    return await _creatorService.updateProfile(referralCode, countryCode);
+  Future<String> updateProfile({String? referralCode, String? countryCode, String? email}) async {
+    return await _creatorService.updateProfile(referralCode, countryCode, email: email);
   }
 
   @override

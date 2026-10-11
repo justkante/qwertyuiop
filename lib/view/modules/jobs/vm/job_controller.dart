@@ -113,8 +113,16 @@ class JobController extends StateNotifier<JobState> {
             ? data['data']
             : (data is List ? data : []);
 
+        final allJobs = jobList.map((e) => JobDto.fromJson(e)).toList();
+        final activeJobs = allJobs.where((job) {
+          final status = job.status?.toLowerCase() ?? '';
+          if (status == 'expired' || status == 'closed' || status == 'inactive') return false;
+          if (job.expiresAt != null && job.expiresAt!.isBefore(DateTime.now())) return false;
+          return true;
+        }).toList();
+
         state = state.copyWith(
-          jobs: jobList.map((e) => JobDto.fromJson(e)).toList(),
+          jobs: activeJobs,
           isLoading: false,
         );
       } else {
@@ -183,8 +191,10 @@ class JobController extends StateNotifier<JobState> {
       final response = await _apiService.getMyListings();
       if (response.data['success']) {
         final List<dynamic> data = response.data['data'] ?? [];
+        final allListings = data.map((e) => JobDto.fromJson(e)).toList();
+
         state = state.copyWith(
-          myListings: data.map((e) => JobDto.fromJson(e)).toList(),
+          myListings: allListings,
           isLoading: false,
         );
       } else {

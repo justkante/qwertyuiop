@@ -6,12 +6,12 @@ import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class UpdateProfileNotifier extends AutoDisposeAsyncNotifier<String> {
-  Future<void> updateProfile({String? referralCode, CountriesItemDto? country}) async {
+  Future<void> updateProfile({String? referralCode, CountriesItemDto? country, String? email}) async {
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() => ref
         .read(creatorRepository)
-        .updateProfile(referralCode: referralCode, countryCode: country?.code));
+        .updateProfile(referralCode: referralCode, countryCode: country?.code, email: email));
 
     if (!state.hasError) {
       if (referralCode != null) {
@@ -20,13 +20,8 @@ class UpdateProfileNotifier extends AutoDisposeAsyncNotifier<String> {
       if (country != null) {
         ref.read(userControllerProvider.notifier).updateCountry(country);
       }
+      ref.read(userControllerProvider.notifier).refreshUser();
     }
-    // else {
-    //   // Handle specific error for country update
-    //   if (state.error.toString().contains('cannot be changed') && country != null) {
-    //     ref.read(userControllerProvider.notifier).updateCountry(country);
-    //   }
-    // }
   }
 
   @override

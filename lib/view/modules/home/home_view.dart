@@ -47,6 +47,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/view/modules/jobs/job_details_view.dart';
+import 'package:creatify_mobile/view/modules/jobs/job_detail_creator_view.dart';
 
 class HomeView extends ConsumerStatefulWidget {
   const HomeView({
@@ -734,23 +735,24 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Widget _buildRecommendationCard(dynamic job) {
+    final jobDto = job is JobDto ? job : JobDto.fromJson(job.toJson());
     return SizedBox(
       width: 280,
       child: JobPostCard(
-        title: job.title ?? '',
-        location: job.location ?? 'Lagos',
-        price: num.tryParse(job.price.toString())?.toDouble() ?? 0.0,
-        currency: job.currency ?? 'NGN',
-        dateRange: '12/07/26 - 14/07/26',
-        status: 'Active',
-        serviceName: job.category?.name,
-        description: job.description ?? '',
-        initialFavorite: job.isFavorited == true,
+        title: jobDto.title ?? '',
+        location: jobDto.location ?? 'Lagos',
+        price: num.tryParse(jobDto.price.toString())?.toDouble() ?? 0.0,
+        currency: jobDto.currency ?? 'NGN',
+        dateRange: jobDto.expiresAt != null ? '${jobDto.createdAt?.toFormattedDate() ?? ''} - ${jobDto.expiresAt?.toFormattedDate() ?? ''}' : '',
+        status: jobDto.effectiveStatus,
+        serviceName: jobDto.category?.name,
+        description: jobDto.description ?? '',
+        initialFavorite: jobDto.isFavorited == true,
         onFavoriteToggle: (val) {
-          ref.read(jobControllerProvider.notifier).toggleFavorite(job.id!);
+          ref.read(jobControllerProvider.notifier).toggleFavorite(jobDto.id!);
         },
         onTap: () {
-          NavigationService.instance.push(JobDetailView(job: JobDto.fromJson(job.toJson())));
+          NavigationService.instance.push(JobDetailView(job: jobDto));
         },
       ),
     );
@@ -758,9 +760,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   Widget _buildActiveListings(JobState state) {
     final active = state.myListings.where((j) {
+      if (j.isExpired) return false;
       final status = j.status?.toLowerCase() ?? '';
       if (status == 'expired' || status == 'closed' || status == 'inactive') return false;
-      if (j.expiresAt != null && j.expiresAt!.isBefore(DateTime.now())) return false;
       return true;
     }).toList();
 
@@ -770,17 +772,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
       physics: const NeverScrollableScrollPhysics(),
       itemCount: active.length > 2 ? 2 : active.length,
       separatorBuilder: (_, __) => 12.0.height,
-      itemBuilder: (context, index) => JobPostCard(
-        title: active[index].title ?? '',
-        location: active[index].location ?? '',
-        price: active[index].price ?? 0,
-        currency: active[index].currency ?? 'NGN',
-        dateRange: 'Active',
-        status: 'Active',
-        serviceName: active[index].category?.name,
-        onTap: () {},
-        description: active[index].description ?? '',
-      ),
+      itemBuilder: (context, index) {
+        final job = active[index];
+        return JobPostCard(
+          title: job.title ?? '',
+          location: job.location ?? '',
+          price: job.price ?? 0,
+          currency: job.currency ?? 'NGN',
+          dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate() ?? ''} - ${job.expiresAt?.toFormattedDate() ?? ''}' : 'Active',
+          status: job.effectiveStatus,
+          serviceName: job.category?.name,
+          onTap: () {
+            NavigationService.instance.push(JobDetailCreatorView(job: job));
+          },
+          description: job.description ?? '',
+        );
+      },
     );
   }
 
