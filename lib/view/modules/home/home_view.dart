@@ -714,14 +714,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Widget _buildRecommendationsList(JobState state) {
-    if (state.jobs.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommendations found', style: TextStyle(fontSize: 12, color: AppColors.body))));
+    final activeJobs = state.jobs.where((job) {
+      final status = job.status?.toLowerCase() ?? '';
+      if (status == 'expired' || status == 'closed' || status == 'inactive') return false;
+      if (job.expiresAt != null && job.expiresAt!.isBefore(DateTime.now())) return false;
+      return true;
+    }).toList();
+
+    if (activeJobs.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No recommendations found', style: TextStyle(fontSize: 12, color: AppColors.body))));
     return SizedBox(
       height: 185,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: state.jobs.length > 5 ? 5 : state.jobs.length,
+        itemCount: activeJobs.length > 5 ? 5 : activeJobs.length,
         separatorBuilder: (_, __) => 16.0.width,
-        itemBuilder: (context, index) => _buildRecommendationCard(state.jobs[index]),
+        itemBuilder: (context, index) => _buildRecommendationCard(activeJobs[index]),
       ),
     );
   }
@@ -750,7 +757,13 @@ class _HomeViewState extends ConsumerState<HomeView> {
   }
 
   Widget _buildActiveListings(JobState state) {
-    final active = state.myListings.where((j) => j.status?.toLowerCase() == 'active').toList();
+    final active = state.myListings.where((j) {
+      final status = j.status?.toLowerCase() ?? '';
+      if (status == 'expired' || status == 'closed' || status == 'inactive') return false;
+      if (j.expiresAt != null && j.expiresAt!.isBefore(DateTime.now())) return false;
+      return true;
+    }).toList();
+
     if (active.isEmpty) return const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Text('No current active listing', style: TextStyle(color: AppColors.body))));
     return ListView.separated(
       shrinkWrap: true,
@@ -764,7 +777,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         currency: active[index].currency ?? 'NGN',
         dateRange: 'Active',
         status: 'Active',
-        serviceName: active[index].category?.name, // Added
+        serviceName: active[index].category?.name,
         onTap: () {},
         description: active[index].description ?? '',
       ),
