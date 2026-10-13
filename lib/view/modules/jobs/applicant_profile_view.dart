@@ -1,10 +1,15 @@
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/data/models/responses/job_application_dto.dart';
+import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/modules/bookings/fetched_creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/widgets/creator_menu_popup.dart';
+import 'package:creatify_mobile/view/modules/bookings/sheets/report_account_sheet.dart';
+import 'package:creatify_mobile/view/modules/bookings/share_profile_widget.dart';
+import 'package:creatify_mobile/view/utils/app_dialog.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +19,64 @@ import 'vm/job_controller.dart';
 import 'payment_success_view.dart';
 import 'sheets/job_payment_confirmation_sheet.dart';
 
-class ApplicantProfileView extends ConsumerWidget {
+class ApplicantProfileView extends ConsumerStatefulWidget {
   final JobApplicationDto application;
   const ApplicantProfileView({super.key, required this.application});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ApplicantProfileView> createState() => _ApplicantProfileViewState();
+}
+
+class _ApplicantProfileViewState extends ConsumerState<ApplicantProfileView> {
+  final GlobalKey _menuButtonKey = GlobalKey();
+
+  void _showProfileMenu() {
+    final menuItems = [
+      ...CreatorMenuController.createDefaultMenuItems(
+        reportAccount: () {
+          AppBottomSheet.showBottomSheet(
+            context,
+            widget: ReportCreatorAccountSheet(
+              userId: widget.application.userId ?? '',
+            ),
+          );
+        },
+        shareProfile: () {
+          AppDialog.showAppDialog(
+            context,
+            widget: ShareProfileWidget(
+              profile: CreatorProfileDto(
+                id: widget.application.userId,
+                name: widget.application.user?.name,
+                profileId: widget.application.userId,
+                profileImage: widget.application.user?.profileImage,
+              ),
+            ),
+          );
+        },
+      ),
+      CreatorMenuData(
+        option: CreatorMenuOption.reportAccount,
+        title: 'View Profile',
+        icon: AppImages.profile,
+        onTap: () {
+          NavigationService.instance.push(FetchedCreatorProfileView(
+            creatorId: widget.application.userId ?? '',
+            creatorName: widget.application.user?.name ?? '',
+          ));
+        },
+      ),
+    ];
+
+    CreatorMenuController.showProfileMenu(
+      context: context,
+      buttonKey: _menuButtonKey,
+      menuItems: menuItems,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -30,22 +87,10 @@ class ApplicantProfileView extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black),
         ),
         actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'view_profile') {
-                NavigationService.instance.push(FetchedCreatorProfileView(
-                  creatorId: application.userId ?? '',
-                  creatorName: application.user?.name ?? '',
-                ));
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem<String>(
-                value: 'view_profile',
-                child: Text('View applicant\'s profile', style: TextStyle(fontSize: 13)),
-              ),
-            ],
-            icon: const Icon(Icons.more_vert, color: Colors.black),
+          IconButton(
+            key: _menuButtonKey,
+            icon: const Icon(Icons.more_vert, color: AppColors.icons),
+            onPressed: _showProfileMenu,
           ),
         ],
       ),
@@ -58,18 +103,18 @@ class ApplicantProfileView extends ConsumerWidget {
               child: Column(
                 children: [
                   CircleAvatar(
-                    backgroundImage: application.user?.profileImage != null
-                        ? NetworkImage(application.user!.profileImage!)
+                    backgroundImage: widget.application.user?.profileImage != null
+                        ? NetworkImage(widget.application.user!.profileImage!)
                         : AssetImage(AppImages.dummyAvatar) as ImageProvider,
                     radius: 35,
                   ),
                   12.0.height,
                   Text(
-                    application.user?.name ?? '',
+                    widget.application.user?.name ?? '',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.heading),
                   ),
                   Text(
-                    application.job?.category?.name ?? 'Creator',
+                    widget.application.job?.category?.name ?? 'Creator',
                     style: const TextStyle(color: Color(0xFF3186E5), fontSize: 11, fontWeight: FontWeight.w400),
                   ),
                 ],
@@ -88,7 +133,7 @@ class ApplicantProfileView extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey100)),
               child: Text(
-                application.pitch ?? '',
+                widget.application.pitch ?? '',
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: AppColors.heading, height: 1.5),
                 textAlign: TextAlign.center,
               ),
@@ -106,14 +151,14 @@ class ApplicantProfileView extends ConsumerWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(8)),
               child: Text(
-                application.portfolioLink ?? '',
+                widget.application.portfolioLink ?? '',
                 style: const TextStyle(color: Color(0xFF3186E5), fontSize: 11, decoration: TextDecoration.underline),
               ),
             ),
             24.0.height,
 
             // Attachments
-            if (application.attachments?.isNotEmpty ?? false) ...[
+            if (widget.application.attachments?.isNotEmpty ?? false) ...[
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text('Attachment', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: AppColors.body)),
@@ -123,7 +168,7 @@ class ApplicantProfileView extends ConsumerWidget {
                 height: 80,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: application.attachments!.length,
+                  itemCount: widget.application.attachments!.length,
                   separatorBuilder: (context, index) => 8.0.width,
                   itemBuilder: (context, index) => Container(
                     width: 80,
@@ -132,7 +177,7 @@ class ApplicantProfileView extends ConsumerWidget {
                       color: AppColors.grey100,
                       borderRadius: BorderRadius.circular(8),
                       image: DecorationImage(
-                        image: NetworkImage(application.attachments![index]),
+                        image: NetworkImage(widget.application.attachments![index]),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -143,7 +188,7 @@ class ApplicantProfileView extends ConsumerWidget {
             ],
 
             // Ratings & Reviews
-            if (application.user?.reviewsReceived?.isNotEmpty ?? false) ...[
+            if (widget.application.user?.reviewsReceived?.isNotEmpty ?? false) ...[
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text('Rating & Reviews', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: AppColors.heading)),
@@ -156,17 +201,17 @@ class ApplicantProfileView extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        (application.user?.reviewsReceived?.isEmpty ?? true)
+                        (widget.application.user?.reviewsReceived?.isEmpty ?? true)
                             ? "0.0"
-                            : (application.user!.reviewsReceived!.map((e) => e.rating ?? 0).reduce((a, b) => a + b) /
-                                    application.user!.reviewsReceived!.length)
+                            : (widget.application.user!.reviewsReceived!.map((e) => e.rating ?? 0).reduce((a, b) => a + b) /
+                                    widget.application.user!.reviewsReceived!.length)
                                 .toStringAsFixed(1),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 32, color: AppColors.heading)
                       ),
                       4.0.height,
                       Row(children: List.generate(5, (index) => const Icon(Icons.star, color: Colors.orange, size: 12))),
                       4.0.height,
-                      Text('(${application.user?.reviewsReceived?.length ?? 0} reviews)', style: const TextStyle(color: AppColors.body, fontSize: 9)),
+                      Text('(${widget.application.user?.reviewsReceived?.length ?? 0} reviews)', style: const TextStyle(color: AppColors.body, fontSize: 9)),
                     ],
                   ),
                   24.0.width,
@@ -174,7 +219,6 @@ class ApplicantProfileView extends ConsumerWidget {
                     child: Column(
                       children: List.generate(5, (index) {
                         int stars = 5 - index;
-                        // For demo purposes matching screenshot visuals
                         double widthFactor = [0.8, 0.6, 0.4, 0.2, 0.1][index];
                         return _RatingBar(stars: stars, widthFactor: widthFactor, count: 200);
                       }),
@@ -186,7 +230,7 @@ class ApplicantProfileView extends ConsumerWidget {
 
               const Align(alignment: Alignment.centerLeft, child: Text('Most recent', style: TextStyle(color: AppColors.body, fontSize: 10, fontWeight: FontWeight.w400))),
               12.0.height,
-              ...application.user!.reviewsReceived!.take(2).map((review) => _buildReviewItem(
+              ...widget.application.user!.reviewsReceived!.take(2).map((review) => _buildReviewItem(
                 review.reviewer?.name ?? 'Reviewer',
                 review.createdAt?.toFormattedDate() ?? '',
                 review.comment ?? 'No comment provided',
@@ -203,7 +247,7 @@ class ApplicantProfileView extends ConsumerWidget {
             Expanded(
               child: ElevatedButton(
                 onPressed: () async {
-                  await ref.read(jobControllerProvider.notifier).respondToApplication(application.id!, 'rejected');
+                  await ref.read(jobControllerProvider.notifier).respondToApplication(widget.application.id!, 'rejected');
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
@@ -221,7 +265,7 @@ class ApplicantProfileView extends ConsumerWidget {
                 onPressed: () {
                   AppBottomSheet.showBottomSheet(
                     context,
-                    widget: JobPaymentConfirmationSheet(application: application),
+                    widget: JobPaymentConfirmationSheet(application: widget.application),
                   );
                 },
                 style: ElevatedButton.styleFrom(

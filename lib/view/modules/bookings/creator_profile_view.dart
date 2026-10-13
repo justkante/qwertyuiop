@@ -570,9 +570,25 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                 children: [
                   Expanded(
                     child: MainButton(
-                      text: (widget.isFavorite || (widget.profile?.isFavorited ?? false)) ? 'Saved' : 'Save Account',
-                      textColor: (widget.isFavorite || (widget.profile?.isFavorited ?? false)) ? AppColors.primary : AppColors.btnText,
-                      color: (widget.isFavorite || (widget.profile?.isFavorited ?? false)) ? AppColors.grey200 : AppColors.btnTertiary,
+                      text: 'Save Account',
+                      prefixIcon: Icon(
+                        (widget.isFavorite || (widget.profile?.isFavorited ?? false))
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: (widget.isFavorite || (widget.profile?.isFavorited ?? false))
+                            ? AppColors.primary
+                            : AppColors.btnText,
+                        size: 18,
+                      ),
+                      textColor: (widget.isFavorite || (widget.profile?.isFavorited ?? false))
+                          ? AppColors.primary
+                          : AppColors.btnText,
+                      color: (widget.isFavorite || (widget.profile?.isFavorited ?? false))
+                          ? const Color(0xFFE0F2F1)
+                          : AppColors.btnTertiary,
+                      borderColor: (widget.isFavorite || (widget.profile?.isFavorited ?? false))
+                          ? AppColors.primary
+                          : Colors.transparent,
                       loadingColor: AppColors.subHeading,
                       isLoading: makeFavorite || removeFavorite,
                       onPressed: () {

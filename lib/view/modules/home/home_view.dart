@@ -427,17 +427,32 @@ class _HomeViewState extends ConsumerState<HomeView> {
                 ),
               ),
 
-              // Listings Section
+              // Quick Actions
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTitledHeader('Quick actions', const SizedBox.shrink()),
+                      8.0.height,
+                      _buildQuickActionsRow(),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Listings Section
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
                   child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Your active listings',
+                            'Active listings',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Color(0xFF1B3131)),
                           ),
                           TextButton(
@@ -460,23 +475,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                         ],
                       ),
-                      16.0.height,
+                      8.0.height,
                       _buildActiveListings(jobState),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Quick Actions
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTitledHeader('Quick actions', const SizedBox.shrink()),
-                      12.0.height,
-                      _buildQuickActionsRow(),
                     ],
                   ),
                 ),

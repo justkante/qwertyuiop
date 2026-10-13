@@ -573,9 +573,25 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
                 children: [
                   Expanded(
                     child: MainButton(
-                      text: (myCreatorProfile.value?.isFavorited ?? false) ? 'Saved' : 'Save Account',
-                      textColor: (myCreatorProfile.value?.isFavorited ?? false) ? AppColors.primary : AppColors.btnText,
-                      color: (myCreatorProfile.value?.isFavorited ?? false) ? AppColors.grey200 : AppColors.btnTertiary,
+                      text: 'Save Account',
+                      prefixIcon: Icon(
+                        (myCreatorProfile.value?.isFavorited ?? false)
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: (myCreatorProfile.value?.isFavorited ?? false)
+                            ? AppColors.primary
+                            : AppColors.btnText,
+                        size: 18,
+                      ),
+                      textColor: (myCreatorProfile.value?.isFavorited ?? false)
+                          ? AppColors.primary
+                          : AppColors.btnText,
+                      color: (myCreatorProfile.value?.isFavorited ?? false)
+                          ? const Color(0xFFE0F2F1)
+                          : AppColors.btnTertiary,
+                      borderColor: (myCreatorProfile.value?.isFavorited ?? false)
+                          ? AppColors.primary
+                          : Colors.transparent,
                       loadingColor: AppColors.subHeading,
                       isLoading: makeFavorite || removeFavorite,
                       onPressed: () {
