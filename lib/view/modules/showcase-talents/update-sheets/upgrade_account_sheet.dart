@@ -39,13 +39,18 @@ class _UpgradeAccountSheetState extends ConsumerState<UpgradeAccountSheet> {
     ref.listen(makeSubscriptionPaymentProvider, (_, value) {
       if (value is AsyncData<MakeSubcriptionPaymentDto>) {
         context.pop();
-        NavigationService.instance.push(
-          WebviewScreen(
-            url: value.value.authorizationUrl ?? '',
-            paymentReference: value.value.paymentReference,
-            routeName: 'Subscription Payment',
-          ),
-        );
+        final paymentRef = value.value.paymentReference;
+        if (paymentRef != null && paymentRef.isNotEmpty) {
+          ref.read(verifySubscriptionPaymentProvider.notifier).verifySubscriptionPayment(paymentRef);
+        } else {
+          NavigationService.instance.push(
+            WebviewScreen(
+              url: value.value.authorizationUrl ?? '',
+              paymentReference: paymentRef,
+              routeName: 'Subscription Payment',
+            ),
+          );
+        }
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);

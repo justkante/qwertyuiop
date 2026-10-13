@@ -149,6 +149,16 @@ class _HomeViewState extends ConsumerState<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(custom_nav.homeScrollToTopProvider, (int? prev, int next) {
+      if (next > 0 && _scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+
     final userData = ref.watch(userControllerProvider);
     final onboardingStatus = ref.watch(getOnboardingStatusProvider);
     final myCreatorProfile = ref.watch(fetchCreatorProfileProvider((userData.id ?? '', null)));
@@ -460,19 +470,19 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Quick Actions
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildTitledHeader('Quick actions', const SizedBox.shrink()),
-                      16.0.height,
+                      12.0.height,
                       _buildQuickActionsRow(),
                     ],
                   ),
                 ),
               ),
 
-              // Recent Activity
+              // Recent Transactions
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 180),
@@ -480,23 +490,23 @@ class _HomeViewState extends ConsumerState<HomeView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildTitledHeader(
-                        'Recent activity',
+                        'Recent transactions',
                         TextButton(
                           onPressed: () => NavigationService.instance.push(const AllTransactionsView()),
-                          child: const Text('See all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
+                          child: const Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
                         ),
                       ),
                       16.0.height,
                       transactions.when(
                         data: (data) {
                            final list = data.data ?? [];
-                           if (list.isEmpty) return const Center(child: Text('No recent activity', style: TextStyle(fontSize: 12, color: AppColors.body)));
+                           if (list.isEmpty) return const Center(child: Text('No recent transactions', style: TextStyle(fontSize: 12, color: AppColors.body)));
                            return Column(
                              children: list.take(3).map((t) => TransactionItem(transaction: t)).toList(),
                            );
                         },
                         loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-                        error: (_, __) => const Text('Error loading activity'),
+                        error: (_, __) => const Text('Error loading transactions'),
                       ),
                     ],
                   ),
@@ -643,8 +653,8 @@ class _HomeViewState extends ConsumerState<HomeView> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildToggleItem(0, current == 0, onChanged, '1'),
-          _buildToggleItem(1, current == 1, onChanged, '2'),
+          _buildToggleItem(0, current == 0, onChanged, 'Creators'),
+          _buildToggleItem(1, current == 1, onChanged, 'Jobs'),
         ],
       ),
     );
@@ -654,14 +664,22 @@ class _HomeViewState extends ConsumerState<HomeView> {
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
-        width: 36,
-        height: 24,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: active ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: active ? [const BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))] : null
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: active ? [const BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))] : null,
         ),
-        child: Center(child: Text(label, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: active ? AppColors.primary : AppColors.body))),
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: active ? AppColors.primary : AppColors.body,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -755,7 +773,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
         location: jobDto.location ?? 'Lagos',
         price: num.tryParse(jobDto.price.toString())?.toDouble() ?? 0.0,
         currency: jobDto.currency ?? 'NGN',
-        dateRange: jobDto.expiresAt != null ? '${jobDto.createdAt?.toFormattedDate() ?? ''} - ${jobDto.expiresAt?.toFormattedDate() ?? ''}' : '',
+        dateRange: jobDto.formattedDateRange,
         status: jobDto.effectiveStatus,
         serviceName: jobDto.category?.name,
         description: jobDto.description ?? '',
@@ -791,7 +809,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
           location: job.location ?? '',
           price: job.price ?? 0,
           currency: job.currency ?? 'NGN',
-          dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate() ?? ''} - ${job.expiresAt?.toFormattedDate() ?? ''}' : 'Active',
+          dateRange: job.formattedDateRange,
           status: job.effectiveStatus,
           serviceName: job.category?.name,
           onTap: () {

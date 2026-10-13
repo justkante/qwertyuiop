@@ -183,7 +183,7 @@ class _JobSearchTabState extends ConsumerState<JobSearchTab> with RouteAware {
                     location: job.location ?? '',
                     price: job.price ?? 0,
                     currency: job.currency ?? 'NGN',
-                    dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate()} - ${job.expiresAt?.toFormattedDate()}' : '',
+                    dateRange: job.formattedDateRange,
                     status: job.effectiveStatus,
                     serviceName: job.category?.name,
                     initialFavorite: job.isFavorited ?? false,

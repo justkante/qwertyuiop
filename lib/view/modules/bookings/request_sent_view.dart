@@ -58,7 +58,7 @@ class _RequestSentViewState extends ConsumerState<RequestSentView> {
                 onPressed: () {
                   context.popToFirst();
 
-                  ref.read(navBarController.notifier).index = 2;
+                  ref.read(navBarController.notifier).index = 3;
                 },
               ),
               80.0.height,

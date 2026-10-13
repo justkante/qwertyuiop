@@ -44,6 +44,9 @@ class SharedPrefManager {
   static set jobAlertsEnabled(bool v) => prefs.setBool("jobAlertsEnabled", v);
   static bool get jobAlertsEnabled => prefs.getBool("jobAlertsEnabled") ?? false;
 
+  static List<String> get localJobDrafts => prefs.getStringList("local_job_drafts") ?? [];
+  static set localJobDrafts(List<String> drafts) => prefs.setStringList("local_job_drafts", drafts);
+
   static void clear() {
     prefs.clear();
   }

@@ -67,6 +67,14 @@
                     android:scheme="https"
                     android:host="creatifyapp.com"
                     android:pathPrefix="/profile/" />
+                <data
+                    android:scheme="https"
+                    android:host="creatifyapp.com"
+                    android:pathPrefix="/job/" />
+                <data
+                    android:scheme="https"
+                    android:host="creatifyapp.com"
+                    android:pathPrefix="/jobs/" />
             </intent-filter>
 
             <!-- Custom URL scheme — works immediately without server verification -->
@@ -75,6 +83,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="creatify" android:host="profile" />
+                <data android:scheme="creatify" android:host="job" />
+                <data android:scheme="creatify" android:host="jobs" />
             </intent-filter>
         </activity>
         <!-- Set up the Sign in with Apple activity, such that it's callable from the browser-redirect -->
@@ -107,6 +117,30 @@
 
          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
     <queries>
+        <package android:name="com.instagram.android" />
+        <package android:name="com.snapchat.android" />
+        <package android:name="com.facebook.katana" />
+        <package android:name="com.whatsapp" />
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="instagram" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="instagram-stories" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="snapchat" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="facebook-stories" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="whatsapp" />
+        </intent>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>

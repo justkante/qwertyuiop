@@ -6,10 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ApplicationSuccessView extends StatelessWidget {
-  const ApplicationSuccessView({super.key});
+  final String? recruiterName;
+  const ApplicationSuccessView({super.key, this.recruiterName});
 
   @override
   Widget build(BuildContext context) {
+    final displayName = recruiterName?.isNotEmpty == true ? recruiterName : 'the recruiter';
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -30,7 +33,7 @@ class ApplicationSuccessView extends StatelessWidget {
             ),
             12.0.height,
             Text(
-              "We've sent your booking request to [Creator's name]. You'll be notified once they respond.",
+              "We've sent your booking request to $displayName. You'll be notified once they respond.",
               style: context.textTheme.bodySmall,
               textAlign: TextAlign.center,
             ),

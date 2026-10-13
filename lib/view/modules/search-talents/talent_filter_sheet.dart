@@ -259,6 +259,8 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
       {'label': 'New to Creatify', 'val': -1.0},
     ];
 
+    final validRating = (selectedRating != null && ratings.any((r) => r['val'] == selectedRating)) ? selectedRating : null;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.grey50,
@@ -266,7 +268,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         border: Border.all(color: AppColors.grey200),
       ),
       child: DropdownButtonFormField<double>(
-        value: selectedRating,
+        value: validRating,
         isExpanded: true,
         style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
         decoration: const InputDecoration(
@@ -299,6 +301,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
 
   Widget _buildAvailabilityFilter() {
     final options = ['Available now', 'Available this week', 'Available this month', 'Select dates'];
+    final validAvailability = (selectedAvailability != null && options.contains(selectedAvailability)) ? selectedAvailability : null;
 
     return Container(
       decoration: BoxDecoration(
@@ -307,7 +310,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         border: Border.all(color: AppColors.grey200),
       ),
       child: DropdownButtonFormField<String>(
-        value: selectedAvailability,
+        value: validAvailability,
         isExpanded: true,
         style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
         decoration: const InputDecoration(

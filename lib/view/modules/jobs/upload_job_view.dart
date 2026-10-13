@@ -1,4 +1,5 @@
 import 'package:creatify_mobile/data/models/responses/countries_dto.dart';
+import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -13,7 +14,8 @@ import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'post_job_success_view.dart';
 
 class UploadJobView extends ConsumerStatefulWidget {
-  const UploadJobView({super.key});
+  final JobDto? job;
+  const UploadJobView({super.key, this.job});
 
   @override
   ConsumerState<UploadJobView> createState() => _UploadJobViewState();
@@ -47,6 +49,35 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
     super.initState();
     _hourController.addListener(_onTimeChanged);
     _minuteController.addListener(_onTimeChanged);
+
+    if (widget.job != null) {
+      final j = widget.job!;
+      _descriptionController.text = j.description ?? j.title ?? '';
+      _locationController.text = j.location ?? '';
+      _priceController.text = j.price != null ? j.price.toString() : '';
+      _jobType = j.type ?? 'Time Based';
+      _selectedWorkMode = j.workMode;
+      _selectedService = j.categoryId;
+      if (j.startDate != null && j.startDate!.isNotEmpty) {
+        _startDate = DateTime.tryParse(j.startDate!);
+      }
+      if (j.duration != null) {
+        final parts = j.duration!.split(' ');
+        if (parts.isNotEmpty) _durationController.text = parts[0];
+        if (parts.length > 1) _durationUnit = parts[1];
+      }
+      if (j.startTime != null && j.startTime!.contains(':')) {
+        final timeParts = j.startTime!.split(':');
+        final h = int.tryParse(timeParts[0]) ?? 12;
+        final m = int.tryParse(timeParts[1]) ?? 0;
+        _startTime = TimeOfDay(hour: h, minute: m);
+        int displayHour = _startTime!.hourOfPeriod;
+        if (displayHour == 0) displayHour = 12;
+        _hourController.text = displayHour.toString().padLeft(2, '0');
+        _minuteController.text = _startTime!.minute.toString().padLeft(2, '0');
+        _period = _startTime!.period == DayPeriod.am ? 'AM' : 'PM';
+      }
+    }
   }
 
   void _onTimeChanged() {
@@ -67,6 +98,24 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
 
       setState(() {
         _startTime = TimeOfDay(hour: finalHour, minute: minute);
+      });
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: _startTime ?? TimeOfDay.now(),
+      initialEntryMode: TimePickerEntryMode.input,
+    );
+    if (time != null) {
+      setState(() {
+        _startTime = time;
+        int displayHour = time.hourOfPeriod;
+        if (displayHour == 0) displayHour = 12;
+        _hourController.text = displayHour.toString().padLeft(2, '0');
+        _minuteController.text = time.minute.toString().padLeft(2, '0');
+        _period = time.period == DayPeriod.am ? 'AM' : 'PM';
       });
     }
   }
@@ -145,20 +194,24 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               Text('Service', style: _labelStyle),
               8.0.height,
               ref.watch(fetchCreatorNichesProvider).when(
-                data: (categories) => Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      value: _selectedService,
-                      hint: const Text('Select Service', style: TextStyle(fontSize: 14, color: AppColors.body)),
-                      items: categories.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name ?? '', style: const TextStyle(fontSize: 15)))).toList(),
-                      onChanged: (val) => setState(() => _selectedService = val),
-                      icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
+                data: (categories) {
+                  final isValid = categories.any((e) => e.id == _selectedService);
+                  final selectedValue = isValid ? _selectedService : null;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        isExpanded: true,
+                        value: selectedValue,
+                        hint: const Text('Select Service', style: TextStyle(fontSize: 14, color: AppColors.body)),
+                        items: categories.map((e) => DropdownMenuItem(value: e.id, child: Text(e.name ?? '', style: const TextStyle(fontSize: 15)))).toList(),
+                        onChanged: (val) => setState(() => _selectedService = val),
+                        icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, s) => const Text('Error loading services', style: TextStyle(color: Colors.red, fontSize: 14)),
               ),
@@ -205,97 +258,78 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               8.0.height,
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.grey50,
+                  Expanded(
+                    child: InkWell(
+                      onTap: _pickTime,
                       borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 45,
-                          child: TextFormField(
-                            controller: _hourController,
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            maxLength: 2,
-                            enableInteractiveSelection: true,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1B3131)),
-                            decoration: const InputDecoration(
-                              counterText: "",
-                              hintText: '12',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.grey50,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 45,
+                              child: AbsorbPointer(
+                                child: TextFormField(
+                                  controller: _hourController,
+                                  keyboardType: TextInputType.number,
+                                  textAlign: TextAlign.center,
+                                  maxLength: 2,
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1B3131)),
+                                  decoration: const InputDecoration(
+                                    counterText: "",
+                                    hintText: '12',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const Text(':', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1B3131))),
-                        SizedBox(
-                          width: 45,
-                          child: TextFormField(
-                            controller: _minuteController,
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            maxLength: 2,
-                            enableInteractiveSelection: true,
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1B3131)),
-                            decoration: const InputDecoration(
-                              counterText: "",
-                              hintText: '00',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
+                            const Text(':', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Color(0xFF1B3131))),
+                            SizedBox(
+                              width: 45,
+                              child: AbsorbPointer(
+                                child: TextFormField(
+                                  controller: _minuteController,
+                                  keyboardType: TextInputType.number,
+                                  textAlign: TextAlign.center,
+                                  maxLength: 2,
+                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: Color(0xFF1B3131)),
+                                  decoration: const InputDecoration(
+                                    counterText: "",
+                                    hintText: '00',
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.zero,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            12.0.width,
+                            DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _period,
+                                icon: const Icon(Icons.keyboard_arrow_down, size: 20, color: AppColors.body),
+                                items: ['AM', 'PM']
+                                    .map((e) => DropdownMenuItem(
+                                          value: e,
+                                          child: Text(e, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                                        ))
+                                    .toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    _period = val!;
+                                    _onTimeChanged();
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        12.0.width,
-                        DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _period,
-                            icon: const Icon(Icons.keyboard_arrow_down, size: 20, color: AppColors.body),
-                            items: ['AM', 'PM']
-                                .map((e) => DropdownMenuItem(
-                                      value: e,
-                                      child: Text(e, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-                                    ))
-                                .toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                _period = val!;
-                                _onTimeChanged();
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  16.0.width,
-                  InkWell(
-                    onTap: () async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: _startTime ?? TimeOfDay.now(),
-                      );
-                      if (time != null) {
-                        setState(() {
-                          _startTime = time;
-                          int displayHour = time.hourOfPeriod;
-                          if (displayHour == 0) displayHour = 12;
-                          _hourController.text = displayHour.toString().padLeft(2, '0');
-                          _minuteController.text = time.minute.toString().padLeft(2, '0');
-                          _period = time.period == DayPeriod.am ? 'AM' : 'PM';
-                        });
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.grey50,
-                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.access_time, color: AppColors.primary, size: 24),
                     ),
                   ),
                 ],
@@ -451,6 +485,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
   }
 
   Widget _buildDropdownField(String label, List<String> items, Function(String?) onChanged, {String? initialValue}) {
+    final validValue = (initialValue != null && items.contains(initialValue)) ? initialValue : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -464,7 +499,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               isExpanded: true,
-              value: initialValue,
+              value: validValue,
               hint: const Text('Select', style: TextStyle(fontSize: 14, color: AppColors.body)),
               items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15)))).toList(),
               onChanged: onChanged,
@@ -477,52 +512,69 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
   }
 
   void _submitJob({bool isDraft = false}) async {
-    if (_formKey.currentState!.validate()) {
-      if (_selectedService == null) {
-        ToastDialog.showError('Please select a service', context);
-        return;
-      }
-      if (_selectedWorkMode == null) {
-        ToastDialog.showError('Please select a work mode', context);
-        return;
-      }
-      if (_startDate == null) {
-        ToastDialog.showError('Please select a start date', context);
-        return;
-      }
-      if (_hourController.text.trim().isEmpty || _minuteController.text.trim().isEmpty) {
-        ToastDialog.showError('Please enter a start time', context);
-        return;
-      }
-      if (_selectedWorkMode != 'Remote' && _locationController.text.trim().isEmpty) {
-        ToastDialog.showError('Location is required for non-remote jobs', context);
-        return;
+    if (isDraft || _formKey.currentState!.validate()) {
+      if (!isDraft) {
+        if (_selectedService == null) {
+          ToastDialog.showError('Please select a service', context);
+          return;
+        }
+        if (_selectedWorkMode == null) {
+          ToastDialog.showError('Please select a work mode', context);
+          return;
+        }
+        if (_startDate == null) {
+          ToastDialog.showError('Please select a start date', context);
+          return;
+        }
+        if (_hourController.text.trim().isEmpty || _minuteController.text.trim().isEmpty) {
+          ToastDialog.showError('Please enter a start time', context);
+          return;
+        }
+        if (_selectedWorkMode != 'Remote' && _locationController.text.trim().isEmpty) {
+          ToastDialog.showError('Location is required for non-remote jobs', context);
+          return;
+        }
       }
 
-      final error = await ref.read(jobControllerProvider.notifier).createJob({
-        'title': _descriptionController.text.truncate(30),
-        'description': _descriptionController.text,
-        'category_id': _selectedService,
+      final titleText = _descriptionController.text.trim();
+      final titleVal = titleText.isEmpty ? 'Untitled Draft' : titleText.truncate(30);
+      final descVal = titleText.isEmpty ? 'Draft job description' : titleText;
+
+      final payload = {
+        'title': titleVal,
+        'description': descVal,
+        'category_id': _selectedService ?? '1',
         'location': _locationController.text.isEmpty ? 'Remote' : _locationController.text,
         'price': double.tryParse(_priceController.text) ?? 0.0,
         'type': _jobType,
-        'work_mode': _selectedWorkMode,
+        'work_mode': _selectedWorkMode ?? 'Remote',
         'status': isDraft ? 'draft' : 'active',
         'currency': ref.read(userControllerProvider).primaryCurrency ?? 'NGN',
-        'start_date': DateFormat('yyyy-MM-dd').format(_startDate!),
-        'start_time': _startTime != null ? '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}' : null,
-        'duration': '${_durationController.text} $_durationUnit',
-      });
+        'start_date': _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        'start_time': _startTime != null ? '${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}' : '12:00',
+        'duration': '${_durationController.text.isEmpty ? '1' : _durationController.text} $_durationUnit',
+      };
 
-      if (error == null && mounted) {
-        if (isDraft) {
+      String? error;
+      try {
+        error = await ref.read(jobControllerProvider.notifier).createJob(payload);
+      } catch (e) {
+        error = e.toString();
+      }
+
+      if (isDraft) {
+        await ref.read(jobControllerProvider.notifier).saveLocalDraft(payload);
+        if (mounted) {
           ToastDialog.showSuccess('Draft saved successfully', context);
           Navigator.pop(context);
-        } else {
-          NavigationService.instance.pushReplacement(const PostJobSuccessView());
         }
-      } else if (mounted) {
-        ToastDialog.showError(error ?? 'Failed to process job. Please try again.', context);
+        return;
+      } else {
+        if (error == null && mounted) {
+          NavigationService.instance.pushReplacement(const PostJobSuccessView());
+        } else if (mounted) {
+          ToastDialog.showError(error ?? 'Failed to process job. Please try again.', context);
+        }
       }
     }
   }

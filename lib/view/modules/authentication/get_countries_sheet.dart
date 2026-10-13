@@ -103,10 +103,11 @@ class _GetCountriesSheetState extends ConsumerState<GetCountriesSheet> {
                                 child: Center(
                                   child: Text(
                                     "${country.flagEmoji} ${country.name} (${country.currencySymbol})",
-                                    style: context.textTheme.bodyMedium?.copyWith(
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
                                       color: AppColors.subHeading,
                                       fontFamily: FontFamily.inter,
-                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
                                 ),

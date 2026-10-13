@@ -7,3 +7,4 @@ class AppTabController extends StateNotifier<int> {
 }
 
 final navBarController = StateNotifierProvider<AppTabController, int>((ref) => AppTabController());
+final homeScrollToTopProvider = StateProvider<int>((ref) => 0);

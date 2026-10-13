@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'user_dto.dart';
 import 'niche_item_dto.dart';
 import 'job_application_dto.dart';
@@ -73,9 +74,50 @@ class JobDto {
 
   String get effectiveStatus {
     if (isExpired) {
-      return 'Inactive - Job Expired';
+      return 'Job Expired';
     }
     return status ?? 'Active';
+  }
+
+  DateTime? get parsedStartDate {
+    if (startDate == null || startDate!.isEmpty) return null;
+    return DateTime.tryParse(startDate!);
+  }
+
+  DateTime? get calculatedEndDate {
+    final start = parsedStartDate;
+    if (start == null) return null;
+    if (duration == null || duration!.isEmpty) return start;
+    final parts = duration!.trim().split(' ');
+    if (parts.isEmpty) return start;
+    final count = int.tryParse(parts[0]) ?? 1;
+    final unit = parts.length > 1 ? parts[1].toLowerCase() : 'days';
+    if (unit.startsWith('hour')) {
+      return start.add(Duration(hours: count));
+    } else if (unit.startsWith('week')) {
+      return start.add(Duration(days: count * 7));
+    } else {
+      return start.add(Duration(days: count));
+    }
+  }
+
+  String get formattedDateRange {
+    final start = parsedStartDate;
+    if (start == null) {
+      if (createdAt != null) {
+        final startStr = DateFormat('dd/MM/yyyy').format(createdAt!.toLocal());
+        if (expiresAt != null) {
+          final endStr = DateFormat('dd/MM/yyyy').format(expiresAt!.toLocal());
+          return '$startStr - $endStr';
+        }
+        return startStr;
+      }
+      return '';
+    }
+    final end = expiresAt ?? calculatedEndDate;
+    final startStr = DateFormat('dd/MM/yyyy').format(start.toLocal());
+    final endStr = end != null ? DateFormat('dd/MM/yyyy').format(end.toLocal()) : startStr;
+    return '$startStr - $endStr';
   }
 
   JobDto copyWith({

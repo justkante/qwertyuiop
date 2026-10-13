@@ -1,9 +1,14 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/core/di/injector.dart';
 import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/data/models/responses/recent_search_dto.dart';
 import 'package:creatify_mobile/data/models/responses/job_application_dto.dart';
 import 'package:creatify_mobile/data/models/responses/fund_wallet_dto.dart';
 import 'package:creatify_mobile/core/error/api_exception.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/favorite_jobs_vm.dart';
 import 'dart:async';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -133,6 +138,30 @@ class JobController extends StateNotifier<JobState> {
     }
   }
 
+  Future<JobDto?> getJobById(String jobId) async {
+    JobDto? existing;
+    for (final j in [...state.jobs, ...state.appliedJobs, ...state.myListings]) {
+      if (j.id == jobId) {
+        existing = j;
+        break;
+      }
+    }
+    if (existing != null) return existing;
+
+    try {
+      final response = await _apiService.getJobDetails(jobId);
+      if (response.data['success']) {
+        final data = response.data['data'];
+        if (data != null) {
+          return JobDto.fromJson(data);
+        }
+      }
+    } catch (e) {
+      log('Error fetching job by id: $e');
+    }
+    return null;
+  }
+
   Future<void> toggleFavorite(String jobId) async {
     try {
       final response = await _apiService.toggleFavorite(jobId);
@@ -185,21 +214,57 @@ class JobController extends StateNotifier<JobState> {
     }
   }
 
+  Future<void> saveLocalDraft(Map<String, dynamic> draftData) async {
+    try {
+      final drafts = SharedPrefManager.localJobDrafts;
+      draftData['id'] ??= 'local_draft_${DateTime.now().millisecondsSinceEpoch}';
+      draftData['status'] = 'draft';
+      draftData['created_at'] ??= DateTime.now().toIso8601String();
+
+      drafts.add(jsonEncode(draftData));
+      SharedPrefManager.localJobDrafts = drafts;
+
+      final localJob = JobDto.fromJson(draftData);
+      final updatedListings = [localJob, ...state.myListings.where((j) => j.id != localJob.id)];
+      state = state.copyWith(myListings: updatedListings);
+    } catch (e) {
+      log('Error saving local draft: $e');
+    }
+  }
+
   Future<void> fetchMyListings() async {
     state = state.copyWith(isLoading: true);
     try {
       final response = await _apiService.getMyListings();
+      List<JobDto> serverListings = [];
       if (response.data['success']) {
         final List<dynamic> data = response.data['data'] ?? [];
-        final allListings = data.map((e) => JobDto.fromJson(e)).toList();
-
-        state = state.copyWith(
-          myListings: allListings,
-          isLoading: false,
-        );
-      } else {
-        state = state.copyWith(isLoading: false, myListings: []);
+        serverListings = data.map((e) => JobDto.fromJson(e)).toList();
       }
+
+      // Merge local drafts
+      final localDraftStrs = SharedPrefManager.localJobDrafts;
+      final localDrafts = localDraftStrs.map((str) {
+        try {
+          final map = jsonDecode(str) as Map<String, dynamic>;
+          return JobDto.fromJson(map);
+        } catch (_) {
+          return null;
+        }
+      }).whereType<JobDto>().toList();
+
+      final allMap = <String, JobDto>{};
+      for (var job in serverListings) {
+        if (job.id != null) allMap[job.id!] = job;
+      }
+      for (var draft in localDrafts) {
+        if (draft.id != null) allMap[draft.id!] = draft;
+      }
+
+      state = state.copyWith(
+        myListings: allMap.values.toList(),
+        isLoading: false,
+      );
     } catch (e) {
       state = state.copyWith(isLoading: false, myListings: []);
     }
@@ -211,7 +276,8 @@ class JobController extends StateNotifier<JobState> {
       final response = await _apiService.createJob(data);
       state = state.copyWith(isLoading: false);
       if (response.data['success']) {
-        fetchMyListings();
+        await fetchMyListings();
+        _ref.invalidate(fetchNotificationsProvider);
         return null;
       }
       // Return specific error from backend if available
@@ -253,13 +319,26 @@ class JobController extends StateNotifier<JobState> {
         return 'You cannot apply to your own job';
       }
 
+      // Check if already applied
+      final alreadyApplied = state.appliedJobs.any((j) => j.id == jobId);
+      if (alreadyApplied) {
+        state = state.copyWith(isLoading: false);
+        return 'You have already applied for this job';
+      }
+
       final response = await _apiService.applyToJob(jobId, data);
       state = state.copyWith(isLoading: false);
       if (response.data != null && response.data is Map && response.data['success'] == true) {
+        await fetchAppliedJobs();
+        _ref.invalidate(fetchNotificationsProvider);
         return null;
       }
 
       final message = response.data?['message']?.toString();
+      if (message != null && (message.toLowerCase().contains('already applied') || message.toLowerCase().contains('applied before'))) {
+        return 'You have already applied for this job';
+      }
+
       final errors = response.data?['errors'];
       if (errors is Map && errors.isNotEmpty) {
         final firstError = errors.values.first;
@@ -271,7 +350,15 @@ class JobController extends StateNotifier<JobState> {
       return message ?? 'Failed to submit application';
     } catch (e) {
       state = state.copyWith(isLoading: false);
+      final errStr = e.toString().toLowerCase();
+      if (errStr.contains('already applied') || errStr.contains('applied before') || errStr.contains('duplicate')) {
+        return 'You have already applied for this job';
+      }
       if (e is ApiException) {
+        final msg = e.message?.toLowerCase() ?? '';
+        if (msg.contains('already applied') || msg.contains('applied before') || msg.contains('duplicate')) {
+          return 'You have already applied for this job';
+        }
         if (e.responseData != null && e.responseData!['errors'] is Map) {
           final errors = e.responseData!['errors'] as Map;
           if (errors.isNotEmpty) {

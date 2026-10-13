@@ -4,6 +4,7 @@ import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'vm/job_controller.dart';
@@ -97,7 +98,7 @@ class _JobDetailCreatorViewState extends ConsumerState<JobDetailCreatorView> wit
               children: [
                 Text(
                   widget.job.title ?? '',
-                  style: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
+                  style: context.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 4.0.height,
                 Row(
@@ -202,12 +203,16 @@ class _JobDetailCreatorViewState extends ConsumerState<JobDetailCreatorView> wit
           _buildDetailRow('Service', widget.job.category?.name ?? 'Not Specified'),
           _buildDetailRow('Booking Type', widget.job.type?.capitalize() ?? 'Not Specified'),
           _buildDetailRow('Work Mode', widget.job.workMode ?? 'Not Specified'),
-          if (widget.job.startDate != null)
+          if (widget.job.parsedStartDate != null)
+            _buildDetailRow('Start Date', DateFormat('dd/MM/yyyy').format(widget.job.parsedStartDate!.toLocal()))
+          else if (widget.job.startDate != null)
             _buildDetailRow('Start Date', widget.job.startDate ?? ''),
           if (widget.job.startTime != null)
             _buildDetailRow('Start Time', widget.job.startTime ?? ''),
           if (widget.job.duration != null)
             _buildDetailRow('Duration', widget.job.duration ?? ''),
+          if (widget.job.calculatedEndDate != null)
+            _buildDetailRow('End Date', DateFormat('dd/MM/yyyy').format(widget.job.calculatedEndDate!.toLocal())),
           if (widget.job.createdAt != null)
             _buildDetailRow('Posted Date', widget.job.createdAt!.toFormattedDate()),
           _buildDetailRow('Location', widget.job.location ?? 'Not Specified'),

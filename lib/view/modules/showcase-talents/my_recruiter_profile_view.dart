@@ -165,7 +165,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                             ],
                           ),
                         ),
-                        24.0.height,
+                        8.0.height,
 
                         Column(
                           children: [

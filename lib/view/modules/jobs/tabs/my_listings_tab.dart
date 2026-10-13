@@ -155,7 +155,7 @@ class _MyListingsTabState extends ConsumerState<MyListingsTab> {
                       onTap: () => NavigationService.instance.push(JobDetailCreatorView(job: job)),
                       onViewApplicants: () => NavigationService.instance.push(JobDetailCreatorView(job: job)),
                       onEdit: () {
-                        // TODO: Handle Edit
+                        NavigationService.instance.push(UploadJobView(job: job));
                       },
                       onDelete: () {
                         _showDeleteDialog(context, job.id!);

@@ -12,6 +12,7 @@ import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/modules/bookings/fetched_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'apply_job_sheet.dart';
 
@@ -60,7 +61,7 @@ class _JobDetailViewState extends ConsumerState<JobDetailView> {
   @override
   Widget build(BuildContext context) {
     final isExpired = widget.job?.isExpired == true;
-    final displayStatus = isExpired ? 'Inactive - Job Expired' : _getStatusText(widget.status);
+    final displayStatus = isExpired ? 'Job Expired' : _getStatusText(widget.status);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -138,12 +139,16 @@ class _JobDetailViewState extends ConsumerState<JobDetailView> {
                 _buildDetailRow('Service', widget.job?.category?.name ?? 'Not Specified'),
                 _buildDetailRow('Booking Type', widget.job?.type?.capitalize() ?? 'Not Specified'),
                 _buildDetailRow('Work Mode', widget.job?.workMode ?? 'Not Specified'),
-                if (widget.job?.startDate != null)
+                if (widget.job?.parsedStartDate != null)
+                  _buildDetailRow('Start Date', DateFormat('dd/MM/yyyy').format(widget.job!.parsedStartDate!.toLocal()))
+                else if (widget.job?.startDate != null)
                   _buildDetailRow('Start Date', widget.job?.startDate ?? ''),
                 if (widget.job?.startTime != null)
                   _buildDetailRow('Start Time', widget.job?.startTime ?? ''),
                 if (widget.job?.duration != null)
                   _buildDetailRow('Duration', widget.job?.duration ?? ''),
+                if (widget.job?.calculatedEndDate != null)
+                  _buildDetailRow('End Date', DateFormat('dd/MM/yyyy').format(widget.job!.calculatedEndDate!.toLocal())),
                 if (widget.job?.createdAt != null)
                   _buildDetailRow('Posted Date', widget.job!.createdAt!.toFormattedDate()),
                 if (widget.job?.expiresAt != null)

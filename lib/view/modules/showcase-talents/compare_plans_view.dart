@@ -4,19 +4,30 @@ import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
+import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/choose_plan_view.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 
-class ComparePlansView extends ConsumerWidget {
+class ComparePlansView extends ConsumerStatefulWidget {
   const ComparePlansView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ComparePlansView> createState() => _ComparePlansViewState();
+}
+
+class _ComparePlansViewState extends ConsumerState<ComparePlansView> {
+  String _selectedPlan = 'Pro';
+
+  @override
+  Widget build(BuildContext context) {
     final userData = ref.watch(userControllerProvider);
     final currency = userData.primaryCurrency ?? 'NGN';
     final proMonthlyPrice = 10000.amountWithCurrency(currency);
+    final subscriptionAsync = ref.watch(fetchMySubscriptionProvider);
+    final isPro = subscriptionAsync.value?.hasSubscription == true &&
+                  subscriptionAsync.value?.isActive == true;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -97,33 +108,55 @@ class ComparePlansView extends ConsumerWidget {
             ),
             24.0.height,
 
-            // Table Header (Free and Pro only)
+            // Table Header Cards
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Expanded(flex: 3, child: SizedBox()),
+                  const Expanded(flex: 4, child: SizedBox()),
                   _buildPlanHeader(
                     context,
-                    'Free',
-                    'Get started',
-                    '',
-                    '',
-                    'Current Plan',
-                    isCurrent: true,
-                    onTap: () {},
-                  ),
-                  _buildPlanHeader(
-                    context,
-                    'Pro',
-                    'For greater opportunities',
-                    proMonthlyPrice,
-                    '/ month',
-                    'Choose Plan',
-                    isPopular: true,
+                    title: 'Free',
+                    subtitle: 'Get started',
+                    price: '',
+                    period: '',
+                    buttonText: !isPro ? 'Current Plan' : 'Free Plan',
+                    isSelected: _selectedPlan == 'Free',
+                    isCurrent: !isPro,
                     onTap: () {
-                       NavigationService.instance.push(const ChoosePlanView(initialIsAnnual: false));
+                      setState(() => _selectedPlan = 'Free');
+                    },
+                    onButtonTap: () {
+                      setState(() => _selectedPlan = 'Free');
+                      if (!isPro) {
+                        ToastDialog.showSuccess('You are currently on the Free plan', context);
+                      }
+                    },
+                  ),
+                  8.0.width,
+                  _buildPlanHeader(
+                    context,
+                    title: 'Pro',
+                    subtitle: 'For greater opportunities',
+                    price: proMonthlyPrice,
+                    period: '/ month',
+                    buttonText: isPro ? 'Current Plan' : 'Choose Plan',
+                    isSelected: _selectedPlan == 'Pro',
+                    isCurrent: isPro,
+                    onTap: () {
+                      setState(() => _selectedPlan = 'Pro');
+                    },
+                    onButtonTap: () {
+                      if (_selectedPlan != 'Pro') {
+                        setState(() => _selectedPlan = 'Pro');
+                      } else {
+                        if (isPro) {
+                          ToastDialog.showSuccess('You are currently on the Pro plan', context);
+                        } else {
+                          NavigationService.instance.push(const ChoosePlanView(initialIsAnnual: false));
+                        }
+                      }
                     },
                   ),
                 ],
@@ -131,7 +164,7 @@ class ComparePlansView extends ConsumerWidget {
             ),
             16.0.height,
 
-            // Features List (Pro+ and Post job adverts removed, Advanced insights ticked for both)
+            // Features List
             _buildSectionHeader('PROFILE & VISIBILITY'),
             _buildFeatureRow('Create a profile', true, true),
             _buildFeatureRow('Showcase your work', true, true),
@@ -153,36 +186,100 @@ class ComparePlansView extends ConsumerWidget {
     );
   }
 
-  Widget _buildPlanHeader(BuildContext context, String title, String subtitle, String price, String period, String buttonText, {bool isPopular = false, bool isCurrent = false, required VoidCallback onTap}) {
+  Widget _buildPlanHeader(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required String price,
+    required String period,
+    required String buttonText,
+    required bool isSelected,
+    required bool isCurrent,
+    required VoidCallback onTap,
+    required VoidCallback onButtonTap,
+  }) {
     return Expanded(
-      flex: 3,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isPopular ? const Color(0xFFE0F2F1).withOpacity(0.2) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isPopular ? AppColors.primary : AppColors.grey200),
-        ),
-        child: Column(
-          children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            4.0.height,
-            Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, fontFamily: 'Inter')),
-            if (period.isNotEmpty)
-              Text(period, style: const TextStyle(fontSize: 10, color: AppColors.body)),
-            12.0.height,
-            SizedBox(
-              width: double.infinity,
-              child: MainButton(
-                text: buttonText,
-                fontSize: 11,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                color: isCurrent ? AppColors.grey200 : AppColors.primary,
-                textColor: isCurrent ? AppColors.heading : Colors.white,
-                onPressed: onTap,
-              ),
+      flex: 2,
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? const Color(0xFFE0F2F1).withValues(alpha: 0.3)
+                : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? AppColors.primary : AppColors.grey200,
+              width: isSelected ? 2 : 1,
             ),
-          ],
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.15),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : [],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  color: isSelected ? AppColors.primary : Colors.black,
+                ),
+              ),
+              2.0.height,
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 10, color: AppColors.body),
+              ),
+              6.0.height,
+              if (price.isNotEmpty)
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.center,
+                  child: Text(
+                    price,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                )
+              else
+                const SizedBox(height: 20),
+              if (period.isNotEmpty)
+                Text(
+                  period,
+                  style: const TextStyle(fontSize: 10, color: AppColors.body),
+                )
+              else
+                const SizedBox(height: 12),
+              14.0.height,
+              SizedBox(
+                width: double.infinity,
+                child: MainButton(
+                  text: buttonText,
+                  fontSize: 11,
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  color: isCurrent ? AppColors.grey200 : AppColors.primary,
+                  textColor: isCurrent ? AppColors.heading : Colors.white,
+                  onPressed: onButtonTap,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -208,9 +305,9 @@ class ComparePlansView extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       child: Row(
         children: [
-          Expanded(flex: 3, child: Text(title, style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)))),
-          Expanded(flex: 1, child: Center(child: _buildCheck(free))),
-          Expanded(flex: 1, child: Center(child: _buildCheck(pro))),
+          Expanded(flex: 4, child: Text(title, style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)))),
+          Expanded(flex: 2, child: Center(child: _buildCheck(free))),
+          Expanded(flex: 2, child: Center(child: _buildCheck(pro))),
         ],
       ),
     );

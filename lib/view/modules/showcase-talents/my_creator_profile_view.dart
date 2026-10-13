@@ -253,7 +253,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                             ],
                           ),
                         ),
-                        16.0.height,
+                        8.0.height,
 
                         // Name and verification
                         Column(

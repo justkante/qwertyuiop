@@ -246,6 +246,71 @@ class ChatPusherService {
       }
     });
 
+    // Register booking, job application, wallet, subscription, and notification events
+    final bookingEvents = [
+      'booking.created', 'new-booking', 'booking',
+      'booking.confirmed', 'booking.paid', 'booking.accepted',
+      'booking.cancelled', 'booking.declined',
+      'deliverable.approved', 'booking.deliverable.approved',
+      'revision.requested', 'booking.revision.requested',
+      'deliverable.submitted', 'booking.deliverable.submitted'
+    ];
+    for (var ev in bookingEvents) {
+      final keyName = ev.replaceAll('.', '_').replaceAll('-', '_');
+      _pusherService.registerEventCallback(ev, (data) {
+        if (_eventHandlers.containsKey(keyName)) {
+          _eventHandlers[keyName]!(data);
+        }
+      });
+    }
+
+    final jobEvents = [
+      'job.application.created', 'new-application', 'application.submitted', 'job_application',
+      'job.application.updated', 'application.status.updated',
+      'job.expired', 'job.closed'
+    ];
+    for (var ev in jobEvents) {
+      final keyName = ev.replaceAll('.', '_').replaceAll('-', '_');
+      _pusherService.registerEventCallback(ev, (data) {
+        if (_eventHandlers.containsKey(keyName)) {
+          _eventHandlers[keyName]!(data);
+        }
+      });
+    }
+
+    final walletEvents = [
+      'payout.status', 'withdrawal.status', 'wallet.updated', 'payout', 'transaction.updated',
+      'payment.confirmed', 'escrow.funded', 'payment.success'
+    ];
+    for (var ev in walletEvents) {
+      final keyName = ev.replaceAll('.', '_').replaceAll('-', '_');
+      _pusherService.registerEventCallback(ev, (data) {
+        if (_eventHandlers.containsKey(keyName)) {
+          _eventHandlers[keyName]!(data);
+        }
+      });
+    }
+
+    final subEvents = ['subscription.updated', 'subscription.renewed'];
+    for (var ev in subEvents) {
+      final keyName = ev.replaceAll('.', '_').replaceAll('-', '_');
+      _pusherService.registerEventCallback(ev, (data) {
+        if (_eventHandlers.containsKey(keyName)) {
+          _eventHandlers[keyName]!(data);
+        }
+      });
+    }
+
+    final notifEvents = ['notification.received', 'new-notification', 'notification'];
+    for (var ev in notifEvents) {
+      final keyName = ev.replaceAll('.', '_').replaceAll('-', '_');
+      _pusherService.registerEventCallback(ev, (data) {
+        if (_eventHandlers.containsKey(keyName)) {
+          _eventHandlers[keyName]!(data);
+        }
+      });
+    }
+
     log('Event callbacks registered for chat events');
   }
 

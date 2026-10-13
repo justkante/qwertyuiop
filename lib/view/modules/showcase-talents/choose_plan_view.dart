@@ -1,6 +1,8 @@
+import 'package:creatify_mobile/core/utils/constants.dart';
 import 'package:creatify_mobile/data/models/responses/subcriptions_plans_dto.dart';
 import 'package:creatify_mobile/data/models/responses/make_subcription_payment_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/update-sheets/upgrade_account_successful_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
 import 'package:creatify_mobile/view/modules/transactions/sheets/fund_wallet_sheet.dart';
@@ -47,12 +49,32 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
 
     ref.listen(makeSubscriptionPaymentProvider, (_, value) {
       if (value is AsyncData<MakeSubcriptionPaymentDto>) {
-        NavigationService.instance.push(
-          WebviewScreen(
-            url: value.value.authorizationUrl ?? '',
-            paymentReference: value.value.paymentReference,
-            routeName: 'Subscription Payment',
-          ),
+        final paymentRef = value.value.paymentReference;
+        if (paymentRef != null && paymentRef.isNotEmpty) {
+          ref.read(verifySubscriptionPaymentProvider.notifier).verifySubscriptionPayment(paymentRef);
+        } else {
+          NavigationService.instance.push(
+            WebviewScreen(
+              url: value.value.authorizationUrl ?? '',
+              paymentReference: paymentRef,
+              routeName: 'Subscription Payment',
+            ),
+          );
+        }
+      }
+      if (value is AsyncError) {
+        ToastDialog.showError(value.error.toString(), context);
+      }
+    });
+
+    ref.listen(verifySubscriptionPaymentProvider, (_, value) {
+      if (value is AsyncData) {
+        ref.invalidate(userControllerProvider);
+        ref.invalidate(fetchMySubscriptionProvider);
+        ToastDialog.showSuccess('Pro subscription activated successfully!', context);
+        AppBottomSheet.showBottomSheet(
+          context,
+          widget: const UpgradeAccountSuccessfulSheet(),
         );
       }
       if (value is AsyncError) {
@@ -173,63 +195,63 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             ),
             8.0.height,
             _buildPaymentMethodTile(),
-            24.0.height,
+            12.0.height,
 
             // Disclaimer / Terms & Conditions
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: AppColors.grey50,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          style: context.textTheme.bodySmall?.copyWith(color: AppColors.body, height: 1.4),
-                          children: [
-                            const TextSpan(text: 'You can cancel your subscription at any time. By continuing, you agree to our '),
-                            WidgetSpan(
-                              child: GestureDetector(
-                                onTap: () {
-                                  NavigationService.instance.push(
-                                    const WebviewScreen(
-                                      url: 'https://creatifyapp.com/terms',
-                                      routeName: 'Terms and Conditions',
-                                    ),
-                                  );
-                                },
-                                child: const Text(
-                                  'Terms and Conditions',
-                                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                    const Text(
+                      'You can cancel your subscription at any time. By continuing, you agree to our',
+                      style: TextStyle(color: AppColors.body, fontSize: 12, height: 1.4),
+                    ),
+                    6.0.height,
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context, rootNavigator: true).push(
+                              MaterialPageRoute(
+                                builder: (_) => const WebviewScreen(
+                                  url: Constants.termsAndConditionsUrl,
+                                  routeName: 'Terms & Conditions',
                                 ),
                               ),
-                            ),
-                            const TextSpan(text: ' and '),
-                            WidgetSpan(
-                              child: GestureDetector(
-                                onTap: () {
-                                  NavigationService.instance.push(
-                                    const WebviewScreen(
-                                      url: 'https://creatifyapp.com/privacy',
-                                      routeName: 'Privacy Policy',
-                                    ),
-                                  );
-                                },
-                                child: const Text(
-                                  'Privacy Policy',
-                                  style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
-                                ),
-                              ),
-                            ),
-                            const TextSpan(text: '.'),
-                          ],
+                            );
+                          },
+                          child: const Text(
+                            'Terms and Conditions',
+                            style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
                         ),
-                      ),
+                        const Text(' and ', style: TextStyle(color: AppColors.body, fontSize: 12)),
+                        InkWell(
+                          onTap: () {
+                            Navigator.of(context, rootNavigator: true).push(
+                              MaterialPageRoute(
+                                builder: (_) => const WebviewScreen(
+                                  url: Constants.privacyPolicyUrl,
+                                  routeName: 'Privacy Policy',
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Privacy Policy',
+                            style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ),
+                        const Text('.', style: TextStyle(color: AppColors.body, fontSize: 12)),
+                      ],
                     ),
                   ],
                 ),
@@ -294,7 +316,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
         decoration: BoxDecoration(
           color: active ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(30),
-          boxShadow: active ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 2))] : null,
+          boxShadow: active ? [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))] : null,
         ),
         child: Row(
           children: [
@@ -340,7 +362,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFE0F2F1).withOpacity(0.1) : Colors.white,
+                color: isSelected ? const Color(0xFFE0F2F1).withValues(alpha: 0.1) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected ? AppColors.primary : AppColors.grey200,
@@ -358,7 +380,11 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                         Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                         Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.body)),
                         16.0.height,
-                        Text(price, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter')),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(price, maxLines: 1, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, fontFamily: 'Inter')),
+                        ),
                         if (period.isNotEmpty)
                           Text(period, style: const TextStyle(fontSize: 12, color: AppColors.body)),
                       ],

@@ -93,6 +93,7 @@ class ApiEndpoints {
 
   // Jobs
   String get getJobs => "/api/jobs";
+  String getJobDetails(String id) => "/api/jobs/$id";
   String get createJob => "/api/jobs";
   String get getAppliedJobs => "/api/jobs/applied";
   String get getMyListings => "/api/jobs/my-listings";

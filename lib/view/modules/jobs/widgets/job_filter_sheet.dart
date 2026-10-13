@@ -1,5 +1,7 @@
 import 'package:creatify_mobile/data/models/responses/countries_dto.dart';
+import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
 import 'package:creatify_mobile/view/modules/authentication/get_countries_sheet.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/states_sheet.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
@@ -19,9 +21,9 @@ class JobFilterSheet extends ConsumerStatefulWidget {
 }
 
 class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
-  RangeValues _currentRangeValues = const RangeValues(1000, 50000);
+  RangeValues _currentRangeValues = const RangeValues(1000, 10000000);
   final Set<String> _selectedCategories = {};
-  CountriesItemDto? _selectedCountry;
+  StatesItemDto? _selectedLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -36,31 +38,41 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close),
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 24.0),
+                    child: IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ),
+                ),
+                8.0.height,
+                Text(
+                  'Filter Jobs',
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 22),
+                ),
+                4.0.height,
+                Text(
+                  'Narrow down your job search',
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
+                ),
+              ],
             ),
-            8.0.height,
-            Text(
-              'Filter Jobs',
-              style: context.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 22),
-            ),
-            4.0.height,
-            Text(
-              'Narrow down your job search',
-              style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
-            ),
-            24.0.height,
+            12.0.height,
 
             _buildSectionTitle('Categories'),
-            12.0.height,
+            4.0.height,
             ref.watch(fetchCreatorNichesProvider).when(
               data: (categories) => Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: 6,
+                runSpacing: 4,
                 children: categories.map((cat) {
                   final isSelected = _selectedCategories.contains(cat.id);
                   return FilterChip(
@@ -82,14 +94,14 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, s) => const Text('Error loading categories'),
             ),
-            24.0.height,
+            8.0.height,
 
             _buildSectionTitle('Budget Range'),
             RangeSlider(
               values: _currentRangeValues,
               min: 0,
-              max: 200000,
-              divisions: 200,
+              max: 10000000,
+              divisions: 1000,
               activeColor: AppColors.primary,
               onChanged: (values) => setState(() => _currentRangeValues = values),
             ),
@@ -100,32 +112,33 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
                 _buildPriceBox('Max', _currentRangeValues.end),
               ],
             ),
-            24.0.height,
+            8.0.height,
 
             _buildSectionTitle('Location'),
-            12.0.height,
+            4.0.height,
             InkWell(
-              onTap: () {
-                AppBottomSheet.showBottomSheet(
+              onTap: () async {
+                final selected = await AppBottomSheet.showBottomSheet(
                   context,
-                  widget: GetCountriesSheet(
-                    onCountrySelected: (country) => setState(() => _selectedCountry = country),
-                  ),
+                  widget: const StateSheet(),
                 );
+                if (selected != null && selected is StatesItemDto) {
+                  setState(() => _selectedLocation = selected);
+                }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(_selectedCountry?.name ?? 'Anywhere', style: const TextStyle(fontSize: 13)),
+                    Text(_selectedLocation?.name ?? 'Anywhere', style: const TextStyle(fontSize: 13)),
                     const Icon(Icons.location_on_outlined, color: AppColors.body, size: 18),
                   ],
                 ),
               ),
             ),
-            32.0.height,
+            16.0.height,
 
             Row(
               children: [
@@ -136,9 +149,9 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
                     textColor: AppColors.black2,
                     onPressed: () {
                       setState(() {
-                        _currentRangeValues = const RangeValues(1000, 50000);
+                        _currentRangeValues = const RangeValues(1000, 10000000);
                         _selectedCategories.clear();
-                        _selectedCountry = null;
+                        _selectedLocation = null;
                       });
                     },
                   ),
@@ -152,7 +165,7 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
                         if (_selectedCategories.isNotEmpty) 'category_id': _selectedCategories.first,
                         'min_price': _currentRangeValues.start,
                         'max_price': _currentRangeValues.end,
-                        if (_selectedCountry != null) 'location': _selectedCountry!.name,
+                        if (_selectedLocation != null) 'location': _selectedLocation!.name,
                       });
                       Navigator.pop(context);
                     },

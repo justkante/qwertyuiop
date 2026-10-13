@@ -15,6 +15,13 @@ class JobApiService {
     );
   }
 
+  Future<Response> getJobDetails(String jobId) async {
+    return await _networkService.request(
+      endpoints.getJobDetails(jobId),
+      RequestMethod.get,
+    );
+  }
+
   Future<Response> createJob(Map<String, dynamic> data) async {
     return await _networkService.request(
       endpoints.createJob,

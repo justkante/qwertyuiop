@@ -43,6 +43,17 @@
 			</array>
 		</dict>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>instagram</string>
+		<string>instagram-stories</string>
+		<string>snapchat</string>
+		<string>snapchat-stories</string>
+		<string>facebook</string>
+		<string>facebook-stories</string>
+		<string>whatsapp</string>
+		<string>fb</string>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>FlutterDeepLinkingEnabled</key>

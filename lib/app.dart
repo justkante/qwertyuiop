@@ -5,10 +5,14 @@ import 'package:creatify_mobile/core/deeplinking/deeplink_provider.dart';
 import 'package:creatify_mobile/core/http/dio_http_service.dart';
 import 'package:creatify_mobile/core/services/mixpanel_service.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
+import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/data/models/responses/user_dto.dart';
 import 'package:creatify_mobile/data/remote/chat/pusher_service.dart';
 import 'package:creatify_mobile/view/modules/authentication/login_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/fetched_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/modules/jobs/job_details_view.dart';
+import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/onboarding/onboarding_view.dart';
 import 'package:creatify_mobile/view/modules/search-talents/search_talents_view.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/tab_bar_view.dart';
@@ -93,52 +97,78 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   /// Called by [AppLinksDeepLink] whenever a deep link is received.
   ///
-  /// Handles two URI formats:
-  ///  - Universal Link:  https://creatifyapp.com/profile/[CODE]
-  ///  - Custom scheme:   creatify://profile/[CODE]  (simulator / local testing)
+  /// Handles URI formats:
+  ///  - Universal Link:  https://creatifyapp.com/profile/[CODE]?job_id=[ID] or https://creatifyapp.com/job/[ID]
+  ///  - Custom scheme:   creatify://profile/[CODE] or creatify://job/[ID]  (simulator / local testing)
   void _handleDeepLink(Uri uri) {
     String? profileId;
+    String? jobId;
 
     if (uri.scheme == 'https' && uri.host == 'creatifyapp.com') {
-      // https://creatifyapp.com/profile/CODE
       final segments = uri.pathSegments;
       if (segments.length >= 2 && segments[0] == 'profile') {
         profileId = segments[1];
+        jobId = uri.queryParameters['job_id'];
+      } else if (segments.length >= 2 && (segments[0] == 'job' || segments[0] == 'jobs')) {
+        jobId = segments[1];
       }
-    } else if (uri.scheme == 'creatify' && uri.host == 'profile') {
-      // creatify://profile/CODE
-      profileId = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
+    } else if (uri.scheme == 'creatify') {
+      if (uri.host == 'profile') {
+        profileId = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
+        jobId = uri.queryParameters['job_id'];
+      } else if (uri.host == 'job' || uri.host == 'jobs') {
+        jobId = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
+      }
     }
 
-    if (profileId == null || profileId.isEmpty) return;
+    if ((profileId == null || profileId.isEmpty) && (jobId == null || jobId.isEmpty)) return;
 
-    // Debounce: on cold start, uriLinkStream can echo the same URI that
-    // getInitialLink() already returned (within milliseconds). Drop any
-    // duplicate that arrives within 500 ms.
     final now = DateTime.now().millisecondsSinceEpoch;
     if (now - _lastDeepLinkMs < 500) return;
     _lastDeepLinkMs = now;
 
-    // New link — reset the guard so navigation fires exactly once for it.
     _navigatingForDeepLink = false;
-    ref.read(pendingDeepLinkProvider.notifier).state = profileId;
+    if (jobId != null && jobId.isNotEmpty) {
+      ref.read(pendingJobDeepLinkProvider.notifier).state = jobId;
+      ref.read(pendingDeepLinkProvider.notifier).state = null;
+    } else if (profileId != null && profileId.isNotEmpty) {
+      ref.read(pendingDeepLinkProvider.notifier).state = profileId;
+      ref.read(pendingJobDeepLinkProvider.notifier).state = null;
+    }
 
     final isLoading = ref.read(isLoadingUserProvider);
     if (!isLoading) _navigateForDeepLink();
-    // If user is still loading from storage, the ref.listen in build() handles it.
   }
 
-  /// Switches to the Search Talents tab (logged-in) or pushes the view (guest).
-  /// The [_navigatingForDeepLink] flag ensures this runs at most once per link.
   void _navigateForDeepLink() {
     if (_navigatingForDeepLink) return;
     _navigatingForDeepLink = true;
 
-    final user = ref.read(userControllerProvider);
-    if (user.id != null) {
-      ref.read(navBarController.notifier).index = 1;
+    final pendingJob = ref.read(pendingJobDeepLinkProvider);
+    final pendingProfile = ref.read(pendingDeepLinkProvider);
+
+    if (pendingJob != null && pendingJob.isNotEmpty) {
+      ref.read(pendingJobDeepLinkProvider.notifier).state = null;
+      _navigateToJobAdvert(pendingJob);
+    } else if (pendingProfile != null && pendingProfile.isNotEmpty) {
+      ref.read(pendingDeepLinkProvider.notifier).state = null;
+      _navigateToRecruiterProfile(pendingProfile);
+    }
+  }
+
+  void _navigateToRecruiterProfile(String profileId) {
+    NavigationService.instance.push(FetchedRecruiterProfileView(
+      creatorId: profileId,
+      creatorName: 'Recruiter',
+    ));
+  }
+
+  void _navigateToJobAdvert(String jobId) async {
+    final job = await ref.read(jobControllerProvider.notifier).getJobById(jobId);
+    if (job != null) {
+      NavigationService.instance.push(JobDetailView(job: job));
     } else {
-      NavigationService.instance.push(const SearchTalentsView());
+      NavigationService.instance.push(JobDetailView(job: JobDto(id: jobId)));
     }
   }
 
@@ -253,7 +283,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     ref.listen(isLoadingUserProvider, (prev, isLoading) {
       if (prev == true && isLoading == false) {
         final pendingCode = ref.read(pendingDeepLinkProvider);
-        if (pendingCode != null) _navigateForDeepLink();
+        final pendingJob = ref.read(pendingJobDeepLinkProvider);
+        if (pendingCode != null || pendingJob != null) _navigateForDeepLink();
       }
     });
 

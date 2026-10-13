@@ -168,7 +168,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                    ],
                  ),
                ),
-              16.0.height,
+              8.0.height,
 
               Center(
                 child: Row(

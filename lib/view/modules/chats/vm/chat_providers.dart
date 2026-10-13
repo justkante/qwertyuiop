@@ -4,6 +4,10 @@ import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/data/models/responses/conversation_dto.dart';
 import 'package:creatify_mobile/data/models/responses/conversation_message_dto.dart';
 import 'package:creatify_mobile/data/remote/chat/chat_pusher_service.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
+import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
+import 'package:creatify_mobile/view/modules/transactions/vm/get_transactions_vm.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:developer';
 
@@ -77,6 +81,71 @@ final pusherInitializationProvider = FutureProvider<bool>((ref) async {
       // Invalidate conversations to fetch the newly created conversation
       ref.invalidate(fetchConversationsProvider);
     });
+
+    // Handle comprehensive creator & recruiter booking, job, payment, subscription, and notification events
+    final refreshBookingsAndNotifications = (data) {
+      ref.invalidate(fetchReceivedBookingsProvider);
+      ref.invalidate(fetchSentBookingsProvider);
+      ref.invalidate(fetchNotificationsProvider);
+    };
+
+    final refreshJobsAndApplications = (data) {
+      ref.invalidate(jobControllerProvider);
+      ref.invalidate(fetchNotificationsProvider);
+    };
+
+    final refreshWalletAndTransactions = (data) {
+      ref.invalidate(getTransactionsProvider);
+      ref.invalidate(fetchNotificationsProvider);
+    };
+
+    final refreshSubscription = (data) {
+      ref.invalidate(fetchMySubscriptionProvider);
+      ref.invalidate(fetchNotificationsProvider);
+    };
+
+    final refreshNotificationsOnly = (data) {
+      ref.invalidate(fetchNotificationsProvider);
+    };
+
+    final bookingKeys = [
+      'booking_created', 'new_booking', 'booking',
+      'booking_confirmed', 'booking_paid', 'booking_accepted',
+      'booking_cancelled', 'booking_declined',
+      'deliverable_approved', 'booking_deliverable_approved',
+      'revision_requested', 'booking_revision_requested',
+      'deliverable_submitted', 'booking_deliverable_submitted'
+    ];
+    for (var key in bookingKeys) {
+      pusherService.registerEventHandler(key, refreshBookingsAndNotifications);
+    }
+
+    final jobKeys = [
+      'job_application_created', 'new_application', 'application_submitted', 'job_application',
+      'job_application_updated', 'application_status_updated',
+      'job_expired', 'job_closed'
+    ];
+    for (var key in jobKeys) {
+      pusherService.registerEventHandler(key, refreshJobsAndApplications);
+    }
+
+    final walletKeys = [
+      'payout_status', 'withdrawal_status', 'wallet_updated', 'payout', 'transaction_updated',
+      'payment_confirmed', 'escrow_funded', 'payment_success'
+    ];
+    for (var key in walletKeys) {
+      pusherService.registerEventHandler(key, refreshWalletAndTransactions);
+    }
+
+    final subKeys = ['subscription_updated', 'subscription_renewed'];
+    for (var key in subKeys) {
+      pusherService.registerEventHandler(key, refreshSubscription);
+    }
+
+    final notifKeys = ['notification_received', 'new_notification', 'notification'];
+    for (var key in notifKeys) {
+      pusherService.registerEventHandler(key, refreshNotificationsOnly);
+    }
 
     // Handle typing updates
     pusherService.registerEventHandler('typing_update', (data) {

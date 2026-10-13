@@ -19,6 +19,7 @@ class BookCreatorReq {
   final String? jobDescription;
   final String? startTime;
   final DateTime? startDate;
+  final DateTime? endDate;
   final String? duration;
   final dynamic location;
   final num? price;
@@ -34,6 +35,7 @@ class BookCreatorReq {
     this.jobDescription,
     this.startTime,
     this.startDate,
+    this.endDate,
     this.duration,
     this.location,
     this.price,
@@ -79,6 +81,7 @@ class BookCreatorReq {
         jobDescription: json["job_description"],
         startTime: json["start_time"],
         startDate: json["start_date"] == null ? null : DateTime.parse(json["start_date"]),
+        endDate: json["end_date"] == null ? null : DateTime.parse(json["end_date"]),
         duration: json["duration"],
         location: json["location"],
         price: json["price"],
@@ -97,6 +100,9 @@ class BookCreatorReq {
         if (startDate != null && startDate.toString() != "")
           "start_date":
               "${startDate!.year.toString().padLeft(4, '0')}-${startDate!.month.toString().padLeft(2, '0')}-${startDate!.day.toString().padLeft(2, '0')}",
+        if (endDate != null && endDate.toString() != "")
+          "end_date":
+              "${endDate!.year.toString().padLeft(4, '0')}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}",
         if (duration != null && duration != "") "duration": duration,
         if (location != null && location != "") "location": location,
         if (price != null) "price": price,

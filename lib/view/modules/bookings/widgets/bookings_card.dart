@@ -8,6 +8,7 @@ import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/cache_image_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 
 class BookingsCard extends ConsumerWidget {
   final BookingItemDto? bookingDetails;
@@ -17,6 +18,32 @@ class BookingsCard extends ConsumerWidget {
     this.bookingDetails,
     this.isSent = false,
   });
+
+  DateTime? _calculateEndDate(DateTime? start, String? duration) {
+    if (start == null) return null;
+    if (duration == null || duration.isEmpty) return start;
+    final parts = duration.trim().split(' ');
+    if (parts.isEmpty) return start;
+    final count = int.tryParse(parts[0]) ?? 1;
+    final unit = parts.length > 1 ? parts[1].toLowerCase() : 'days';
+    if (unit.startsWith('hour')) {
+      return start.add(Duration(hours: count));
+    } else if (unit.startsWith('week')) {
+      return start.add(Duration(days: count * 7));
+    } else {
+      return start.add(Duration(days: count));
+    }
+  }
+
+  String _getDateRangeText() {
+    final start = bookingDetails?.startDate;
+    if (start == null) return 'Date';
+    final end = bookingDetails?.endDate ?? _calculateEndDate(start, bookingDetails?.duration);
+
+    final startStr = DateFormat('dd/MM/yyyy').format(start.toLocal());
+    final endStr = end != null ? DateFormat('dd/MM/yyyy').format(end.toLocal()) : startStr;
+    return '$startStr - $endStr';
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -117,7 +144,7 @@ class BookingsCard extends ConsumerWidget {
           // Metadata Row: Date, Time, Location
           Row(
             children: [
-              _buildMetaIcon(Icons.calendar_today_outlined, bookingDetails?.startDate?.toFormattedDate() ?? 'Date'),
+              _buildMetaIcon(Icons.calendar_today_outlined, _getDateRangeText()),
               16.0.width,
               _buildMetaIcon(Icons.access_time, bookingDetails?.startTime?.toBookingTime() ?? 'Time'),
               16.0.width,

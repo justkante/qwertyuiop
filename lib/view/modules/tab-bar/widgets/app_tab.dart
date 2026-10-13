@@ -146,8 +146,17 @@ class _TabItemState extends ConsumerState<TabItem> {
 
     Widget button = InkWell(
       onTap: () {
-        ref.read(navBarController.notifier).index = widget.index;
-        ref.read(startTabTourProvider.notifier).state = widget.index;
+        if (widget.index == 0) {
+          if (isActive) {
+            ref.read(homeScrollToTopProvider.notifier).state++;
+          } else {
+            ref.read(navBarController.notifier).index = 0;
+            ref.read(startTabTourProvider.notifier).state = 0;
+          }
+        } else {
+          ref.read(navBarController.notifier).index = widget.index;
+          ref.read(startTabTourProvider.notifier).state = widget.index;
+        }
       },
       child: Stack(
         clipBehavior: Clip.none,

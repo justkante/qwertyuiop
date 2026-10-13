@@ -1,4 +1,6 @@
+import 'package:creatify_mobile/view/modules/bookings/book_creator_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/share_profile_widget.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/modules/bookings/sheets/report_account_sheet.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_menu_popup.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_profile_tab.dart';
@@ -545,7 +547,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
       ),
       // MARK: Bottom Buttons
       bottomNavigationBar: Visibility(
-        visible: hasProfile && !(myCreatorProfile.value?.isFavorited ?? false),
+        visible: hasProfile,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: const BoxDecoration(
@@ -556,17 +558,41 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              MainButton(
-                text: 'Save Account',
-                textColor: AppColors.btnText,
-                color: AppColors.btnTertiary,
-                loadingColor: AppColors.subHeading,
-                isLoading: makeFavorite,
-                onPressed: () {
-                  ref
-                      .read(addToFavoriteCreatorsProvider.notifier)
-                      .addToFavoriteCreators(widget.creatorId);
-                },
+              Row(
+                children: [
+                  if (!(myCreatorProfile.value?.isFavorited ?? false)) ...[
+                    Expanded(
+                      child: MainButton(
+                        text: 'Save Account',
+                        textColor: AppColors.btnText,
+                        color: AppColors.btnTertiary,
+                        loadingColor: AppColors.subHeading,
+                        isLoading: makeFavorite,
+                        onPressed: () {
+                          ref
+                              .read(addToFavoriteCreatorsProvider.notifier)
+                              .addToFavoriteCreators(widget.creatorId);
+                        },
+                      ),
+                    ),
+                    12.0.width,
+                  ],
+                  Expanded(
+                    child: MainButton(
+                      text: 'Book Creator',
+                      onPressed: () {
+                        final profile = myCreatorProfile.value;
+                        if (profile != null) {
+                          NavigationService.instance.push(
+                            BookCreatorView(
+                              creatorProfile: profile,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                  ),
+                ],
               ),
               12.0.height,
             ],

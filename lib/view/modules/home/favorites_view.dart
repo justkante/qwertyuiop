@@ -176,7 +176,7 @@ class _FavoritesViewState extends ConsumerState<FavoritesView> {
               location: job.location ?? '',
               price: job.price ?? 0,
               currency: job.currency ?? 'NGN',
-              dateRange: job.expiresAt != null ? '${job.createdAt?.toFormattedDate() ?? ''} - ${job.expiresAt?.toFormattedDate() ?? ''}' : '${job.createdAt?.toFormattedDate() ?? ''}',
+              dateRange: job.formattedDateRange,
               status: job.effectiveStatus,
               initialFavorite: true,
               onTap: () {

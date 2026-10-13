@@ -54,6 +54,23 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   final TextEditingController budgetController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
+  final TextEditingController durationNumberController = TextEditingController(text: '1');
+  String selectedDurationUnit = 'Days';
+
+  DateTime? get calculatedEndDate {
+    if (selectedStartDate?.unavailableDate == null) return null;
+    final count = int.tryParse(durationNumberController.text.trim()) ?? 1;
+    final start = selectedStartDate!.unavailableDate!;
+    switch (selectedDurationUnit) {
+      case 'Hours':
+        return start.add(Duration(hours: count));
+      case 'Weeks':
+        return start.add(Duration(days: count * 7));
+      case 'Days':
+      default:
+        return start.add(Duration(days: count));
+    }
+  }
 
   String? selectedProjectType;
   String selectedBookingType = 'Deliverable Based';
@@ -98,6 +115,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     startDateController.dispose();
     endDateController.dispose();
     workModeController.dispose();
+    durationNumberController.dispose();
     for (var d in deliverableInputs) {
       d.descriptionController.dispose();
       d.priceController.dispose();
@@ -277,7 +295,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               _buildTextArea(projectDescriptionController),
               20.0.height,
 
-              // Proposed Start Date & Proposed End Date Row
+              // Proposed Start Date & Duration Row
               Row(
                 children: [
                   Expanded(
@@ -295,14 +313,65 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Proposed End Date'),
+                        _buildLabel('Duration'),
                         8.0.height,
-                        _buildEndDateField(),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: TextField(
+                                controller: durationNumberController,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                onChanged: (_) => setState(() {}),
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: AppColors.grey50,
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
+                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
+                                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
+                                ),
+                              ),
+                            ),
+                            8.0.width,
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    isExpanded: true,
+                                    value: selectedDurationUnit,
+                                    items: ['Days', 'Hours', 'Weeks']
+                                        .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)))))
+                                        .toList(),
+                                    onChanged: (val) {
+                                      if (val != null) {
+                                        setState(() {
+                                          selectedDurationUnit = val;
+                                        });
+                                      }
+                                    },
+                                    icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
+              20.0.height,
+
+              // Proposed End Date (Auto-calculated)
+              _buildLabel('Proposed End Date (Auto-calculated)'),
+              8.0.height,
+              _buildEndDateField(),
               20.0.height,
 
               // Start Time
@@ -343,9 +412,13 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               8.0.height,
               InkWell(
                 onTap: () async {
+                  final isOnSite = workModeController.text.toLowerCase() == 'on site';
                   final selectedState = await AppBottomSheet.showBottomSheet(
                     context,
-                    widget: const StateSheet(),
+                    widget: StateSheet(
+                      creatorProfile: widget.creatorProfile,
+                      isOnSiteBooking: isOnSite,
+                    ),
                   );
                   if (selectedState != null) {
                     setState(() {
@@ -413,12 +486,10 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     return;
                   }
                   if (_formKey.currentState!.validate()) {
-                    final calcDays = (selectedEndDate != null && selectedStartDate != null)
-                        ? (selectedEndDate!.unavailableDate!.difference(selectedStartDate!.unavailableDate!).inDays + 1)
-                        : 1;
-                    final durationStr = selectedBookingType == 'Time Based'
-                        ? "24 hours"
-                        : "${calcDays > 0 ? calcDays : 1} Days";
+                    final durationNum = int.tryParse(durationNumberController.text.trim()) ?? 1;
+                    final durationStr = "$durationNum $selectedDurationUnit";
+                    final endDt = calculatedEndDate;
+                    final endDateStr = endDt != null ? DateFormat('dd/MM/yyyy').format(endDt) : '';
 
                     final deliverablesList = deliverableInputs
                         .where((d) => d.descriptionController.text.trim().isNotEmpty)
@@ -435,7 +506,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                             ? widget.creatorProfile.categories!.first.id
                             : (widget.creatorProfile.id ?? '1'),
                         startDate: selectedStartDate?.unavailableDate ?? DateTime.now(),
-                        jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: ${endDateController.text}\n\n${projectDescriptionController.text}",
+                        endDate: calculatedEndDate,
+                        jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: $endDateStr\nDuration: $durationStr\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         workMode: workModeController.text.toLowerCase(),
                         price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
@@ -663,13 +735,14 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   }
 
   Widget _buildDropdownField() {
+    final validValue = (selectedProjectType != null && projectTypes.contains(selectedProjectType)) ? selectedProjectType : null;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           isExpanded: true,
-          value: selectedProjectType,
+          value: validValue,
           hint: const Text('Select project type', style: TextStyle(fontSize: 15, color: AppColors.body)),
           items: projectTypes.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15)))).toList(),
           onChanged: (val) => setState(() => selectedProjectType = val),
@@ -753,39 +826,25 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   }
 
   Widget _buildEndDateField() {
-    return InkWell(
-      onTap: () async {
-        final initial = selectedStartDate?.unavailableDate ?? DateTime.now();
-        final date = await showDatePicker(
-          context: context,
-          initialDate: initial,
-          firstDate: initial,
-          lastDate: DateTime.now().add(const Duration(days: 365)),
-        );
-        if (date != null) {
-          setState(() {
-            selectedEndDate = CreatorUnavailabilityItemDto(unavailableDate: date);
-            endDateController.text = DateFormat('dd/MM/yyyy').format(date);
-          });
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.body),
-            8.0.width,
-            Expanded(
-              child: Text(
-                endDateController.text.isEmpty ? 'Select end date' : endDateController.text,
-                style: TextStyle(fontSize: 13, color: endDateController.text.isEmpty ? AppColors.body : Colors.black),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+    final endDt = calculatedEndDate;
+    final endStr = endDt != null ? DateFormat('dd/MM/yyyy').format(endDt) : 'Select start date & duration';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
+      child: Row(
+        children: [
+          const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.body),
+          8.0.width,
+          Expanded(
+            child: Text(
+              endStr,
+              style: TextStyle(fontSize: 13, color: endDt != null ? Colors.black : AppColors.body),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

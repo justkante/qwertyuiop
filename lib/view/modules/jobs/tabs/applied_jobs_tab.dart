@@ -24,18 +24,69 @@ class AppliedJobsTab extends ConsumerStatefulWidget {
 class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
   String selectedFilter = 'All';
   final List<String> filters = ['All', 'Pending', 'Reviewed', 'Shortlisted', 'Closed'];
+  final searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
+    searchController.addListener(_onSearchChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(jobControllerProvider.notifier).fetchAppliedJobs();
     });
   }
 
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = searchController.text.toLowerCase();
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_onSearchChanged);
+    searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final jobState = ref.watch(jobControllerProvider);
+
+    final filteredAppliedJobs = jobState.appliedJobs.where((job) {
+      if (_searchQuery.isNotEmpty) {
+        final title = (job.title ?? '').toLowerCase();
+        final desc = (job.description ?? '').toLowerCase();
+        final cat = (job.category?.name ?? '').toLowerCase();
+        if (!title.contains(_searchQuery) && !desc.contains(_searchQuery) && !cat.contains(_searchQuery)) {
+          return false;
+        }
+      }
+
+      if (selectedFilter == 'All') return true;
+
+      final sLower = job.status?.toLowerCase() ?? '';
+      final effLower = job.effectiveStatus.toLowerCase();
+      final isExpired = job.isExpired || sLower.contains('expired') || sLower == 'closed' || effLower.contains('expired');
+
+      if (selectedFilter == 'Closed') {
+        return isExpired || sLower == 'closed' || sLower == 'inactive';
+      }
+
+      if (isExpired) {
+        return false;
+      }
+
+      if (selectedFilter == 'Pending') {
+        return sLower == 'pending' || sLower == 'sent' || sLower == 'active' || sLower == 'open' || sLower.isEmpty;
+      } else if (selectedFilter == 'Reviewed') {
+        return sLower == 'reviewed' || sLower == 'viewed';
+      } else if (selectedFilter == 'Shortlisted') {
+        return sLower == 'shortlisted';
+      }
+
+      return true;
+    }).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -83,7 +134,14 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: SearchTextInputField(
+              controller: searchController,
               hintText: 'Search job, role...',
+              trailingIcon: _searchQuery.isNotEmpty
+                  ? InkWell(
+                      onTap: () => searchController.clear(),
+                      child: const Icon(Icons.clear, size: 18, color: AppColors.body),
+                    )
+                  : null,
             ),
           ),
 
@@ -92,26 +150,43 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
                 ? const Center(child: CircularProgressIndicator.adaptive())
                 : jobState.appliedJobs.isEmpty
                     ? _buildEmptyState()
-                    : ListView.separated(
-                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 300), // Even more padding for scrolling
-                        itemCount: jobState.appliedJobs.length,
-                        separatorBuilder: (_, __) => 16.0.height,
-                        itemBuilder: (context, index) {
-                          final job = jobState.appliedJobs[index];
-                          return JobPostCard(
-                            title: job.title ?? '',
-                            description: job.description ?? '',
-                            location: job.location ?? '',
-                            price: job.price ?? 0,
-                            currency: job.currency ?? 'NGN',
-                            dateRange: job.createdAt?.toFormattedDate() ?? '',
-                            status: 'Sent', // From application
-                            serviceName: job.category?.name, // Added
-                            initialFavorite: job.isFavorited ?? false,
-                            onTap: () => NavigationService.instance.push(JobDetailView(job: job, status: JobStatus.viewed)),
-                          );
-                        },
-                      ),
+                    : filteredAppliedJobs.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.search_off_outlined, size: 48, color: AppColors.body),
+                                  12.0.height,
+                                  const Text('No matching applied jobs found', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  8.0.height,
+                                  const Text('Try adjusting your search query or filter chips.', style: TextStyle(color: AppColors.body, fontSize: 12), textAlign: TextAlign.center),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.fromLTRB(24, 24, 24, 300),
+                            itemCount: filteredAppliedJobs.length,
+                            separatorBuilder: (_, __) => 16.0.height,
+                            itemBuilder: (context, index) {
+                              final job = filteredAppliedJobs[index];
+                              final displayStatus = job.isExpired ? 'Job Expired' : job.effectiveStatus;
+                              return JobPostCard(
+                                title: job.title ?? '',
+                                description: job.description ?? '',
+                                location: job.location ?? '',
+                                price: job.price ?? 0,
+                                currency: job.currency ?? 'NGN',
+                                dateRange: job.formattedDateRange,
+                                status: displayStatus,
+                                serviceName: job.category?.name,
+                                initialFavorite: job.isFavorited ?? false,
+                                onTap: () => NavigationService.instance.push(JobDetailView(job: job, status: JobStatus.viewed)),
+                              );
+                            },
+                          ),
           ),
         ],
       ),
@@ -223,16 +298,16 @@ class _AppliedJobsTabState extends ConsumerState<AppliedJobsTab> {
         try {
           if (newVal) {
             OneSignal.User.addTagWithKey("job_alerts", "true");
-            ToastDialog.showSuccess('Job alerts activated! You will receive push notifications when new jobs are posted.', context);
+            ToastDialog.showSuccess('Job alerts activated! You will receive notifications when new jobs are posted.', context);
           } else {
             OneSignal.User.removeTag("job_alerts");
-            ToastDialog.showSuccess('Job alerts deactivated.', context);
+            ToastDialog.showSuccess('You will no longer receive notifications for new jobs', context);
           }
         } catch (_) {
           if (newVal) {
             ToastDialog.showSuccess('Job alerts activated!', context);
           } else {
-            ToastDialog.showSuccess('Job alerts deactivated.', context);
+            ToastDialog.showSuccess('You will no longer receive notifications for new jobs', context);
           }
         }
       },

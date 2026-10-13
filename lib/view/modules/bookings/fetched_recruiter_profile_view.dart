@@ -134,7 +134,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                           ],
                         ),
                       ),
-                      24.0.height,
+                      8.0.height,
 
                       // Name and verification
                       Column(

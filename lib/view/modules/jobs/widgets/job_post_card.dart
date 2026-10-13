@@ -64,13 +64,96 @@ class _JobPostCardState extends State<JobPostCard> {
 
   Widget _buildStatusBadge(String status) {
     final sLower = status.toLowerCase();
-    final isExpired = sLower.contains('expired') || sLower == 'closed' || sLower == 'inactive';
-    final isOnlineActive = sLower == 'active' || sLower == 'open';
 
-    final bgColor = isOnlineActive ? const Color(0xFFE0F2F1) : const Color(0xFFFCEBEC);
-    final dotColor = isOnlineActive ? const Color(0xFF00BFA5) : const Color(0xFFFF6F61);
-    final textColor = isOnlineActive ? const Color(0xFF00796B) : const Color(0xFFD32F2F);
-    final label = isExpired ? 'Inactive - Job Expired' : 'Active';
+    // 1. Expired / Closed
+    if (sLower.contains('expired') || sLower == 'closed' || sLower == 'inactive') {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFEE2E2),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: Color(0xFFDC2626),
+                shape: BoxShape.circle,
+              ),
+            ),
+            6.0.width,
+            const Text(
+              'Job Expired',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFDC2626),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 2. Active / Open
+    if (sLower == 'active' || sLower == 'open') {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE0F2F1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: Color(0xFF00BFA5),
+                shape: BoxShape.circle,
+              ),
+            ),
+            6.0.width,
+            const Text(
+              'Active',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF00796B),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // 3. Application / Other Statuses (Sent, Pending, Reviewed, Shortlisted, Accepted, Declined)
+    Color bgColor = const Color(0xFFFEF3C7);
+    Color dotColor = const Color(0xFFD97706);
+    Color textColor = const Color(0xFFD97706);
+    String displayLabel = status.capitalize();
+
+    if (sLower == 'reviewed') {
+      bgColor = const Color(0xFFE0F2FE);
+      dotColor = const Color(0xFF0284C7);
+      textColor = const Color(0xFF0284C7);
+    } else if (sLower == 'shortlisted') {
+      bgColor = const Color(0xFFEDE9FE);
+      dotColor = const Color(0xFF6D28D9);
+      textColor = const Color(0xFF6D28D9);
+    } else if (sLower == 'accepted') {
+      bgColor = const Color(0xFFE0F2F1);
+      dotColor = const Color(0xFF00BFA5);
+      textColor = const Color(0xFF00796B);
+    } else if (sLower == 'rejected' || sLower == 'declined') {
+      bgColor = const Color(0xFFFEE2E2);
+      dotColor = const Color(0xFFDC2626);
+      textColor = const Color(0xFFDC2626);
+    }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -91,7 +174,7 @@ class _JobPostCardState extends State<JobPostCard> {
           ),
           6.0.width,
           Text(
-            label,
+            displayLabel,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.bold,
@@ -142,7 +225,7 @@ class _JobPostCardState extends State<JobPostCard> {
                           widget.title,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontSize: 15,
                             color: Color(0xFF1B3131),
                           ),
                           maxLines: 1,
@@ -227,7 +310,7 @@ class _JobPostCardState extends State<JobPostCard> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    widget.dateRange.isNotEmpty ? widget.dateRange : '12/07/26 - 14/07/26',
+                    widget.dateRange.isNotEmpty ? widget.dateRange : 'Recent',
                     style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.body,

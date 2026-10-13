@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:creatify_mobile/core/di/injector.dart';
+import 'package:creatify_mobile/core/utils/app_func_utils.dart';
 import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -13,7 +13,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import '../bookings/fetched_recruiter_profile_view.dart';
 import 'application_success_view.dart';
 
 class ApplyJobSheet extends ConsumerStatefulWidget {
@@ -26,7 +25,6 @@ class ApplyJobSheet extends ConsumerStatefulWidget {
 
 class _ApplyJobSheetState extends ConsumerState<ApplyJobSheet> {
   final _pitchController = TextEditingController();
-  final _portfolioController = TextEditingController();
   File? _resumeFile;
   bool _isSubmitting = false;
 
@@ -52,7 +50,6 @@ class _ApplyJobSheetState extends ConsumerState<ApplyJobSheet> {
   @override
   void dispose() {
     _pitchController.dispose();
-    _portfolioController.dispose();
     super.dispose();
   }
 
@@ -97,33 +94,27 @@ class _ApplyJobSheetState extends ConsumerState<ApplyJobSheet> {
 
           Text('Pitch yourself', style: context.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
           8.0.height,
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey100)),
-            child: TextField(
-              controller: _pitchController,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                hintText: 'State why you are the best fit for the job',
-                hintStyle: TextStyle(fontSize: 12, color: AppColors.body),
-                border: InputBorder.none,
+          TextField(
+            controller: _pitchController,
+            maxLines: 4,
+            decoration: InputDecoration(
+              hintText: 'State why you are the best fit for the job',
+              hintStyle: const TextStyle(fontSize: 12, color: AppColors.body),
+              filled: true,
+              fillColor: AppColors.grey50,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.grey200),
               ),
-            ),
-          ),
-          16.0.height,
-
-          Text('Portfolio link (if any)', style: context.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
-          8.0.height,
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey100)),
-            child: TextField(
-              controller: _portfolioController,
-              decoration: const InputDecoration(
-                hintText: 'www.yourportfolio.com',
-                hintStyle: TextStyle(fontSize: 12, color: AppColors.body),
-                border: InputBorder.none,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.grey200),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.primary),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
           ),
           16.0.height,
@@ -178,7 +169,6 @@ class _ApplyJobSheetState extends ConsumerState<ApplyJobSheet> {
               try {
                 final Map<String, dynamic> data = {
                   'pitch': _pitchController.text,
-                  'portfolio_link': _portfolioController.text,
                 };
 
                 if (_resumeFile != null) {
@@ -192,7 +182,9 @@ class _ApplyJobSheetState extends ConsumerState<ApplyJobSheet> {
                 if (error == null) {
                   if (context.mounted) {
                     Navigator.pop(context);
-                    NavigationService.instance.push(const ApplicationSuccessView());
+                    NavigationService.instance.push(ApplicationSuccessView(
+                      recruiterName: widget.job?.user?.name,
+                    ));
                   }
                 } else {
                   if (context.mounted) {
@@ -211,16 +203,21 @@ class _ApplyJobSheetState extends ConsumerState<ApplyJobSheet> {
           24.0.height,
 
           InkWell(
-            onTap: () {
-              final jobLink = 'https://creatifyapp.com/job/${widget.job?.id}';
-              Clipboard.setData(ClipboardData(text: jobLink));
-              ToastDialog.showSuccess('Job link copied to clipboard', context);
+            onTap: () async {
+              final recruiterId = widget.job?.user?.profileId ?? widget.job?.user?.id ?? widget.job?.userId ?? widget.job?.id ?? '';
+              final recruiterName = widget.job?.user?.name ?? 'Recruiter';
+              final jobId = widget.job?.id;
+              final profileUrl = (jobId != null && jobId.isNotEmpty)
+                  ? 'https://creatifyapp.com/profile/$recruiterId?job_id=$jobId'
+                  : 'https://creatifyapp.com/profile/$recruiterId';
+              final message = "Check out $recruiterName's profile on Creatify: $profileUrl";
+              await AppUtils.shareLink(message, context);
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'share this recruiters profile',
+                  "Share this recruiter's profile",
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: AppColors.body,
                     fontWeight: FontWeight.w500,

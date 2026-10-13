@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:creatify_mobile/core/env/env.dart';
 import 'package:creatify_mobile/core/http/dio_http_service.dart';
 import 'package:creatify_mobile/core/http/http_service.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -33,6 +34,19 @@ class PushNotification {
       OneSignal.login(userId);
       _updateDevicePlatform(userId);
     }
+
+    OneSignal.Notifications.addClickListener((event) {
+      log('OneSignal notification clicked: ${event.notification.additionalData}');
+      ref.invalidate(fetchReceivedBookingsProvider);
+      ref.invalidate(fetchNotificationsProvider);
+    });
+
+    OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+      log('OneSignal notification received in foreground: ${event.notification.body}');
+      ref.invalidate(fetchReceivedBookingsProvider);
+      ref.invalidate(fetchNotificationsProvider);
+      event.notification.display();
+    });
   }
 
   Future<void> _updateDevicePlatform(String userId) async {

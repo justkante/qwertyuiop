@@ -15,7 +15,7 @@ class MyListingJobCard extends StatelessWidget {
   final String postedDate;
   final String status; // active, draft, closed
   final VoidCallback onTap;
-  final VoidCallback onViewApplicants;
+  final VoidCallback? onViewApplicants;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
@@ -31,7 +31,7 @@ class MyListingJobCard extends StatelessWidget {
     required this.postedDate,
     required this.status,
     required this.onTap,
-    required this.onViewApplicants,
+    this.onViewApplicants,
     required this.onEdit,
     required this.onDelete,
   });
@@ -56,7 +56,7 @@ class MyListingJobCard extends StatelessWidget {
                 ? const Color(0xFFFEF3C7)
                 : const Color(0xFFFEE2E2);
 
-    final displayStatusText = isExpiredStatus ? 'Inactive - Job Expired' : status.capitalize();
+    final displayStatusText = isExpiredStatus ? 'Job Expired' : status.capitalize();
 
     return GestureDetector(
       onTap: onTap,
@@ -79,7 +79,7 @@ class MyListingJobCard extends StatelessWidget {
                     title,
                     style: context.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18, // Increased from 16
+                      fontSize: 15, // Reduced font size
                       color: const Color(0xFF1B3131),
                     ),
                   ),
@@ -194,29 +194,31 @@ class MyListingJobCard extends StatelessWidget {
             // Action Buttons
             Row(
               children: [
-                Expanded(
-                  flex: 4,
-                  child: MainButton(
-                    text: 'View Applicants',
-                    borderRadius: 24,
-                    color: const Color(0xFFE0F2F1),
-                    textColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    onPressed: onViewApplicants,
-                    prefixIcon: const Icon(Icons.group_outlined, color: AppColors.primary, size: 18),
+                if (!isExpiredStatus && statusLower != 'draft') ...[
+                  Expanded(
+                    flex: 4,
+                    child: MainButton(
+                      text: 'View Applicants',
+                      borderRadius: 24,
+                      color: const Color(0xFFE0F2F1),
+                      textColor: AppColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      onPressed: onViewApplicants,
+                      prefixIcon: const Icon(Icons.group_outlined, color: AppColors.primary, size: 18),
+                    ),
                   ),
-                ),
-                8.0.width,
+                  8.0.width,
+                ],
                 Expanded(
-                  flex: 3,
+                  flex: statusLower == 'draft' ? 1 : 3,
                   child: MainButton(
                     text: 'Edit',
                     borderRadius: 24,
-                    color: AppColors.grey50,
-                    textColor: const Color(0xFF1B3131),
+                    color: statusLower == 'draft' ? const Color(0xFFE0F2F1) : AppColors.grey50,
+                    textColor: statusLower == 'draft' ? AppColors.primary : const Color(0xFF1B3131),
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     onPressed: onEdit,
-                    prefixIcon: const Icon(Icons.edit_outlined, color: Color(0xFF1B3131), size: 16),
+                    prefixIcon: Icon(Icons.edit_outlined, color: statusLower == 'draft' ? AppColors.primary : const Color(0xFF1B3131), size: 16),
                   ),
                 ),
                 8.0.width,
