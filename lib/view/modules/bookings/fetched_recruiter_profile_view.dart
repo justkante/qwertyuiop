@@ -1,3 +1,4 @@
+import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/data/models/responses/recruiter_profile_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/sheets/report_account_sheet.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_menu_popup.dart';
@@ -307,25 +308,33 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
         ? data.creativeRoles!
         : (data.categories != null && data.categories!.isNotEmpty)
             ? data.categories!.map((c) => c.name ?? '').where((n) => n.isNotEmpty).toList()
-            : (savedPrefNames.isNotEmpty)
-                ? savedPrefNames
-                : defaultCreativeRoles;
+            : (SharedPrefManager.recruiterCreativeRoles.isNotEmpty)
+                ? SharedPrefManager.recruiterCreativeRoles
+                : (savedPrefNames.isNotEmpty)
+                    ? savedPrefNames
+                    : defaultCreativeRoles;
 
     final projectTypeItems = (data.typesOfProjects != null && data.typesOfProjects!.isNotEmpty)
         ? data.typesOfProjects!
-        : defaultTypesOfProjects;
+        : (SharedPrefManager.recruiterTypesOfProjects.isNotEmpty)
+            ? SharedPrefManager.recruiterTypesOfProjects
+            : defaultTypesOfProjects;
 
     final workSetupItems = (data.workSetup != null && data.workSetup!.isNotEmpty)
         ? data.workSetup!
-        : (data.workMode != null && data.workMode!.isNotEmpty)
-            ? [data.workMode!.toTitleCase(), ...defaultWorkSetup.where((e) => e.toLowerCase() != data.workMode!.toLowerCase())]
-            : defaultWorkSetup;
+        : (SharedPrefManager.recruiterWorkSetup.isNotEmpty)
+            ? SharedPrefManager.recruiterWorkSetup
+            : (data.workMode != null && data.workMode!.isNotEmpty)
+                ? [data.workMode!.toTitleCase(), ...defaultWorkSetup.where((e) => e.toLowerCase() != data.workMode!.toLowerCase())]
+                : defaultWorkSetup;
 
     final locationItems = (data.locationPreferences != null && data.locationPreferences!.isNotEmpty)
         ? data.locationPreferences!
-        : (data.location != null && data.location!.isNotEmpty)
-            ? [data.location!, ...defaultLocationPreferences.where((e) => e != data.location)]
-            : defaultLocationPreferences;
+        : (SharedPrefManager.recruiterLocationPreferences.isNotEmpty)
+            ? SharedPrefManager.recruiterLocationPreferences
+            : (data.location != null && data.location!.isNotEmpty)
+                ? [data.location!, ...defaultLocationPreferences.where((e) => e != data.location)]
+                : defaultLocationPreferences;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

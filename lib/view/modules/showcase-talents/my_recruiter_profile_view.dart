@@ -29,6 +29,7 @@ import 'package:creatify_mobile/view/modules/home/edit_profile_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/fetched_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/home/support_view.dart';
 import 'package:creatify_mobile/view/modules/home/favorites_view.dart';
+import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/data/models/requests/update_availability_req.dart';
 import 'package:creatify_mobile/data/models/responses/recruiter_profile_dto.dart' hide RatingsAndReviews;
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/update_availability_vm.dart';
@@ -49,10 +50,18 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
   String selectedTimeframeValue = 'last_month';
 
   // Looking For Preferences state
-  List<String> _creativeRoles = ['Content Creators', 'Photographers', 'Videographers', 'Models', 'Stylists', 'Designers', 'Makeup Artists'];
-  List<String> _typesOfProjects = ['Brand Campaigns', 'Events', 'Social Media Content', 'Product Shoots', 'Editorial', 'UGC Content'];
-  List<String> _workSetup = ['On-site', 'Remote', 'Project-based', 'Long-term'];
-  List<String> _locationPreferences = ['Lagos, Nigeria', 'Other cities in Nigeria', 'Open to international talent'];
+  List<String> _creativeRoles = SharedPrefManager.recruiterCreativeRoles.isNotEmpty
+      ? SharedPrefManager.recruiterCreativeRoles
+      : ['Content Creators', 'Photographers', 'Videographers', 'Models', 'Stylists', 'Designers', 'Makeup Artists'];
+  List<String> _typesOfProjects = SharedPrefManager.recruiterTypesOfProjects.isNotEmpty
+      ? SharedPrefManager.recruiterTypesOfProjects
+      : ['Brand Campaigns', 'Events', 'Social Media Content', 'Product Shoots', 'Editorial', 'UGC Content'];
+  List<String> _workSetup = SharedPrefManager.recruiterWorkSetup.isNotEmpty
+      ? SharedPrefManager.recruiterWorkSetup
+      : ['On-site', 'Remote', 'Project-based', 'Long-term'];
+  List<String> _locationPreferences = SharedPrefManager.recruiterLocationPreferences.isNotEmpty
+      ? SharedPrefManager.recruiterLocationPreferences
+      : ['Lagos, Nigeria', 'Other cities in Nigeria', 'Open to international talent'];
 
   String get selectedTimeframeDisplay {
     switch (selectedTimeframeValue) {
@@ -200,7 +209,12 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
       }
     }
 
-    setState(() {});
+    setState(() {
+      SharedPrefManager.recruiterCreativeRoles = _creativeRoles;
+      SharedPrefManager.recruiterTypesOfProjects = _typesOfProjects;
+      SharedPrefManager.recruiterWorkSetup = _workSetup;
+      SharedPrefManager.recruiterLocationPreferences = _locationPreferences;
+    });
 
     if (updatedSections.isNotEmpty) {
       ref.invalidate(fetchRecruiterProfileProvider);

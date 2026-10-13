@@ -47,6 +47,19 @@ class SharedPrefManager {
   static List<String> get localJobDrafts => prefs.getStringList("local_job_drafts") ?? [];
   static set localJobDrafts(List<String> drafts) => prefs.setStringList("local_job_drafts", drafts);
 
+  // Recruiter Profile Preferences
+  static List<String> get recruiterCreativeRoles => prefs.getStringList("recruiter_creative_roles") ?? [];
+  static set recruiterCreativeRoles(List<String> val) => prefs.setStringList("recruiter_creative_roles", val);
+
+  static List<String> get recruiterTypesOfProjects => prefs.getStringList("recruiter_types_of_projects") ?? [];
+  static set recruiterTypesOfProjects(List<String> val) => prefs.setStringList("recruiter_types_of_projects", val);
+
+  static List<String> get recruiterWorkSetup => prefs.getStringList("recruiter_work_setup") ?? [];
+  static set recruiterWorkSetup(List<String> val) => prefs.setStringList("recruiter_work_setup", val);
+
+  static List<String> get recruiterLocationPreferences => prefs.getStringList("recruiter_location_preferences") ?? [];
+  static set recruiterLocationPreferences(List<String> val) => prefs.setStringList("recruiter_location_preferences", val);
+
   static void clear() {
     prefs.clear();
   }

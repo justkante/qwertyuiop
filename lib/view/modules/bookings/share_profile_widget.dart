@@ -148,10 +148,6 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
             24.0.width,
             _buildSocialIcon(AppImages.instagramIcon, 'Instagram', () async {
                final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
-               await Clipboard.setData(ClipboardData(text: message));
-               if (!mounted) return;
-               ToastDialog.showSuccess('Link copied! Opening Instagram...', context);
-
                final instaStoryUrl = Uri.parse("instagram-stories://share?content_url=${Uri.encodeComponent(profileUrl)}");
                final instaAppUrl = Uri.parse("instagram://app");
                final instaWebUrl = Uri.parse("https://www.instagram.com/");
@@ -170,7 +166,6 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
             24.0.width,
             _buildSocialIcon(AppImages.facebookIcon, 'Facebook', () async {
                final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
-               await Clipboard.setData(ClipboardData(text: message));
                final fbStoryUrl = Uri.parse("facebook-stories://share");
                final fbSharerUrl = Uri.parse("https://www.facebook.com/sharer/sharer.php?u=${Uri.encodeComponent(profileUrl)}");
 
@@ -186,10 +181,6 @@ class _ShareProfileWidgetState extends State<ShareProfileWidget> {
             24.0.width,
             _buildSocialIcon(AppImages.snapchatIcon, 'Snapchat', () async {
                final message = "Check out ${widget.profile?.name}'s profile on Creatify: $profileUrl";
-               await Clipboard.setData(ClipboardData(text: message));
-               if (!mounted) return;
-               ToastDialog.showSuccess('Link copied! Opening Snapchat...', context);
-
                final snapStoryUrl = Uri.parse("snapchat://creativekit/camera?attachmentUrl=${Uri.encodeComponent(profileUrl)}");
                final snapUrl = Uri.parse("snapchat://");
                final snapWebUrl = Uri.parse("https://www.snapchat.com/");
