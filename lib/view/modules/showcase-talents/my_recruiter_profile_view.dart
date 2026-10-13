@@ -127,7 +127,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -138,8 +138,8 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                       children: [
                         // MARK: Centered Profile Picture
                         SizedBox(
-                          width: 110,
-                          height: 110,
+                          width: 100,
+                          height: 100,
                           child: Stack(
                             clipBehavior: Clip.none,
                             alignment: Alignment.center,
@@ -147,7 +147,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                               ExpandableProfileImage(
                                 imageUrl: data.profileImage,
                                 initials: data.initials,
-                                size: 100, // Increased
+                                size: 100,
                                 initialsFallback: Center(child: InitialAvatar(initials: data.initials, size: 36, padding: const EdgeInsets.all(20))),
                               ),
                               Positioned(
@@ -165,7 +165,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                             ],
                           ),
                         ),
-                        8.0.height,
+                        4.0.height,
 
                         Column(
                           children: [

@@ -88,6 +88,7 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
     final userData = ref.watch(userControllerProvider);
     final myCreatorProfile = ref.watch(fetchCreatorProfileProvider((widget.creatorId, null)));
     final makeFavorite = ref.watch(addToFavoriteCreatorsProvider).isLoading;
+    final removeFavorite = ref.watch(removeFromFavoriteCreatorsProvider).isLoading;
     final hasProfile = myCreatorProfile.hasValue;
 
     ref.listen(verifySubscriptionPaymentProvider, (_, value) {
@@ -105,6 +106,16 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
     ref.listen(addToFavoriteCreatorsProvider, (_, value) {
       if (value is AsyncData) {
         ToastDialog.showSuccess('Account saved', context);
+        ref.invalidate(fetchCreatorProfileProvider((widget.creatorId, null)));
+      }
+      if (value is AsyncError) {
+        ToastDialog.showError(value.error.toString(), context);
+      }
+    });
+
+    ref.listen(removeFromFavoriteCreatorsProvider, (_, value) {
+      if (value is AsyncData) {
+        ToastDialog.showSuccess('Removed from saved accounts', context);
         ref.invalidate(fetchCreatorProfileProvider((widget.creatorId, null)));
       }
       if (value is AsyncError) {
@@ -560,23 +571,28 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
             children: [
               Row(
                 children: [
-                  if (!(myCreatorProfile.value?.isFavorited ?? false)) ...[
-                    Expanded(
-                      child: MainButton(
-                        text: 'Save Account',
-                        textColor: AppColors.btnText,
-                        color: AppColors.btnTertiary,
-                        loadingColor: AppColors.subHeading,
-                        isLoading: makeFavorite,
-                        onPressed: () {
+                  Expanded(
+                    child: MainButton(
+                      text: (myCreatorProfile.value?.isFavorited ?? false) ? 'Saved' : 'Save Account',
+                      textColor: (myCreatorProfile.value?.isFavorited ?? false) ? AppColors.primary : AppColors.btnText,
+                      color: (myCreatorProfile.value?.isFavorited ?? false) ? AppColors.grey200 : AppColors.btnTertiary,
+                      loadingColor: AppColors.subHeading,
+                      isLoading: makeFavorite || removeFavorite,
+                      onPressed: () {
+                        final isFav = myCreatorProfile.value?.isFavorited ?? false;
+                        if (isFav) {
+                          ref
+                              .read(removeFromFavoriteCreatorsProvider.notifier)
+                              .removeFromFavoriteCreators(widget.creatorId);
+                        } else {
                           ref
                               .read(addToFavoriteCreatorsProvider.notifier)
                               .addToFavoriteCreators(widget.creatorId);
-                        },
-                      ),
+                        }
+                      },
                     ),
-                    12.0.width,
-                  ],
+                  ),
+                  12.0.width,
                   Expanded(
                     child: MainButton(
                       text: 'Book Creator',

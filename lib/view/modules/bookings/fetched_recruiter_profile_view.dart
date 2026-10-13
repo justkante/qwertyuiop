@@ -102,7 +102,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -111,10 +111,10 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // MARK: Centered Profile Picture (Same 100px size as MyRecruiterProfileView)
+                      // MARK: Centered Profile Picture
                       SizedBox(
-                        width: 110,
-                        height: 110,
+                        width: 100,
+                        height: 100,
                         child: Stack(
                           clipBehavior: Clip.none,
                           alignment: Alignment.center,
@@ -134,7 +134,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                           ],
                         ),
                       ),
-                      8.0.height,
+                      4.0.height,
 
                       // Name and verification
                       Column(

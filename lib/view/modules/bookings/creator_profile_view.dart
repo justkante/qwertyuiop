@@ -568,37 +568,42 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
             children: [
               Row(
                 children: [
-                  if (!widget.isFavorite) ...[
-                    Expanded(
-                      child: MainButton(
-                        text: 'Save Account',
-                        textColor: AppColors.btnText,
-                        color: AppColors.btnTertiary,
-                        loadingColor: AppColors.subHeading,
-                        isLoading: makeFavorite,
-                        onPressed: () {
-                          if (userData.id == null) {
-                            AppBottomSheet.showBottomSheet(
-                              context,
-                              widget: const LoginSheet(),
-                            );
+                  Expanded(
+                    child: MainButton(
+                      text: (widget.isFavorite || (widget.profile?.isFavorited ?? false)) ? 'Saved' : 'Save Account',
+                      textColor: (widget.isFavorite || (widget.profile?.isFavorited ?? false)) ? AppColors.primary : AppColors.btnText,
+                      color: (widget.isFavorite || (widget.profile?.isFavorited ?? false)) ? AppColors.grey200 : AppColors.btnTertiary,
+                      loadingColor: AppColors.subHeading,
+                      isLoading: makeFavorite || removeFavorite,
+                      onPressed: () {
+                        if (userData.id == null) {
+                          AppBottomSheet.showBottomSheet(
+                            context,
+                            widget: const LoginSheet(),
+                          );
+                        } else {
+                          final isFav = widget.isFavorite || (widget.profile?.isFavorited ?? false);
+                          if (isFav) {
+                            ref.read(removeFromFavoriteCreatorsProvider.notifier).removeFromFavoriteCreators(
+                                  widget.profile?.id ?? '',
+                                );
                           } else {
                             ref.read(addToFavoriteCreatorsProvider.notifier).addToFavoriteCreators(
                                   widget.profile?.id ?? '',
                                 );
                           }
-                        },
-                      ),
+                        }
+                      },
                     ),
-                    12.0.width,
-                  ],
+                  ),
+                  12.0.width,
                   Expanded(
                     child: GuardedShowcase(
                       showcaseKey: TourKeys.creatorBookButton,
                       description: 'Ready to hire? Tap here to book instantly or send an offer.',
                       targetBorderRadius: BorderRadius.circular(8),
                       child: MainButton(
-                        text: 'Book',
+                        text: 'Book Creator',
                         onPressed: () {
                           if (userData.id == null) {
                             AppBottomSheet.showBottomSheet(
@@ -618,7 +623,7 @@ class _CreatorProfileViewState extends ConsumerState<CreatorProfileView>
                   ),
                 ],
               ),
-              12.0.height
+              12.0.height,
             ],
           ),
         ),
