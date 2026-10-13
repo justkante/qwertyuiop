@@ -70,7 +70,18 @@ class _SetAvailabilityViewState extends ConsumerState<SetAvailabilityView> {
         Navigator.pop(context);
       }
       if (value is AsyncError) {
-        ToastDialog.showError(value.error.toString(), context);
+        final errStr = value.error.toString().toLowerCase();
+        String friendlyMsg = 'Please check your inputs and try again';
+        if (errStr.contains('after today') || errStr.contains('unavailable_dates')) {
+          friendlyMsg = 'Please select a date after today';
+        } else if (errStr.contains('state id') || errStr.contains('state_id')) {
+          friendlyMsg = 'Please select a valid location';
+        } else if (errStr.contains('required')) {
+          friendlyMsg = 'Please fill in all required fields';
+        } else if (!errStr.contains('.') && !errStr.contains('_')) {
+          friendlyMsg = value.error.toString().replaceFirst('Exception: ', '');
+        }
+        ToastDialog.showError(friendlyMsg, context);
       }
     });
 

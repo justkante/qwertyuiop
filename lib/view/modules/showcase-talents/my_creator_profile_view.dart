@@ -1,6 +1,8 @@
-import 'dart:developer';
-
+import 'package:creatify_mobile/data/models/requests/update_availability_req.dart';
+import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/states_sheet.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/update_availability_vm.dart';
 import 'package:creatify_mobile/view/modules/bookings/share_profile_widget.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/expandable_profile_image.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
@@ -129,6 +131,29 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
             ),
       ),
     );
+  }
+
+  void _onUpdateWorkMode(CreatorProfileDto data) async {
+    final result = await AppBottomSheet.showBottomSheet(
+      context,
+      widget: UpdateWorkModeSheet(
+        workPreference: WorkPreference(
+          workMode: data.workMode,
+          availableToTravel: data.availableToTravel,
+          state: StatesItemDto(name: data.location),
+        ),
+      ),
+    );
+
+    final req = result is UpdateAvailabilityReq ? result : null;
+
+    if (req != null) {
+      await ref.read(updateAvailabilityProvider.notifier).updateAvailability(req);
+      ref.invalidate(fetchCreatorProfileProvider);
+      if (mounted) {
+        ToastDialog.showSuccess('Work Setup updated and saved to server', context);
+      }
+    }
   }
 
   void _onShareProfile() {
@@ -301,9 +326,15 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            _buildSmallInfoChip(Icons.location_on_outlined, data.location ?? 'Lagos, Nigeria'),
+                            GestureDetector(
+                              onTap: () => _onUpdateWorkMode(data),
+                              child: _buildSmallInfoChip(Icons.location_on_outlined, data.location ?? 'Lagos, Nigeria'),
+                            ),
                             12.0.width,
-                            _buildSmallInfoChip(Icons.work_outline, data.workMode?.toTitleCase() ?? 'Remote'),
+                            GestureDetector(
+                              onTap: () => _onUpdateWorkMode(data),
+                              child: _buildSmallInfoChip(Icons.work_outline, data.workMode?.toTitleCase() ?? 'Remote'),
+                            ),
                           ],
                         ),
                         16.0.height,

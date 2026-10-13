@@ -15,6 +15,7 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
     String? location,
     double? rating,
     String? availability,
+    String? workMode,
   }) async {
     state = const AsyncValue.loading();
 
@@ -30,7 +31,7 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
             );
       } catch (_) {}
 
-      if (list.isEmpty || (location != null && location.isNotEmpty) || (name != null && name.isNotEmpty) || (category != null && category.isNotEmpty) || (rating != null) || (availability != null && availability.isNotEmpty)) {
+      if (list.isEmpty || (location != null && location.isNotEmpty) || (name != null && name.isNotEmpty) || (category != null && category.isNotEmpty) || (rating != null) || (availability != null && availability.isNotEmpty) || (workMode != null && workMode.isNotEmpty)) {
         final allCreators = await ref.read(creatorRepository).filterCreators();
 
         list = allCreators.where((creator) {
@@ -39,6 +40,7 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           bool matchesCategory = true;
           bool matchesRating = true;
           bool matchesAvailability = true;
+          bool matchesWorkMode = true;
 
           if (name != null && name.isNotEmpty) {
             final q = name.toLowerCase();
@@ -83,7 +85,13 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
             }
           }
 
-          return matchesName && matchesLocation && matchesCategory && matchesRating && matchesAvailability;
+          if (workMode != null && workMode.isNotEmpty) {
+            final modeLower = workMode.toLowerCase();
+            final creatorMode = creator.workMode?.toLowerCase() ?? '';
+            matchesWorkMode = creatorMode.contains(modeLower);
+          }
+
+          return matchesName && matchesLocation && matchesCategory && matchesRating && matchesAvailability && matchesWorkMode;
         }).toList();
       }
 
@@ -105,6 +113,7 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           if (location != null) 'location': location,
           if (rating != null) 'rating': rating,
           if (availability != null) 'availability': availability,
+          if (workMode != null) 'work_mode': workMode,
         },
       );
     } catch (e) {

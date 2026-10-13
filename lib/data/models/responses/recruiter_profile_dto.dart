@@ -16,6 +16,12 @@ class RecruiterProfileDto {
   final bool? isPremium;
   final RatingsAndReviews? ratingsAndReviews;
   final Analytics? analytics;
+  final List<Category>? categories;
+  final String? workMode;
+  final List<String>? creativeRoles;
+  final List<String>? typesOfProjects;
+  final List<String>? workSetup;
+  final List<String>? locationPreferences;
 
   RecruiterProfileDto({
     this.id,
@@ -28,6 +34,12 @@ class RecruiterProfileDto {
     this.lastSeenAt,
     this.analytics,
     this.isPremium,
+    this.categories,
+    this.workMode,
+    this.creativeRoles,
+    this.typesOfProjects,
+    this.workSetup,
+    this.locationPreferences,
   });
 
   String get initials {
@@ -53,6 +65,12 @@ class RecruiterProfileDto {
     RatingsAndReviews? ratingsAndReviews,
     Analytics? analytics,
     String? email,
+    List<Category>? categories,
+    String? workMode,
+    List<String>? creativeRoles,
+    List<String>? typesOfProjects,
+    List<String>? workSetup,
+    List<String>? locationPreferences,
   }) =>
       RecruiterProfileDto(
         id: id ?? this.id,
@@ -65,6 +83,12 @@ class RecruiterProfileDto {
         ratingsAndReviews: ratingsAndReviews ?? this.ratingsAndReviews,
         analytics: analytics ?? this.analytics,
         lastSeenAt: lastSeenAt ?? this.lastSeenAt,
+        categories: categories ?? this.categories,
+        workMode: workMode ?? this.workMode,
+        creativeRoles: creativeRoles ?? this.creativeRoles,
+        typesOfProjects: typesOfProjects ?? this.typesOfProjects,
+        workSetup: workSetup ?? this.workSetup,
+        locationPreferences: locationPreferences ?? this.locationPreferences,
       );
 
   factory RecruiterProfileDto.fromJson(Map<String, dynamic> json) => RecruiterProfileDto(
@@ -79,6 +103,22 @@ class RecruiterProfileDto {
             json["reviews"] == null ? null : RatingsAndReviews.fromJson(json["reviews"]),
         analytics: json["analytics"] == null ? null : Analytics.fromJson(json["analytics"]),
         lastSeenAt: json["last_seen_at"],
+        categories: json["categories"] == null
+            ? null
+            : List<Category>.from(json["categories"]!.map((x) => Category.fromJson(x))),
+        workMode: json["work_mode"],
+        creativeRoles: json["creative_roles"] == null
+            ? null
+            : List<String>.from(json["creative_roles"].map((x) => x.toString())),
+        typesOfProjects: json["types_of_projects"] == null
+            ? null
+            : List<String>.from(json["types_of_projects"].map((x) => x.toString())),
+        workSetup: json["work_setup"] == null
+            ? null
+            : List<String>.from(json["work_setup"].map((x) => x.toString())),
+        locationPreferences: json["location_preferences"] == null
+            ? null
+            : List<String>.from(json["location_preferences"].map((x) => x.toString())),
       );
 
   Map<String, dynamic> toJson() => {
@@ -92,6 +132,12 @@ class RecruiterProfileDto {
         "reviews": ratingsAndReviews?.toJson(),
         "analytics": analytics?.toJson(),
         "last_seen_at": lastSeenAt,
+        "categories": categories == null ? null : List<dynamic>.from(categories!.map((x) => x.toJson())),
+        "work_mode": workMode,
+        "creative_roles": creativeRoles,
+        "types_of_projects": typesOfProjects,
+        "work_setup": workSetup,
+        "location_preferences": locationPreferences,
       };
 }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:creatify_mobile/core/di/injector.dart';
 import 'package:creatify_mobile/core/services/mixpanel_service.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -14,6 +15,8 @@ class UpdatePreferencesNotifier extends AutoDisposeAsyncNotifier<String> {
     );
 
     if (!state.hasError) {
+      ref.invalidate(fetchPreferencesProvider);
+      ref.invalidate(fetchRecruiterProfileProvider);
       ref.invalidate(getRecommendedCreatorsProvider);
       mixpanel.trackEvent('Preferences Updated');
     }

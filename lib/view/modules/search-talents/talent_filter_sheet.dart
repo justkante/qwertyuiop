@@ -18,6 +18,7 @@ ValueNotifier<StatesItemDto?> locationNotifier = ValueNotifier<StatesItemDto?>(n
 ValueNotifier<double> minPriceNotifier = ValueNotifier<double>(1);
 ValueNotifier<double> maxPriceNotifier = ValueNotifier<double>(10000000);
 ValueNotifier<Set<String>> categoriesNotifier = ValueNotifier<Set<String>>({});
+ValueNotifier<String?> workModeNotifier = ValueNotifier<String?>(null);
 
 class TalentFilterSheet extends ConsumerStatefulWidget {
   const TalentFilterSheet({
@@ -40,6 +41,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
 
   double? selectedRating;
   String? selectedAvailability;
+  String? selectedWorkMode;
 
   // Track expanded sections
   bool isCategoriesExpanded = true;
@@ -47,6 +49,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   bool isLocationExpanded = true;
   bool isRatingExpanded = true;
   bool isAvailabilityExpanded = true;
+  bool isWorkModeExpanded = true;
 
   // Track which top-level category is expanded
   String? expandedCategoryId;
@@ -66,6 +69,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         maxPriceNotifier.value.clamp(minAmount, maxAmount),
       );
       locationController.text = locationNotifier.value?.name ?? '';
+      selectedWorkMode = workModeNotifier.value;
     });
   }
 
@@ -189,6 +193,15 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                     onToggle: () => setState(() => isAvailabilityExpanded = !isAvailabilityExpanded),
                     child: _buildAvailabilityFilter(),
                   ),
+                  24.0.height,
+
+                  // By Work Mode Dropdown
+                  _buildFilterSection(
+                    title: 'By Work Mode',
+                    isExpanded: isWorkModeExpanded,
+                    onToggle: () => setState(() => isWorkModeExpanded = !isWorkModeExpanded),
+                    child: _buildWorkModeFilter(),
+                  ),
                   32.0.height,
                 ],
               ),
@@ -250,6 +263,44 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
     );
   }
 
+  Widget _buildWorkModeFilter() {
+    final workModes = ['Hybrid', 'Remote', 'On-site'];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: workModes.map((mode) {
+        final isSelected = selectedWorkMode == mode;
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedWorkMode = isSelected ? null : mode;
+            });
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFFE0F2F1) : AppColors.grey50,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: isSelected ? AppColors.primary : AppColors.grey200,
+                width: isSelected ? 1.5 : 1,
+              ),
+            ),
+            child: Text(
+              mode,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? AppColors.primary : const Color(0xFF1B3131),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildRatingFilter() {
     final ratings = [
       {'label': 'Any rating', 'val': 0.0},
@@ -300,8 +351,8 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   }
 
   Widget _buildAvailabilityFilter() {
-    final options = ['Available now', 'Available this week', 'Available this month', 'Select dates'];
-    final validAvailability = (selectedAvailability != null && options.contains(selectedAvailability)) ? selectedAvailability : null;
+    final availabilities = ['Available now'];
+    final validAvail = (selectedAvailability != null && availabilities.contains(selectedAvailability)) ? selectedAvailability : null;
 
     return Container(
       decoration: BoxDecoration(
@@ -310,7 +361,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         border: Border.all(color: AppColors.grey200),
       ),
       child: DropdownButtonFormField<String>(
-        value: validAvailability,
+        value: validAvail,
         isExpanded: true,
         style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
         decoration: const InputDecoration(
@@ -323,11 +374,11 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
           'Select availability',
           style: TextStyle(color: AppColors.body, fontSize: 13, fontWeight: FontWeight.w400),
         ),
-        items: options.map((opt) {
+        items: availabilities.map((a) {
           return DropdownMenuItem<String>(
-            value: opt,
+            value: a,
             child: Text(
-              opt,
+              a,
               style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131), fontWeight: FontWeight.w400),
             ),
           );
@@ -341,339 +392,251 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
     );
   }
 
-  Widget _buildCategoryFilter() {
-    final asyncValue = ref.watch(fetchGroupedCreatorNichesProvider);
-
-    if (asyncValue.isLoading) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Loading Categories...'),
-            8.0.height,
-            const CircularProgressIndicator.adaptive(
-              valueColor: AlwaysStoppedAnimation(AppColors.primary),
-            ),
-          ],
-        ),
-      );
-    }
-
-    if (asyncValue.hasError) {
-      return Center(child: Text(asyncValue.error.toString()));
-    }
-
-    final nicheGroups = asyncValue.value ?? [];
-    final visibleGroups = showAllParentCategories ? nicheGroups : nicheGroups.take(5).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ...visibleGroups.map((niche) {
-          final isExpanded = expandedCategoryId == niche.id;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    expandedCategoryId = isExpanded ? null : niche.id;
-                  });
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          niche.name ?? '',
-                          style: context.textTheme.bodyMedium?.copyWith(
-                            fontSize: 13,
-                            color: AppColors.btnText,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Icon(
-                        isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                        color: AppColors.btnText,
-                        size: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (isExpanded && (niche.categories?.isNotEmpty ?? false)) ...[
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: (niche.categories ?? []).map((sub) {
-                    final isSelected = selectedCategories.contains(sub.name);
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            selectedCategories.remove(sub.name);
-                          } else {
-                            selectedCategories.add(sub.name ?? '');
-                          }
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected ? AppColors.highlightCoral : Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected ? AppColors.highlightCoral : AppColors.grey300,
-                          ),
-                        ),
-                        child: Text(
-                          sub.name ?? '',
-                          style: context.textTheme.bodySmall?.copyWith(
-                            color: isSelected ? Colors.white : AppColors.subHeading,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                8.0.height,
-              ],
-            ],
-          );
-        }),
-        if (nicheGroups.length > 5) ...[
-          12.0.height,
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  showAllParentCategories = !showAllParentCategories;
-                });
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    showAllParentCategories ? 'Show Less' : 'Show More',
-                    style: context.textTheme.bodySmall?.copyWith(
-                      color: AppColors.highlightCoral,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 12,
-                    ),
-                  ),
-                  4.0.width,
-                  Icon(
-                    showAllParentCategories ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: AppColors.highlightCoral,
-                    size: 16,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
   Widget _buildAmountFilter() {
     final userData = ref.watch(userControllerProvider);
     final isInternational = userData.primaryCurrency != 'ngn';
-    final safeRange = _getSafeAmountRange(isInternational);
+    final currentRange = _getSafeAmountRange(isInternational);
+    final minVal = isInternational ? minInternationalAmount : minAmount;
+    final maxVal = maxAmount;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Amount range display
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Minimum',
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: AppColors.body,
-                    fontSize: 12,
-                  ),
-                ),
-                4.0.height,
-                Text(
-                  safeRange.start.amountWithCurrency(userData.primaryCurrency ?? ''),
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.heading,
-                    fontFamily: FontFamily.inter,
-                  ),
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  'Maximum',
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: AppColors.body,
-                    fontSize: 12,
-                  ),
-                ),
-                4.0.height,
-                Text(
-                  safeRange.end.amountWithCurrency(userData.primaryCurrency ?? ''),
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.heading,
-                    fontFamily: FontFamily.inter,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        8.0.height,
-
-        // Range Slider with safe bounds
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: AppColors.spot500,
-            inactiveTrackColor: AppColors.grey300,
-            thumbColor: AppColors.highlightCoral,
-            overlayColor: AppColors.highlightCoral.withValues(alpha: 0.1),
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
-            rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 8),
-            rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
-            rangeValueIndicatorShape: const RectangularRangeSliderValueIndicatorShape(),
-            showValueIndicator: ShowValueIndicator.onlyForDiscrete,
-            valueIndicatorTextStyle: context.textTheme.bodySmall?.copyWith(
-              color: Colors.white,
-              fontFamily: FontFamily.inter,
-            ),
-          ),
-          child: RangeSlider(
-            min: isInternational ? minInternationalAmount : minAmount,
-            max: maxAmount,
-            values: safeRange,
-            divisions: 100,
-            labels: RangeLabels(
-              safeRange.start.amountWithCurrency(userData.primaryCurrency ?? ''),
-              safeRange.end.amountWithCurrency(userData.primaryCurrency ?? ''),
-            ),
-            onChanged: (RangeValues values) {
-              setState(() {
-                if (isInternational) {
-                  internationalAmountRange = values;
-                } else {
-                  amountRange = values;
-                }
-              });
-            },
-          ),
-        ),
-        8.0.height,
-
-        // Range indicators
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              isInternational
-                  ? minInternationalAmount.amountWithCurrency(userData.primaryCurrency ?? '')
-                  : minAmount.amountWithCurrency(userData.primaryCurrency ?? ''),
-              style: context.textTheme.bodySmall?.copyWith(
-                color: AppColors.body,
-                fontSize: 10,
-                fontFamily: FontFamily.inter,
-              ),
+              currentRange.start.amountWithCurrency(userData.primaryCurrency ?? ''),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.heading),
             ),
             Text(
-              maxAmount.amountWithCurrency(userData.primaryCurrency ?? ''),
-              style: context.textTheme.bodySmall?.copyWith(
-                color: AppColors.body,
-                fontSize: 10,
-                fontFamily: FontFamily.inter,
-              ),
+              currentRange.end.amountWithCurrency(userData.primaryCurrency ?? ''),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.heading),
             ),
           ],
+        ),
+        RangeSlider(
+          values: currentRange,
+          min: minVal,
+          max: maxVal,
+          activeColor: AppColors.primary,
+          inactiveColor: AppColors.grey200,
+          onChanged: (values) {
+            setState(() {
+              if (isInternational) {
+                internationalAmountRange = values;
+              } else {
+                amountRange = values;
+              }
+            });
+          },
         ),
       ],
     );
   }
 
   Widget _buildLocationFilter() {
-    return InkWell(
+    return GestureDetector(
       onTap: () async {
-        selectedState = await AppBottomSheet.showBottomSheet(
+        final result = await AppBottomSheet.showBottomSheet(
           context,
           widget: const StateSheet(),
         );
-
-        if (selectedState != null) {
+        if (result is StatesItemDto) {
           setState(() {
-            locationController.text = selectedState?.name ?? '';
+            selectedState = result;
+            locationController.text = result.name ?? '';
           });
         }
       },
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: AppColors.grey50,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppColors.grey200),
         ),
-        child: InputDecorator(
-          decoration: const InputDecoration(
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            suffixIcon: Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
-          ),
-          child: Text(
-            locationController.text.isEmpty ? 'Search location' : locationController.text,
-            style: TextStyle(
-              fontSize: 13,
-              color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
-              fontWeight: FontWeight.w400,
+        child: Row(
+          children: [
+            const Icon(Icons.location_on_outlined, color: AppColors.body, size: 18),
+            8.0.width,
+            Expanded(
+              child: Text(
+                locationController.text.isEmpty ? 'Select location' : locationController.text,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
+                  fontWeight: FontWeight.w400,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+            const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 20),
+          ],
         ),
       ),
     );
   }
 
-  void _clearFilters() {
-    // Clear filters in the provider
-    ref.read(hasSearchFiltersProvider.notifier).state = false;
+  Widget _buildCategoryFilter() {
+    final categoriesAsync = ref.watch(fetchGroupedCreatorNichesProvider);
 
+    return categoriesAsync.when(
+      data: (groups) {
+        if (groups.isEmpty) {
+          return const Text('No categories available', style: TextStyle(fontSize: 12, color: AppColors.body));
+        }
+
+        final parentCategories = showAllParentCategories ? groups : groups.take(6).toList();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: parentCategories.map((group) {
+                final catName = group.name ?? '';
+                final isSelected = selectedCategories.contains(catName);
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        selectedCategories.remove(catName);
+                        expandedCategoryId = null;
+                      } else {
+                        selectedCategories.add(catName);
+                        expandedCategoryId = group.id;
+                      }
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFFE0F2F1) : AppColors.grey50,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isSelected ? AppColors.primary : AppColors.grey200,
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: Text(
+                      catName,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                        color: isSelected ? AppColors.primary : const Color(0xFF1B3131),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            if (groups.length > 6) ...[
+              12.0.height,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    showAllParentCategories = !showAllParentCategories;
+                  });
+                },
+                child: Text(
+                  showAllParentCategories ? 'Show less' : 'View more (${groups.length - 6} more)',
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+            if (expandedCategoryId != null) ...[
+              16.0.height,
+              const Text(
+                'Sub-niches / Services',
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.heading),
+              ),
+              8.0.height,
+              Builder(
+                builder: (context) {
+                  final group = groups.firstWhere(
+                    (g) => g.id == expandedCategoryId,
+                    orElse: () => groups.first,
+                  );
+                  final niches = group.categories ?? [];
+                  return Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: niches.map((niche) {
+                      final nicheName = niche.name ?? '';
+                      final isSelected = selectedCategories.contains(nicheName);
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              selectedCategories.remove(nicheName);
+                            } else {
+                              selectedCategories.add(nicheName);
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFFE0F2F1) : AppColors.grey100,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected ? AppColors.primary : Colors.transparent,
+                            ),
+                          ),
+                        child: Text(
+                            nicheName,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w400,
+                              color: isSelected ? AppColors.primary : AppColors.subHeading,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
+          ],
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+      error: (_, __) => const Text('Error loading categories', style: TextStyle(fontSize: 12, color: AppColors.body)),
+    );
+  }
+
+  void _clearFilters() {
+    ref.read(hasSearchFiltersProvider.notifier).state = false;
     ref.read(filterCreatorsProvider.notifier).filterCreators();
 
-    final userData = ref.read(userControllerProvider);
+    final userData = ref.watch(userControllerProvider);
     final isInternational = userData.primaryCurrency != 'ngn';
 
     setState(() {
       selectedCategories.clear();
       amountRange = const RangeValues(minAmount, maxAmount);
       internationalAmountRange = const RangeValues(minInternationalAmount, maxAmount);
-      locationController.clear();
+      locationController.text = '';
       selectedRating = null;
       selectedAvailability = null;
+      selectedWorkMode = null;
 
-      // Collapse any expanded category and reset show more
       expandedCategoryId = null;
       showAllParentCategories = false;
 
-      // Reset Values
-      locationNotifier.value = StatesItemDto();
+      locationNotifier.value = null;
       minPriceNotifier.value = isInternational ? minInternationalAmount : minAmount;
       maxPriceNotifier.value = maxAmount;
       categoriesNotifier.value = {};
+      workModeNotifier.value = null;
     });
   }
 
@@ -683,18 +646,16 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
     final currentRange = _getSafeAmountRange(isInternational);
     final currentMin = isInternational ? minInternationalAmount : minAmount;
 
-    // Check if the filters are null
     if (selectedState == null &&
         locationController.text.isEmpty &&
         currentRange.start == currentMin &&
         currentRange.end == maxAmount &&
         selectedCategories.isEmpty &&
         selectedRating == null &&
-        selectedAvailability == null) {
-      // No filters selected, do nothing
+        selectedAvailability == null &&
+        selectedWorkMode == null) {
       context.pop();
     } else {
-      // Set that filters are applied
       ref.read(hasSearchFiltersProvider.notifier).state = true;
 
       final locQuery = selectedState?.id ?? (locationController.text.isNotEmpty ? locationController.text : null);
@@ -708,14 +669,15 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                 .join('|'),
             rating: selectedRating,
             availability: selectedAvailability,
+            workMode: selectedWorkMode,
           );
 
       setState(() {
-        // Set the Values
         locationNotifier.value = selectedState;
         minPriceNotifier.value = currentRange.start;
         maxPriceNotifier.value = currentRange.end;
         categoriesNotifier.value = selectedCategories;
+        workModeNotifier.value = selectedWorkMode;
       });
 
       context.pop(true);

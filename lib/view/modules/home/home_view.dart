@@ -106,8 +106,9 @@ class _HomeViewState extends ConsumerState<HomeView> {
       }
     });
 
-    // Fetch jobs for home recommendations
+    // Fetch jobs for home recommendations and active listings
     ref.read(jobControllerProvider.notifier).fetchJobs();
+    ref.read(jobControllerProvider.notifier).fetchMyListings();
 
     if (widget.showOnboardingSheet) {
       _openOnboarding();
@@ -445,7 +446,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Listings Section
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
                   child: Column(
                     children: [
                       Row(
@@ -475,7 +476,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                           ),
                         ],
                       ),
-                      8.0.height,
+                      4.0.height,
                       _buildActiveListings(jobState),
                     ],
                   ),
@@ -485,7 +486,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
               // Recent Transactions
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 180),
+                  padding: const EdgeInsets.fromLTRB(24, 4, 24, 180),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -493,10 +494,21 @@ class _HomeViewState extends ConsumerState<HomeView> {
                         'Recent transactions',
                         TextButton(
                           onPressed: () => NavigationService.instance.push(const AllTransactionsView()),
-                          child: const Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold)),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: const Size(60, 30),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('View all', style: TextStyle(color: Color(0xFF00BFA5), fontWeight: FontWeight.bold, fontSize: 14)),
+                              Icon(Icons.chevron_right, color: Color(0xFF00BFA5), size: 16),
+                            ],
+                          ),
                         ),
                       ),
-                      16.0.height,
+                      4.0.height,
                       transactions.when(
                         data: (data) {
                            final list = data.data ?? [];

@@ -241,12 +241,12 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
                       children: [
                         QuickDetail(
                           icon: AppImages.locationOutline,
-                          text: data.location ?? 'Unknown',
+                          text: data.location ?? 'Lagos, Nigeria',
                         ),
                         14.0.width,
                         QuickDetail(
                           icon: AppImages.workOutline,
-                          text: data.workMode?.toTitleCase() ?? 'Unknown',
+                          text: data.workMode?.toTitleCase() ?? 'Remote',
                         ),
                         if (data.availableToTravel ?? false) ...[
                           14.0.width,

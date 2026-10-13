@@ -179,9 +179,10 @@ class _UpdateWorkModeSheetState extends State<UpdateWorkModeSheet> {
               text: 'Update',
               onPressed: isValid
                   ? () {
+                      final stateIdVal = selectedState?.id ?? selectedState?.name ?? chooseLocation.text;
                       final UpdateAvailabilityReq req = UpdateAvailabilityReq(
                         workMode: workMode.text.toLowerCase(),
-                        stateId: selectedState?.id,
+                        stateId: stateIdVal.isNotEmpty ? stateIdVal : chooseLocation.text,
                         availableToTravel: canTravel,
                       );
 

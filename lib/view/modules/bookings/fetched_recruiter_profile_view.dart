@@ -2,7 +2,6 @@ import 'package:creatify_mobile/data/models/responses/recruiter_profile_dto.dart
 import 'package:creatify_mobile/view/modules/bookings/sheets/report_account_sheet.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_menu_popup.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/expandable_profile_image.dart';
-import 'package:creatify_mobile/view/modules/bookings/widgets/most_recent_card.dart';
 import 'package:creatify_mobile/view/modules/home/rating/rating_widgets.dart';
 import 'package:creatify_mobile/view/modules/home/rating/star_rating.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
@@ -13,6 +12,8 @@ import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
+import 'package:creatify_mobile/view/modules/home/favorites_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,7 +39,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 3, vsync: this);
+    tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -176,15 +177,14 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                       ),
                       32.0.height,
 
-                      // Profile Tabs (Overview, Company, Preferences)
+                      // Profile Tabs (Overview, Looking For)
                       _buildProfileTabs(),
                       24.0.height,
                       AnimatedBuilder(
                         animation: tabController,
                         builder: (context, _) {
                           if (tabController.index == 0) return _buildOverviewTab(data);
-                          if (tabController.index == 1) return _buildCompanyTab(data);
-                          return _buildPreferencesTab(data);
+                          return _buildLookingForTab(data);
                         },
                       ),
                       120.0.height,
@@ -243,8 +243,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
         dividerColor: Colors.transparent,
         tabs: const [
           Tab(text: 'Overview'),
-          Tab(text: 'Company'),
-          Tab(text: 'Preferences'),
+          Tab(text: 'Looking For'),
         ],
       ),
     );
@@ -295,28 +294,112 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
     );
   }
 
-  Widget _buildCompanyTab(RecruiterProfileDto data) {
+  Widget _buildLookingForTab(RecruiterProfileDto data) {
+    final defaultCreativeRoles = ['Content Creators', 'Photographers', 'Videographers', 'Models', 'Stylists', 'Designers', 'Makeup Artists'];
+    final defaultTypesOfProjects = ['Brand Campaigns', 'Events', 'Social Media Content', 'Product Shoots', 'Editorial', 'UGC Content'];
+    final defaultWorkSetup = ['On-site', 'Remote', 'Project-based', 'Long-term'];
+    final defaultLocationPreferences = ['Lagos, Nigeria', 'Other cities in Nigeria', 'Open to international talent'];
+
+    final preferencesAsync = ref.watch(fetchPreferencesProvider);
+    final savedPrefNames = preferencesAsync.value?.map((p) => p.name ?? '').where((n) => n.isNotEmpty).toList() ?? [];
+
+    final creativeRoleItems = (data.creativeRoles != null && data.creativeRoles!.isNotEmpty)
+        ? data.creativeRoles!
+        : (data.categories != null && data.categories!.isNotEmpty)
+            ? data.categories!.map((c) => c.name ?? '').where((n) => n.isNotEmpty).toList()
+            : (savedPrefNames.isNotEmpty)
+                ? savedPrefNames
+                : defaultCreativeRoles;
+
+    final projectTypeItems = (data.typesOfProjects != null && data.typesOfProjects!.isNotEmpty)
+        ? data.typesOfProjects!
+        : defaultTypesOfProjects;
+
+    final workSetupItems = (data.workSetup != null && data.workSetup!.isNotEmpty)
+        ? data.workSetup!
+        : (data.workMode != null && data.workMode!.isNotEmpty)
+            ? [data.workMode!.toTitleCase(), ...defaultWorkSetup.where((e) => e.toLowerCase() != data.workMode!.toLowerCase())]
+            : defaultWorkSetup;
+
+    final locationItems = (data.locationPreferences != null && data.locationPreferences!.isNotEmpty)
+        ? data.locationPreferences!
+        : (data.location != null && data.location!.isNotEmpty)
+            ? [data.location!, ...defaultLocationPreferences.where((e) => e != data.location)]
+            : defaultLocationPreferences;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Company Bio', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
-        8.0.height,
-        Text(
-          data.bio?.isNotEmpty == true ? data.bio! : 'No company bio added yet.',
-          style: const TextStyle(color: AppColors.body, fontSize: 13, height: 1.5),
+        _buildPreferenceCard(
+          title: 'Creative Roles',
+          subtitle: "Types of talent I'm looking to work with",
+          items: creativeRoleItems,
+          icons: [Icons.videocam_outlined, Icons.camera_alt_outlined, Icons.video_camera_front_outlined, Icons.person_outline, Icons.checkroom, Icons.palette_outlined, Icons.brush_outlined],
+        ),
+        16.0.height,
+        _buildPreferenceCard(
+          title: 'Types of Projects',
+          subtitle: 'The kind of projects I usually work on',
+          items: projectTypeItems,
+          icons: [Icons.campaign_outlined, Icons.event_outlined, Icons.phone_android_outlined, Icons.photo_camera_outlined, Icons.menu_book_outlined, Icons.video_library_outlined],
+        ),
+        16.0.height,
+        _buildPreferenceCard(
+          title: 'Work Setup',
+          subtitle: 'How I usually work',
+          items: workSetupItems,
+          icons: [Icons.location_on_outlined, Icons.wifi, Icons.work_outline, Icons.timer_outlined],
+        ),
+        16.0.height,
+        _buildPreferenceCard(
+          title: 'Location Preferences',
+          subtitle: 'Where I prefer to work with talent',
+          items: locationItems,
+          icons: [Icons.location_on_outlined, Icons.flag_outlined, Icons.public],
         ),
       ],
     );
   }
 
-  Widget _buildPreferencesTab(RecruiterProfileDto data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Preferences', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
-        8.0.height,
-        const Text('Hires for creative, video, and design projects.', style: TextStyle(color: AppColors.body, fontSize: 13)),
-      ],
+  Widget _buildPreferenceCard({required String title, required String subtitle, required List<String> items, required List<IconData> icons}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
+          2.0.height,
+          Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.body)),
+          12.0.height,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: List.generate(items.length, (index) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: AppColors.grey50,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icons[index % icons.length], size: 14, color: AppColors.subHeading),
+                    6.0.width,
+                    Text(items[index], style: const TextStyle(fontSize: 12, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
+                  ],
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 }
