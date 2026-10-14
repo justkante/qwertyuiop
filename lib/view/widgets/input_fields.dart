@@ -148,7 +148,7 @@ class _TextInputFieldState extends State<TextInputField> {
               : const EdgeInsets.all(20.0),
           inputFormatters: widget.inputFormatters,
           style: widget.style ?? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.heading,
+                color: AppColors.black,
                 overflow: TextOverflow.ellipsis,
               ),
           decoration: InputDecoration(
