@@ -83,7 +83,11 @@ class _ApplicantProfileViewState extends ConsumerState<ApplicantProfileView> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
           icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black),
         ),
         actions: [

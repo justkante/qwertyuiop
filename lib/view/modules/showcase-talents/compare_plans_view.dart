@@ -36,7 +36,11 @@ class _ComparePlansViewState extends ConsumerState<ComparePlansView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: const Text(
           'Compare Plans',
@@ -172,11 +176,11 @@ class _ComparePlansViewState extends ConsumerState<ComparePlansView> {
 
             _buildSectionHeader('JOBS & OPPORTUNITIES'),
             _buildFeatureRow('Browse and apply for jobs', true, true),
-            _buildFeatureRow('Apply directly to job adverts', false, true),
-            _buildFeatureRow('Job alerts', false, true),
+            _buildFeatureRow('Apply directly to job adverts', false, false),
+            _buildFeatureRow('Job alerts', false, false),
 
             _buildSectionHeader('INSIGHTS & SUPPORT'),
-            _buildFeatureRow('Advanced insights', true, true),
+            _buildFeatureRow('Advanced insights', false, true),
             _buildFeatureRow('Priority support', false, true),
 
             40.0.height,

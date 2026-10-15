@@ -54,7 +54,11 @@ class _DraftBookingsViewState extends ConsumerState<DraftBookingsView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: const Text('Draft Bookings', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18)),
         centerTitle: true,

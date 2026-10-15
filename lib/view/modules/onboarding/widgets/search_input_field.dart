@@ -9,12 +9,14 @@ class SearchTextInputField extends StatelessWidget {
   final TextEditingController? controller;
   final String? hintText;
   final Function(String)? onSubmitted;
+  final Function(String)? onChanged;
   final Widget? trailingIcon;
   const SearchTextInputField({
     super.key,
     this.controller,
     this.hintText,
     this.onSubmitted,
+    this.onChanged,
     this.trailingIcon,
   });
 
@@ -25,6 +27,7 @@ class SearchTextInputField extends StatelessWidget {
       child: SearchBar(
         controller: controller,
         onSubmitted: onSubmitted,
+        onChanged: onChanged,
         backgroundColor: WidgetStateProperty.all(AppColors.grey50),
         elevation: WidgetStateProperty.all(0),
         leading: Padding(

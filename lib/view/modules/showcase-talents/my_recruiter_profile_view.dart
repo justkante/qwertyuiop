@@ -8,6 +8,14 @@ import 'package:creatify_mobile/view/modules/showcase-talents/image_preview.dart
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
+import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/states_sheet.dart';
+import 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/fetched_creator_profile_view.dart';
+import 'package:creatify_mobile/view/modules/jobs/applicant_profile_view.dart';
+import 'package:creatify_mobile/view/modules/home/creative_roles_preferences_sheet.dart';
+import 'package:creatify_mobile/view/modules/home/search_preferences_sheet.dart';
+import 'package:creatify_mobile/view/modules/home/work_setup_preferences_sheet.dart';
 import 'package:creatify_mobile/view/modules/search-talents/talent_filter_sheet.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -132,8 +140,63 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
   }
 
   void _editLookingFor(String sectionTitle) async {
+    if (sectionTitle == 'Projects I Hire For') {
+      await AppBottomSheet.showBottomSheet(
+        context,
+        widget: const SearchPreferencesSheet(),
+      );
+      ref.invalidate(fetchRecruiterProfileProvider);
+      ref.invalidate(fetchPreferencesProvider);
+      setState(() {});
+      return;
+    }
+    if (sectionTitle == 'Creative Roles') {
+      await AppBottomSheet.showBottomSheet(
+        context,
+        widget: const CreativeRolesPreferencesSheet(),
+      );
+      ref.invalidate(fetchRecruiterProfileProvider);
+      ref.invalidate(fetchPreferencesProvider);
+      setState(() {});
+      return;
+    }
+    if (sectionTitle == 'Work Setup') {
+      await AppBottomSheet.showBottomSheet(
+        context,
+        widget: const WorkSetupPreferencesSheet(),
+      );
+      ref.invalidate(fetchRecruiterProfileProvider);
+      ref.invalidate(fetchPreferencesProvider);
+      setState(() {});
+      return;
+    }
+    if (sectionTitle == 'Location Preferences') {
+      final result = await AppBottomSheet.showBottomSheet(
+        context,
+        widget: const StateSheet(),
+      );
+      final selectedState = result is StatesItemDto ? result : null;
+      if (selectedState != null && selectedState.name != null && selectedState.name!.isNotEmpty) {
+        final loc = selectedState.name!;
+        final updatedList = [loc, ..._locationPreferences.where((e) => e != loc)];
+        _locationPreferences = updatedList;
+        SharedPrefManager.recruiterLocationPreferences = updatedList;
+
+        ref.read(updateAvailabilityProvider.notifier).updateAvailability(
+          UpdateAvailabilityReq(stateId: selectedState.id ?? selectedState.name),
+        );
+
+        ref.invalidate(fetchRecruiterProfileProvider);
+        ref.invalidate(fetchPreferencesProvider);
+        if (mounted) {
+          ToastDialog.showSuccess('Location Preferences updated successfully', context);
+        }
+        setState(() {});
+      }
+      return;
+    }
+
     final prevCreativeRoles = List<String>.from(_creativeRoles);
-    final prevTypesOfProjects = List<String>.from(_typesOfProjects);
     final prevWorkSetup = List<String>.from(_workSetup);
     final prevLocationPreferences = List<String>.from(_locationPreferences);
 
@@ -155,27 +218,13 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
 
     final List<String> updatedSections = [];
 
-    // 1. Creative Roles & Types of Projects (Categories)
+    // 1. Creative Roles (Categories)
     if (categoriesNotifier.value.isNotEmpty) {
       final selectedCats = categoriesNotifier.value.toList();
-      if (sectionTitle == 'Creative Roles') {
-        _creativeRoles = selectedCats;
-        if (!_areListsEqual(prevCreativeRoles, _creativeRoles)) {
-          updatedSections.add('Creative Roles');
-          ref.read(updatePreferencesProvider.notifier).updatePreferences(selectedCats);
-        }
-      } else if (sectionTitle == 'Types of Projects') {
-        _typesOfProjects = selectedCats;
-        if (!_areListsEqual(prevTypesOfProjects, _typesOfProjects)) {
-          updatedSections.add('Types of Projects');
-          ref.read(updatePreferencesProvider.notifier).updatePreferences(selectedCats);
-        }
-      } else {
-        _creativeRoles = selectedCats;
-        if (!_areListsEqual(prevCreativeRoles, _creativeRoles)) {
-          updatedSections.add('Creative Roles');
-          ref.read(updatePreferencesProvider.notifier).updatePreferences(selectedCats);
-        }
+      _creativeRoles = selectedCats;
+      if (!_areListsEqual(prevCreativeRoles, _creativeRoles)) {
+        updatedSections.add('Creative Roles');
+        ref.read(updatePreferencesProvider.notifier).updatePreferences(selectedCats);
       }
     }
 
@@ -244,7 +293,11 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
           actions: [
             IconButton(
@@ -259,7 +312,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -487,25 +540,33 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
         ? recruiterProfile!.creativeRoles!
         : (recruiterProfile?.categories?.isNotEmpty == true)
             ? recruiterProfile!.categories!.map((c) => c.name ?? '').where((n) => n.isNotEmpty).toList()
-            : (savedPrefNames.isNotEmpty)
-                ? savedPrefNames
-                : _creativeRoles;
+            : (SharedPrefManager.recruiterCreativeRoles.isNotEmpty)
+                ? SharedPrefManager.recruiterCreativeRoles
+                : (savedPrefNames.isNotEmpty)
+                    ? savedPrefNames
+                    : _creativeRoles;
 
     final activeTypesOfProjects = (recruiterProfile?.typesOfProjects?.isNotEmpty == true)
         ? recruiterProfile!.typesOfProjects!
-        : _typesOfProjects;
+        : (SharedPrefManager.recruiterTypesOfProjects.isNotEmpty)
+            ? SharedPrefManager.recruiterTypesOfProjects
+            : _typesOfProjects;
 
-    final activeWorkSetup = (recruiterProfile?.workSetup?.isNotEmpty == true)
-        ? recruiterProfile!.workSetup!
-        : (recruiterProfile?.workMode != null && recruiterProfile!.workMode!.isNotEmpty)
-            ? [recruiterProfile.workMode!.toTitleCase(), ..._workSetup.where((e) => e != recruiterProfile.workMode!.toTitleCase())]
-            : _workSetup;
+    final activeWorkSetup = (SharedPrefManager.recruiterWorkSetup.isNotEmpty)
+        ? SharedPrefManager.recruiterWorkSetup
+        : (recruiterProfile?.workSetup?.isNotEmpty == true)
+            ? recruiterProfile!.workSetup!
+            : (recruiterProfile?.workMode != null && recruiterProfile!.workMode!.isNotEmpty)
+                ? [recruiterProfile.workMode!.toTitleCase(), ..._workSetup.where((e) => e != recruiterProfile.workMode!.toTitleCase())]
+                : _workSetup;
 
-    final activeLocationPreferences = (recruiterProfile?.locationPreferences?.isNotEmpty == true)
-        ? recruiterProfile!.locationPreferences!
-        : (recruiterProfile?.location != null && recruiterProfile!.location!.isNotEmpty)
-            ? [recruiterProfile.location!, ..._locationPreferences.where((e) => e != recruiterProfile.location!)]
-            : _locationPreferences;
+    final activeLocationPreferences = (SharedPrefManager.recruiterLocationPreferences.isNotEmpty)
+        ? SharedPrefManager.recruiterLocationPreferences
+        : (recruiterProfile?.locationPreferences?.isNotEmpty == true)
+            ? recruiterProfile!.locationPreferences!
+            : (recruiterProfile?.location != null && recruiterProfile!.location!.isNotEmpty)
+                ? [recruiterProfile.location!, ..._locationPreferences.where((e) => e != recruiterProfile.location!)]
+                : _locationPreferences;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -521,11 +582,11 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
         16.0.height,
         _buildPreferenceCard(
           context,
-          title: 'Types of Projects',
+          title: 'Projects I Hire For',
           subtitle: 'The kind of projects I usually work on',
           items: activeTypesOfProjects,
           icons: [Icons.campaign_outlined, Icons.event_outlined, Icons.phone_android_outlined, Icons.photo_camera_outlined, Icons.menu_book_outlined, Icons.video_library_outlined],
-          onEdit: () => _editLookingFor('Types of Projects'),
+          onEdit: () => _editLookingFor('Projects I Hire For'),
         ),
         16.0.height,
         _buildPreferenceCard(
@@ -586,11 +647,11 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           ),
           12.0.height,
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 6,
+            runSpacing: 6,
             children: List.generate(items.length, (index) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.grey50,
                   borderRadius: BorderRadius.circular(20),
@@ -598,9 +659,9 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(icons[index % icons.length], size: 14, color: AppColors.subHeading),
-                    6.0.width,
-                    Text(items[index], style: const TextStyle(fontSize: 12, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
+                    Icon(icons[index % icons.length], size: 13, color: AppColors.subHeading),
+                    4.0.width,
+                    Text(items[index], style: const TextStyle(fontSize: 11, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
                   ],
                 ),
               );
@@ -636,6 +697,9 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                   const Text('Recent Bookings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
                   TextButton(
                     onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
                       ref.read(navBarController.notifier).index = 3;
                     },
                     child: const Row(
@@ -660,15 +724,22 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                       final isCompleted = status.toLowerCase() == 'completed';
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildBookingItem(
-                          booking.creator?.name ?? 'Creator',
-                          booking.jobDescription ?? 'Creative Service',
-                          booking.createdAt != null ? booking.createdAt!.toLocal().toFormattedDateWithYear() : 'Recent',
-                          booking.creator?.countryCode ?? 'Nigeria',
-                          status.toTitleCase(),
-                          isCompleted ? const Color(0xFFE8F5E9) : const Color(0xFFE3F2FD),
-                          isCompleted ? const Color(0xFF2E7D32) : const Color(0xFF2196F3),
-                          booking.creator?.profileImage,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (booking.id != null) {
+                              NavigationService.instance.push(BookingDetailsView(bookingId: booking.id));
+                            }
+                          },
+                          child: _buildBookingItem(
+                            booking.creator?.name ?? 'Creator',
+                            booking.jobDescription ?? 'Creative Service',
+                            booking.createdAt != null ? booking.createdAt!.toLocal().toFormattedDateWithYear() : 'Recent',
+                            booking.creator?.countryCode ?? 'Nigeria',
+                            status.toTitleCase(),
+                            isCompleted ? const Color(0xFFE8F5E9) : const Color(0xFFE3F2FD),
+                            isCompleted ? const Color(0xFF2E7D32) : const Color(0xFF2196F3),
+                            booking.creator?.profileImage,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -699,7 +770,10 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                   const Text('Recent Applications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
                   TextButton(
                     onPressed: () {
-                      ref.read(jobTabIndexProvider.notifier).state = 0;
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      }
+                      ref.read(jobTabIndexProvider.notifier).state = 2;
                       ref.read(navBarController.notifier).index = 2;
                     },
                     child: const Row(
@@ -721,13 +795,18 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                     final status = app.status ?? 'New';
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildApplicationItem(
-                        app.user?.name ?? 'Applicant',
-                        app.job?.category?.name ?? 'Creative',
-                        'Applied recently',
-                        status.toTitleCase(),
-                        const Color(0xFFFFF8E1),
-                        const Color(0xFFF57C00),
+                      child: GestureDetector(
+                        onTap: () {
+                          NavigationService.instance.push(ApplicantProfileView(application: app));
+                        },
+                        child: _buildApplicationItem(
+                          app.user?.name ?? 'Applicant',
+                          app.job?.category?.name ?? 'Creative',
+                          'Applied recently',
+                          status.toTitleCase(),
+                          const Color(0xFFFFF8E1),
+                          const Color(0xFFF57C00),
+                        ),
                       ),
                     );
                   }).toList(),
@@ -776,15 +855,27 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                       children: [
                         ...favs.take(5).map((creator) => Padding(
                           padding: const EdgeInsets.only(right: 16),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 26,
-                                backgroundImage: creator.profileImage != null ? NetworkImage(creator.profileImage!) : AssetImage(AppImages.dummyAvatar) as ImageProvider,
-                              ),
-                              6.0.height,
-                              Text(creator.name?.split(' ').first ?? 'Creator', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1B3131))),
-                            ],
+                          child: GestureDetector(
+                            onTap: () {
+                              if (creator.id != null) {
+                                NavigationService.instance.push(
+                                  FetchedCreatorProfileView(
+                                    creatorId: creator.id!,
+                                    creatorName: creator.name ?? 'Creator',
+                                  ),
+                                );
+                              }
+                            },
+                            child: Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: 26,
+                                  backgroundImage: creator.profileImage != null ? NetworkImage(creator.profileImage!) : AssetImage(AppImages.dummyAvatar) as ImageProvider,
+                                ),
+                                6.0.height,
+                                Text(creator.name?.split(' ').first ?? 'Creator', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1B3131))),
+                              ],
+                            ),
                           ),
                         )),
                       ],

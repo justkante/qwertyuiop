@@ -501,7 +501,7 @@ class CreatorService {
       final response = await _networkService.request(
         endpoints.reportUser,
         RequestMethod.post,
-        data: req,
+        data: req.toJson(),
       );
 
       return response.data['message'];

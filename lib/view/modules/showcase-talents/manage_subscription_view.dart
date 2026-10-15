@@ -50,7 +50,11 @@ class _ManageSubscriptionViewState extends ConsumerState<ManageSubscriptionView>
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: Text(
           'Manage Subscription',

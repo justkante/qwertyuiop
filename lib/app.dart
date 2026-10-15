@@ -314,7 +314,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
                 navigatorObservers: [routeObserver],
                 debugShowCheckedModeBanner: false,
                 theme: themeData(),
-                key: navigatorKey,
                 home: _getHomeScreen(user, isLoadingUser),
                 builder: (context, child) {
                   return MediaQuery(

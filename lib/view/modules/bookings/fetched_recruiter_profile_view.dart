@@ -1,5 +1,9 @@
 import 'package:creatify_mobile/core/storage/share_pref.dart';
-import 'package:creatify_mobile/data/models/responses/recruiter_profile_dto.dart';
+import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
+import 'package:creatify_mobile/data/models/responses/recruiter_profile_dto.dart' hide RatingsAndReviews;
+import 'package:creatify_mobile/view/modules/bookings/share_profile_widget.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/utils/app_dialog.dart';
 import 'package:creatify_mobile/view/modules/bookings/sheets/report_account_sheet.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/creator_menu_popup.dart';
 import 'package:creatify_mobile/view/modules/bookings/widgets/expandable_profile_image.dart';
@@ -49,22 +53,24 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
     super.dispose();
   }
 
-  void _showProfileMenu() {
-    final menuItems = CreatorMenuController.createDefaultMenuItems(
-      reportAccount: () {
-        AppBottomSheet.showBottomSheet(
-          context,
-          widget: ReportCreatorAccountSheet(
-            userId: widget.creatorId,
-          ),
-        );
-      },
-    );
+  void _onShareProfile() {
+    final recruiterProfile = ref.read(fetchRecruiterProfileProvider((widget.creatorId, null))).value;
 
-    CreatorMenuController.showProfileMenu(
-      context: context,
-      buttonKey: _menuButtonKey,
-      menuItems: menuItems,
+    AppDialog.showAppDialog(
+      context,
+      widget: ShareProfileWidget(
+        profile: CreatorProfileDto(
+          id: recruiterProfile?.id ?? widget.creatorId,
+          name: recruiterProfile?.name ?? widget.creatorName,
+          profileId: recruiterProfile?.id ?? widget.creatorId,
+          profileImage: recruiterProfile?.profileImage,
+          ratingsAndReviews: RatingsAndReviews(
+             averageRating: recruiterProfile?.ratingsAndReviews?.averageRating ?? 0.0,
+             totalReviews: recruiterProfile?.ratingsAndReviews?.totalReviews ?? 0,
+          ),
+        ),
+        self: true,
+      ),
     );
   }
 
@@ -79,7 +85,11 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: Text(
           "${widget.creatorName.split(' ')[0]}'s Profile",
@@ -92,9 +102,8 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
         centerTitle: true,
         actions: [
           IconButton(
-            key: _menuButtonKey,
-            icon: const Icon(Icons.more_vert, color: AppColors.icons),
-            onPressed: _showProfileMenu,
+            icon: const Icon(Icons.share_outlined, color: AppColors.icons),
+            onPressed: _onShareProfile,
           ),
         ],
       ),
@@ -104,7 +113,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -320,18 +329,18 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
             ? SharedPrefManager.recruiterTypesOfProjects
             : defaultTypesOfProjects;
 
-    final workSetupItems = (data.workSetup != null && data.workSetup!.isNotEmpty)
-        ? data.workSetup!
-        : (SharedPrefManager.recruiterWorkSetup.isNotEmpty)
-            ? SharedPrefManager.recruiterWorkSetup
+    final workSetupItems = (SharedPrefManager.recruiterWorkSetup.isNotEmpty)
+        ? SharedPrefManager.recruiterWorkSetup
+        : (data.workSetup != null && data.workSetup!.isNotEmpty)
+            ? data.workSetup!
             : (data.workMode != null && data.workMode!.isNotEmpty)
                 ? [data.workMode!.toTitleCase(), ...defaultWorkSetup.where((e) => e.toLowerCase() != data.workMode!.toLowerCase())]
                 : defaultWorkSetup;
 
-    final locationItems = (data.locationPreferences != null && data.locationPreferences!.isNotEmpty)
-        ? data.locationPreferences!
-        : (SharedPrefManager.recruiterLocationPreferences.isNotEmpty)
-            ? SharedPrefManager.recruiterLocationPreferences
+    final locationItems = (SharedPrefManager.recruiterLocationPreferences.isNotEmpty)
+        ? SharedPrefManager.recruiterLocationPreferences
+        : (data.locationPreferences != null && data.locationPreferences!.isNotEmpty)
+            ? data.locationPreferences!
             : (data.location != null && data.location!.isNotEmpty)
                 ? [data.location!, ...defaultLocationPreferences.where((e) => e != data.location)]
                 : defaultLocationPreferences;
@@ -347,7 +356,7 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
         ),
         16.0.height,
         _buildPreferenceCard(
-          title: 'Types of Projects',
+          title: 'Projects I Hire For',
           subtitle: 'The kind of projects I usually work on',
           items: projectTypeItems,
           icons: [Icons.campaign_outlined, Icons.event_outlined, Icons.phone_android_outlined, Icons.photo_camera_outlined, Icons.menu_book_outlined, Icons.video_library_outlined],
@@ -387,11 +396,11 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
           Text(subtitle, style: const TextStyle(fontSize: 11, color: AppColors.body)),
           12.0.height,
           Wrap(
-            spacing: 8,
-            runSpacing: 8,
+            spacing: 6,
+            runSpacing: 6,
             children: List.generate(items.length, (index) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.grey50,
                   borderRadius: BorderRadius.circular(20),
@@ -399,9 +408,9 @@ class _FetchedRecruiterProfileViewState extends ConsumerState<FetchedRecruiterPr
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(icons[index % icons.length], size: 14, color: AppColors.subHeading),
-                    6.0.width,
-                    Text(items[index], style: const TextStyle(fontSize: 12, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
+                    Icon(icons[index % icons.length], size: 13, color: AppColors.subHeading),
+                    4.0.width,
+                    Text(items[index], style: const TextStyle(fontSize: 11, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
                   ],
                 ),
               );

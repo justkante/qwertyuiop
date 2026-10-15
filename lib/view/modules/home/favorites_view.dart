@@ -54,7 +54,11 @@ class _FavoritesViewState extends ConsumerState<FavoritesView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: AppColors.heading),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: Text(
           'Favourites',

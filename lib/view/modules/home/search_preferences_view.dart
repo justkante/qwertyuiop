@@ -1,7 +1,12 @@
+import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/niche_item_dto.dart';
+import 'package:creatify_mobile/view/modules/home/creative_roles_preferences_sheet.dart';
 import 'package:creatify_mobile/view/modules/home/vm/update_preferences_vm.dart';
+import 'package:creatify_mobile/view/modules/search-talents/talent_filter_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/vm/filter_creators_vm.dart';
+import 'package:creatify_mobile/view/modules/tab-bar/tab_bar_view.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -30,13 +35,13 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
 
   List<NicheItemDto> _parseNicheGroups(AsyncValue<dynamic> nichesAsync) {
     final value = nichesAsync.value;
-    if (value is List<NicheItemDto>) {
+    if (value is List<NicheItemDto> && value.isNotEmpty) {
       return value;
     }
-    if (value is List) {
+    if (value is List && value.isNotEmpty) {
       return value.whereType<NicheItemDto>().toList();
     }
-    return [];
+    return CreativeRolesPreferencesSheet.kCreativeRolesGroups;
   }
 
   List<Category> _parsePreferences(AsyncValue<dynamic> preferencesAsync) {
@@ -56,24 +61,18 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
     final preferencesAsync = ref.watch(fetchPreferencesProvider);
     final nicheGroups = _parseNicheGroups(nichesAsync);
     final preferences = _parsePreferences(preferencesAsync);
-
     final updatingPreferences = ref.watch(updatePreferencesProvider).isLoading;
 
-    // Auto-select sub-categories matching saved preferences once both loads complete
-    if (!_initialized &&
-        nichesAsync.hasValue &&
-        preferencesAsync.hasValue &&
-        preferences.isNotEmpty) {
+    if (!_initialized && preferences.isNotEmpty) {
       final preferenceIds = preferences.map((p) => p.id ?? '').toSet();
-      final allSubIds =
-          nicheGroups.expand((n) => n.categories ?? []).map((sub) => sub.id ?? '').toSet();
+      final allSubIds = nicheGroups.expand((n) => n.categories ?? []).map((sub) => sub.id ?? '').toSet();
+
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            selectedSubCategoryIds = preferenceIds.intersection(allSubIds);
-            _initialized = true;
-          });
-        }
+        if (!mounted) return;
+        setState(() {
+          selectedSubCategoryIds = preferenceIds.intersection(allSubIds);
+          _initialized = true;
+        });
       });
     } else if (!_initialized && nichesAsync.hasValue && preferencesAsync.hasValue) {
       _initialized = true;
@@ -82,7 +81,11 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
     ref.listen(updatePreferencesProvider, (_, value) {
       if (value is AsyncData) {
         ToastDialog.showSuccess(value.value ?? 'Preferences Updated', context);
-        context.pop();
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          NavigationService.instance.pushAndRemoveUntil(const TabBarSection());
+        }
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
@@ -92,25 +95,42 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
     return AbsorbPointer(
       absorbing: updatingPreferences,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                NavigationService.instance.pushAndRemoveUntil(const TabBarSection());
+              }
+            },
+          ),
           title: Text(
             'Search Preferences',
             style: context.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: AppColors.subHeading,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: AppColors.black2,
             ),
           ),
+          centerTitle: true,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 'Choose categories to quickly find the right creatives for your needs',
                 textAlign: TextAlign.center,
-                style: context.textTheme.bodyMedium?.copyWith(
+                style: context.textTheme.bodySmall?.copyWith(
                   color: AppColors.body,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
               24.0.height,
@@ -119,8 +139,9 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
           ),
         ),
         bottomNavigationBar: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           decoration: const BoxDecoration(
+            color: Colors.white,
             border: Border(
               top: BorderSide(color: AppColors.surface, width: 1),
             ),
@@ -133,12 +154,34 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
                 isLoading: updatingPreferences,
                 text: 'Save Preferences',
                 onPressed: () {
+                  final selectedNames = <String>[];
+                  for (var group in nicheGroups) {
+                    for (var sub in group.categories ?? []) {
+                      if (selectedSubCategoryIds.contains(sub.id) || selectedSubCategoryIds.contains(sub.name)) {
+                        selectedNames.add(sub.name ?? '');
+                      }
+                    }
+                  }
+
+                  // 1. Set Find & Book Talents category notifier
+                  categoriesNotifier.value = selectedNames.toSet();
+
+                  // 2. Fast filter Find & Book Talents page
+                  if (selectedNames.isNotEmpty) {
+                    ref.read(hasSearchFiltersProvider.notifier).state = true;
+                    ref.read(filterCreatorsProvider.notifier).filterCreators(
+                      category: selectedNames
+                          .map((e) => e.removeSpace().removeSlash().toLowerCase())
+                          .join('|'),
+                    );
+                  }
+
+                  // 3. Save preferences to backend
                   ref
                       .read(updatePreferencesProvider.notifier)
                       .updatePreferences(selectedSubCategoryIds.toList());
                 },
               ),
-              12.0.height,
             ],
           ),
         ),
@@ -154,7 +197,7 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
     final isLoading = nichesAsync.isLoading || preferencesAsync.isLoading;
     final hasError = nichesAsync.hasError || preferencesAsync.hasError;
 
-    if (isLoading) {
+    if (isLoading && nicheGroups.isEmpty) {
       return const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -169,7 +212,7 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
       );
     }
 
-    if (hasError) {
+    if (hasError && nicheGroups.isEmpty) {
       return Center(
         child: Text(
           (nichesAsync.error ?? preferencesAsync.error).toString(),
@@ -180,8 +223,10 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: nicheGroups.map<Widget>((niche) {
-        final nicheId = niche.id ?? '';
+        final nicheId = niche.id ?? niche.name ?? '';
         final isExpanded = expandedCategoryIds.contains(nicheId);
+        final categories = niche.categories ?? [];
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -206,15 +251,17 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
                 });
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
                         niche.name ?? '',
                         style: context.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.heading,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          color: AppColors.black2,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -222,34 +269,36 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
                     ),
                     Icon(
                       isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                      color: AppColors.subHeading,
+                      color: AppColors.black2,
                       size: 20,
                     ),
                   ],
                 ),
               ),
             ),
-            if (isExpanded && (niche.categories?.isNotEmpty ?? false)) ...[
+            if (isExpanded && categories.isNotEmpty) ...[
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: (niche.categories ?? []).map<Widget>((sub) {
-                  final isSelected = selectedSubCategoryIds.contains(sub.id);
+                children: categories.map<Widget>((sub) {
+                  final subId = sub.id ?? sub.name ?? '';
+                  final isSelected = selectedSubCategoryIds.contains(subId);
+
                   return GestureDetector(
                     onTap: () {
                       setState(() {
                         if (isSelected) {
-                          selectedSubCategoryIds.remove(sub.id);
+                          selectedSubCategoryIds.remove(subId);
                         } else {
-                          selectedSubCategoryIds.add(sub.id ?? '');
+                          selectedSubCategoryIds.add(subId);
                         }
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? AppColors.highlightCoral : Colors.white,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected ? AppColors.highlightCoral : AppColors.grey300,
                         ),
@@ -259,13 +308,14 @@ class _SearchPreferencesViewState extends ConsumerState<SearchPreferencesView> {
                         style: context.textTheme.bodySmall?.copyWith(
                           color: isSelected ? Colors.white : AppColors.subHeading,
                           fontWeight: FontWeight.w500,
+                          fontSize: 12,
                         ),
                       ),
                     ),
                   );
                 }).toList(),
               ),
-              8.0.height,
+              12.0.height,
             ],
           ],
         );

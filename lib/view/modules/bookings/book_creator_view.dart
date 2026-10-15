@@ -55,7 +55,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   final TextEditingController durationNumberController = TextEditingController(text: '1');
-  String selectedDurationUnit = 'Days';
+  String selectedDurationUnit = 'Hours';
 
   DateTime? get calculatedEndDate {
     if (selectedStartDate?.unavailableDate == null) return null;
@@ -146,7 +146,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.chevron_left, color: Colors.black, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: const Text(
           'Book Creator',
@@ -344,7 +348,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                                   child: DropdownButton<String>(
                                     isExpanded: true,
                                     value: selectedDurationUnit,
-                                    items: ['Days', 'Hours', 'Weeks']
+                                    items: ['Hours', 'Days', 'Weeks']
                                         .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)))))
                                         .toList(),
                                     onChanged: (val) {
@@ -391,7 +395,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     isExpanded: true,
                     value: workModeController.text.isNotEmpty ? workModeController.text : null,
                     hint: const Text('Select Work Mode', style: TextStyle(fontSize: 15, color: AppColors.body)),
-                    items: ['On site', 'Hybrid', 'Offsite']
+                    items: ['On site', 'Hybrid', 'Remote']
                         .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131)))))
                         .toList(),
                     onChanged: (val) {
@@ -498,6 +502,20 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                               price: num.tryParse(d.priceController.text.replaceAll(',', '')) ?? 0,
                             ))
                         .toList();
+
+                    if (selectedBookingType == 'Deliverable Based') {
+                      if (deliverablesList.isEmpty) {
+                        ToastDialog.showError('Please add at least one deliverable for deliverable-based bookings', context);
+                        return;
+                      }
+                      final totalDeliverablesPrice = deliverablesList.fold<num>(0, (sum, d) => sum + (d.price ?? 0));
+                      final totalBudget = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
+
+                      if ((totalDeliverablesPrice - totalBudget).abs() > 0.01) {
+                        ToastDialog.showError('The sum of deliverable amounts ($totalDeliverablesPrice) must add up to the total budget ($totalBudget)', context);
+                        return;
+                      }
+                    }
 
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(

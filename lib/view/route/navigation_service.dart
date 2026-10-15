@@ -73,10 +73,18 @@ class NavigationService {
   }
 
   /// Pop to the first route
-  void popToFirst() => currentState?.popUntil((route) => route.isFirst);
+  void popToFirst() {
+    if (canPop) {
+      currentState?.popUntil((route) => route.isFirst);
+    }
+  }
 
-  /// Pop the current route
-  void pop<T>([T? result]) => currentState?.pop(result);
+  /// Pop the current route safely
+  void pop<T>([T? result]) {
+    if (canPop) {
+      currentState?.pop(result);
+    }
+  }
 
   /// Check if the navigator can pop
   bool get canPop => currentState?.canPop() ?? false;
@@ -160,10 +168,18 @@ extension NavigationExtension on BuildContext {
       );
 
   /// Pop to first route
-  void popToFirst() => NavigationService.instance.popToFirst();
+  void popToFirst() {
+    if (canPop) {
+      NavigationService.instance.popToFirst();
+    }
+  }
 
   /// Pop current route
-  void pop<T>([T? result]) => NavigationService.instance.pop(result);
+  void pop<T>([T? result]) {
+    if (canPop) {
+      NavigationService.instance.pop(result);
+    }
+  }
 
   /// Check if can pop
   bool get canPop => NavigationService.instance.canPop;

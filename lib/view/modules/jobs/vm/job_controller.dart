@@ -277,6 +277,7 @@ class JobController extends StateNotifier<JobState> {
       state = state.copyWith(isLoading: false);
       if (response.data['success']) {
         await fetchMyListings();
+        await fetchJobs();
         _ref.invalidate(fetchNotificationsProvider);
         return null;
       }

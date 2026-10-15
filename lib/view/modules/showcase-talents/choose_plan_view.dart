@@ -7,6 +7,7 @@ import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_provide
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/make_subscription_payment_vm.dart';
 import 'package:creatify_mobile/view/modules/transactions/sheets/fund_wallet_sheet.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
+import 'package:creatify_mobile/view/modules/tab-bar/tab_bar_view.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -15,6 +16,7 @@ import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -42,6 +44,16 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
     final userData = ref.watch(userControllerProvider);
     final currency = userData.primaryCurrency ?? 'NGN';
 
+    final mySub = ref.watch(fetchMySubscriptionProvider);
+    final hasActivePro = mySub.value?.hasSubscription == true && mySub.value?.isActive == true;
+
+    String buttonText = 'Subscribe to Pro';
+    if (_selectedTier == 'Free') {
+      buttonText = 'Switch to Free';
+    } else if (hasActivePro) {
+      buttonText = 'Go to Home';
+    }
+
     final proPrice = _isAnnual
         ? 110000.amountWithCurrency(currency)
         : 10000.amountWithCurrency(currency);
@@ -50,16 +62,17 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
     ref.listen(makeSubscriptionPaymentProvider, (_, value) {
       if (value is AsyncData<MakeSubcriptionPaymentDto>) {
         final paymentRef = value.value.paymentReference;
-        if (paymentRef != null && paymentRef.isNotEmpty) {
-          ref.read(verifySubscriptionPaymentProvider.notifier).verifySubscriptionPayment(paymentRef);
-        } else {
+        final authUrl = value.value.authorizationUrl;
+        if (authUrl != null && authUrl.isNotEmpty) {
           NavigationService.instance.push(
             WebviewScreen(
-              url: value.value.authorizationUrl ?? '',
+              url: authUrl,
               paymentReference: paymentRef,
               routeName: 'Subscription Payment',
             ),
           );
+        } else {
+          ToastDialog.showError('Unable to initialize payment gateway', context);
         }
       }
       if (value is AsyncError) {
@@ -72,10 +85,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
         ref.invalidate(userControllerProvider);
         ref.invalidate(fetchMySubscriptionProvider);
         ToastDialog.showSuccess('Pro subscription activated successfully!', context);
-        AppBottomSheet.showBottomSheet(
-          context,
-          widget: const UpgradeAccountSuccessfulSheet(),
-        );
+        context.pushAndRemoveUntil(const TabBarSection());
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
@@ -89,7 +99,11 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
+          },
         ),
         title: const Text(
           'Choose Plan',
@@ -163,7 +177,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                 'Get started on Creatify.',
                 '',
                 '',
-                ['Create a profile', 'Showcase your work', 'Browse and apply for jobs', 'Advanced insights'],
+                ['Create a profile', 'Showcase your work', 'Browse and apply for jobs'],
                 tier: 'Free',
               ),
               16.0.height,
@@ -175,8 +189,6 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
               periodText,
               [
                 'Higher profile visibility',
-                'Apply directly to job adverts',
-                'Job alerts',
                 'Advanced insights',
                 'Priority support'
               ],
@@ -206,19 +218,16 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                   color: AppColors.grey50,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'You can cancel your subscription at any time. By continuing, you agree to our',
-                      style: TextStyle(color: AppColors.body, fontSize: 12, height: 1.4),
-                    ),
-                    6.0.height,
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        InkWell(
-                          onTap: () {
+                child: RichText(
+                  text: TextSpan(
+                    style: const TextStyle(color: AppColors.body, fontSize: 12, height: 1.4),
+                    children: [
+                      const TextSpan(text: 'You can cancel your subscription at any time. By continuing, you agree to our '),
+                      TextSpan(
+                        text: 'Terms & Conditions',
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
                             Navigator.of(context, rootNavigator: true).push(
                               MaterialPageRoute(
                                 builder: (_) => const WebviewScreen(
@@ -228,14 +237,13 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                               ),
                             );
                           },
-                          child: const Text(
-                            'Terms and Conditions',
-                            style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
-                        const Text(' and ', style: TextStyle(color: AppColors.body, fontSize: 12)),
-                        InkWell(
-                          onTap: () {
+                      ),
+                      const TextSpan(text: ' and '),
+                      TextSpan(
+                        text: 'Privacy Policy',
+                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
                             Navigator.of(context, rootNavigator: true).push(
                               MaterialPageRoute(
                                 builder: (_) => const WebviewScreen(
@@ -245,15 +253,10 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                               ),
                             );
                           },
-                          child: const Text(
-                            'Privacy Policy',
-                            style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
-                          ),
-                        ),
-                        const Text('.', style: TextStyle(color: AppColors.body, fontSize: 12)),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const TextSpan(text: '.'),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -263,11 +266,17 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: MainButton(
-                text: 'Subscribe to $_selectedTier',
+                text: buttonText,
                 isLoading: ref.watch(makeSubscriptionPaymentProvider).isLoading,
                 onPressed: () {
                    if (_selectedTier == 'Free') {
-                     ToastDialog.showSuccess('You are on the Free plan', context);
+                     ToastDialog.showSuccess('Switched to Free plan', context);
+                     context.pushAndRemoveUntil(const TabBarSection());
+                     return;
+                   }
+                   if (hasActivePro) {
+                     ToastDialog.showSuccess('You are on the Pro plan', context);
+                     context.pushAndRemoveUntil(const TabBarSection());
                      return;
                    }
                    final plans = ref.read(fetchSubscriptionPlansProvider).value ?? [];
@@ -280,7 +289,7 @@ class _ChoosePlanViewState extends ConsumerState<ChoosePlanView> {
                    if (plan.id != null) {
                      ref.read(makeSubscriptionPaymentProvider.notifier).makeSubscriptionPayment(plan.id!);
                    } else {
-                     ToastDialog.showError('Subscription plan initialized successfully', context);
+                     ToastDialog.showError('Failed to initialize subscription plan', context);
                    }
                 },
               ),

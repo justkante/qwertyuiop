@@ -35,7 +35,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
   String? _selectedWorkMode;
   DateTime? _startDate;
   TimeOfDay? _startTime;
-  String _durationUnit = 'Days';
+  String _durationUnit = 'Hours';
   String _period = 'AM';
 
   TextStyle get _labelStyle => const TextStyle(
@@ -375,7 +375,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
                         4.0.height,
                         _buildDropdownField(
                           '',
-                          ['Days', 'Hours', 'Weeks'],
+                          ['Hours', 'Days', 'Weeks'],
                           (val) => setState(() => _durationUnit = val!),
                           initialValue: _durationUnit,
                         ),
@@ -571,6 +571,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         return;
       } else {
         if (error == null && mounted) {
+          ToastDialog.showSuccess('Job posted successfully', context);
           NavigationService.instance.pushReplacement(const PostJobSuccessView());
         } else if (mounted) {
           ToastDialog.showError(error ?? 'Failed to process job. Please try again.', context);

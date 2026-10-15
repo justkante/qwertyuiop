@@ -40,16 +40,17 @@ class _UpgradeAccountSheetState extends ConsumerState<UpgradeAccountSheet> {
       if (value is AsyncData<MakeSubcriptionPaymentDto>) {
         context.pop();
         final paymentRef = value.value.paymentReference;
-        if (paymentRef != null && paymentRef.isNotEmpty) {
-          ref.read(verifySubscriptionPaymentProvider.notifier).verifySubscriptionPayment(paymentRef);
-        } else {
+        final authUrl = value.value.authorizationUrl;
+        if (authUrl != null && authUrl.isNotEmpty) {
           NavigationService.instance.push(
             WebviewScreen(
-              url: value.value.authorizationUrl ?? '',
+              url: authUrl,
               paymentReference: paymentRef,
               routeName: 'Subscription Payment',
             ),
           );
+        } else {
+          ToastDialog.showError('Unable to initialize payment gateway', context);
         }
       }
       if (value is AsyncError) {

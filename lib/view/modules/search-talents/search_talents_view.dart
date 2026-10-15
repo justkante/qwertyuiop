@@ -41,6 +41,7 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
   bool _showBackToTop = false;
   bool _isRefreshing = false;
   double _dragDistance = 0;
+  bool _appliedDefaultPreferences = false;
 
   String _searchQuery = '';
 
@@ -148,6 +149,31 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
 
     final userData = ref.watch(userControllerProvider);
     final creators = ref.watch(filter_vm.filterCreatorsProvider);
+    final preferencesAsync = ref.watch(fetchPreferencesProvider);
+
+    if (!_appliedDefaultPreferences && preferencesAsync.hasValue && !ref.read(hasSearchFiltersProvider)) {
+      final value = preferencesAsync.value;
+      if (value != null && value is List && value.isNotEmpty) {
+        _appliedDefaultPreferences = true;
+        final List<String> categoryNames = (value as List)
+            .map((p) => p?.name?.toString() ?? '')
+            .where((name) => name.isNotEmpty)
+            .toList();
+        if (categoryNames.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              categoriesNotifier.value = Set<String>.from(categoryNames);
+              ref.read(hasSearchFiltersProvider.notifier).state = true;
+              ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(
+                category: categoryNames
+                    .map((e) => e.removeSpace().removeSlash().toLowerCase())
+                    .join('|'),
+              );
+            }
+          });
+        }
+      }
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,

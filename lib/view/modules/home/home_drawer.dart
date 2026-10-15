@@ -15,6 +15,7 @@ import 'package:creatify_mobile/view/modules/home/search_preferences_view.dart';
 import 'package:creatify_mobile/view/modules/home/support_view.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
+import 'package:creatify_mobile/view/modules/search-talents/talent_filter_sheet.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/manage_subscription_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_recruiter_profile_view.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/my_creator_profile_view.dart';
@@ -194,6 +195,7 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       icon: AppImages.document,
                       title: 'Search Preferences',
                       onTap: () {
+                        Navigator.of(context).pop();
                         NavigationService.instance.push(const SearchPreferencesView());
                       },
                     ),

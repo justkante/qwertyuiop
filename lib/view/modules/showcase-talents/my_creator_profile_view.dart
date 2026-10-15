@@ -207,7 +207,11 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<MyCreatorProfileView
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
           ),
           actions: [
             IconButton(

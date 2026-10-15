@@ -342,7 +342,7 @@ class _HomeViewState extends ConsumerState<HomeView> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Row(
                     children: [
-                      _buildFixedMiniMetric('Open jobs', '${jobState.jobs.length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () {
+                      _buildFixedMiniMetric('Open jobs', '${jobState.jobs.where((j) => !j.isExpired && (j.status?.toLowerCase() == 'active' || j.status == null)).length}', const Color(0xFFE0F2F1), const Color(0xFF00BFA5), Icons.work_outline, () {
                         ref.read(jobTabIndexProvider.notifier).state = 0;
                         ref.read(custom_nav.navBarController.notifier).index = 2;
                       }),

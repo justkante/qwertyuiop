@@ -112,7 +112,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       GestureDetector(
-                        onTap: () => context.pop(),
+                        onTap: () => Navigator.of(context).pop(),
                         child: const Icon(
                           Icons.close,
                           color: Colors.transparent,
@@ -128,7 +128,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => context.pop(),
+                        onTap: () => Navigator.of(context).pop(),
                         child: const Icon(
                           Icons.close,
                           color: AppColors.body,
@@ -654,7 +654,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         selectedRating == null &&
         selectedAvailability == null &&
         selectedWorkMode == null) {
-      context.pop();
+      Navigator.of(context).pop();
     } else {
       ref.read(hasSearchFiltersProvider.notifier).state = true;
 
@@ -680,7 +680,7 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
         workModeNotifier.value = selectedWorkMode;
       });
 
-      context.pop(true);
+      Navigator.of(context).pop(true);
     }
   }
 }
