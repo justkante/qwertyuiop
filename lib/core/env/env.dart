@@ -10,6 +10,11 @@ final class Env {
   @EnviedField(varName: 'PROD_DOJAH_WIDGET_ID')
   static final String prodDojahWidgetId = _Env.prodDojahWidgetId;
 
+  static const String dojahAppId = '692d312324af1f656a3baba4';
+  static const String prodDojahAppId = '692d312324af1f656a3baba4';
+  static const String dojahPublicKey = 'prod_pk_ktitGxzcNu6RVYogNBEr18foV';
+  static const String prodDojahPublicKey = 'prod_pk_ktitGxzcNu6RVYogNBEr18foV';
+
   @EnviedField(varName: 'PUSHER_APP_KEY')
   static final String pusherAppKey = _Env.pusherAppKey;
 
