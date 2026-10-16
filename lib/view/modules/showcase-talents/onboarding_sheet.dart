@@ -52,7 +52,7 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
     };
 
     dojahConfigObj = {
-      "widget_id": "68d12ff4f42ef83ae2339316",
+      "widget_id": environmentNotifier.value == "prod" ? Env.prodDojahWidgetId : Env.dojohWidgetId,
     };
   }
 
