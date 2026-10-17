@@ -109,15 +109,16 @@ final pusherInitializationProvider = FutureProvider<bool>((ref) async {
         }
       }
       
-      // Delay invalidating notifications slightly to allow backend DB commit
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        ref.invalidate(fetchNotificationsProvider);
-      });
-
+      // Show social media message banner instantly before notification page updates
       final mapData = data is Map<String, dynamic>
           ? data
           : (data is Map ? Map<String, dynamic>.from(data) : {'title': data?.toString() ?? 'New Booking Request'});
       BookingAlertManager.show(null, mapData);
+
+      // Delay invalidating notifications slightly so popup appears before it hits notification page
+      Future.delayed(const Duration(milliseconds: 2000), () {
+        ref.invalidate(fetchNotificationsProvider);
+      });
     };
 
     final refreshJobsAndApplications = (data) {

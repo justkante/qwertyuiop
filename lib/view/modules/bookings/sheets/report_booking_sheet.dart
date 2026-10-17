@@ -2,6 +2,7 @@ import 'package:creatify_mobile/data/models/requests/booking_request_req.dart';
 import 'package:creatify_mobile/data/models/responses/get_report_reasons_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/sheets/report_booking_reasons_sheet.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/report_booking_vm.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -30,13 +31,22 @@ class ReportBookingSheet extends ConsumerStatefulWidget {
 }
 
 class _ReportCreatorAccountSheetState extends ConsumerState<ReportBookingSheet> {
+  final TextEditingController reportIdController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
   final TextEditingController detailsController = TextEditingController();
 
   ReportReasonsDto? selectedReason;
 
   @override
+  void initState() {
+    super.initState();
+    final uniqueId = 'REP-${DateTime.now().millisecondsSinceEpoch.toRadixString(36).toUpperCase()}';
+    reportIdController.text = uniqueId;
+  }
+
+  @override
   void dispose() {
+    reportIdController.dispose();
     reasonController.dispose();
     detailsController.dispose();
     super.dispose();
@@ -87,6 +97,20 @@ class _ReportCreatorAccountSheetState extends ConsumerState<ReportBookingSheet> 
               style: context.textTheme.bodySmall,
               textAlign: TextAlign.center,
             ).animate().fadeIn(begin: 0, delay: 400.ms).slideY(begin: .1, end: 0),
+            18.0.height,
+            TextInputField(
+              header: "Report ID",
+              controller: reportIdController,
+              hint: 'Report ID',
+              readOnly: true,
+              prefixIcon: const Icon(
+                Icons.search,
+                color: AppColors.body,
+                size: 18,
+              ),
+              inputType: TextInputType.text,
+              validator: null,
+            ).animate().fadeIn(begin: 0, delay: 450.ms).slideY(begin: .1, end: 0),
             18.0.height,
             TextInputField(
               header: "Select Reason",
@@ -178,9 +202,15 @@ class _ReportCreatorAccountSheetState extends ConsumerState<ReportBookingSheet> 
                               ? () {
                                   ref.read(reportBookingProvider.notifier).reportBooking(
                                         ReportBookingReq(
+                                          reportId: reportIdController.text,
+                                          reporteeName: widget.bookingId ?? 'Booking',
+                                          reporterName: ref.read(userControllerProvider).name ?? 'Reporter',
+                                          reporterMessage: detailsController.text.isEmpty
+                                              ? (selectedReason?.reason ?? reasonController.text)
+                                              : detailsController.text,
                                           bookingId: widget.bookingId ?? '',
                                           reportedUserId: widget.userId ?? '',
-                                          reportedReasonId: selectedReason?.id ?? '',
+                                          reportedReasonId: selectedReason?.id ?? selectedReason?.reason ?? reasonController.text,
                                           details: detailsController.text.isEmpty
                                               ? reasonController.text
                                               : detailsController.text,

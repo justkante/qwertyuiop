@@ -111,7 +111,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
         final msg = value.value;
         final displayMsg = (msg != null && msg.isNotEmpty)
             ? msg
-            : 'You have accepted the Booking'.toTitleCase();
+            : 'Accepted'.toTitleCase();
         ToastDialog.showSuccess(displayMsg, context);
       }
       if (value is AsyncError) {

@@ -12,6 +12,13 @@ import 'package:creatify_mobile/view/modules/bookings/fetched_creator_profile_vi
 import 'package:creatify_mobile/view/modules/bookings/vm/delivery_based_booking_vm.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
+import 'package:creatify_mobile/view/modules/bookings/sheets/make_payment_sheet.dart';
+import 'package:creatify_mobile/view/modules/bookings/widgets/booking_alert_popup.dart';
+import 'package:creatify_mobile/view/modules/transactions/vm/initialize_payment_vm.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/verify_payment_vm.dart';
+import 'package:creatify_mobile/view/modules/bookings/payment_successful_view.dart';
+import 'package:creatify_mobile/view/modules/transactions/vm/stripe_init.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' if (dart.library.html) 'package:creatify_mobile/core/utils/stripe_stub.dart';
 
 import 'package:creatify_mobile/view/modules/home/rating/star_rating.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
@@ -56,6 +63,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   final TextEditingController endDateController = TextEditingController();
   final TextEditingController durationNumberController = TextEditingController(text: '1');
   String selectedDurationUnit = 'Hours';
+  String paymentMethod = '';
+  String? createdBookingId;
 
   DateTime? get calculatedEndDate {
     if (selectedStartDate?.unavailableDate == null) return null;
@@ -127,15 +136,117 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   Widget build(BuildContext context) {
     final bookingCreatorLoading = ref.watch(deliveryBasedCreatorBookingProvider).isLoading;
 
-    ref.listen(deliveryBasedCreatorBookingProvider, (_, value) {
-      if (value is AsyncData || value is AsyncError) {
-        ToastDialog.showSuccess('Booking made successfully', context);
+    ref.listen(deliveryBasedCreatorBookingProvider, (_, value) async {
+      if (value is AsyncData) {
+        final bookingId = value.value;
+        if (bookingId != null && bookingId.isNotEmpty) {
+          createdBookingId = bookingId;
+          final amount = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
+
+          final method = await AppBottomSheet.showBottomSheet(
+            context,
+            widget: MakePaymentOptionsSheet(
+              amountDue: amount,
+              bookingId: bookingId,
+            ),
+          );
+
+          if (method != null) {
+            paymentMethod = method;
+            ref.read(initializePaymentProvider.notifier).initializePayment(bookingId, paymentMethod);
+          }
+        }
+      }
+      if (value is AsyncError) {
+        ToastDialog.showError(value.error.toString(), context);
+      }
+    });
+
+    ref.listen(initializePaymentProvider, (_, next) async {
+      if (next is AsyncData) {
+        if (paymentMethod == 'online') {
+          if (next.value?.currency == 'NGN') {
+            NavigationService.instance.push(
+              WebviewScreen(
+                url: next.value?.authorizationUrl ?? '',
+                paymentReference: next.value?.paymentReference,
+                bookingId: createdBookingId,
+                routeName: 'Make Payment',
+              ),
+            );
+          } else {
+            await initStripePayment(
+              paymentIntent: next.value?.stripePaymentIntentId ?? '',
+              clientSecret: next.value?.clientSecret ?? '',
+              context: context,
+            ).then((_) async {
+              try {
+                await Stripe.instance.presentPaymentSheet();
+                if (context.mounted && createdBookingId != null) {
+                  ref.read(verifyPaymentProvider.notifier).verify(
+                        next.value?.paymentReference ?? '',
+                        createdBookingId!,
+                      );
+                }
+              } catch (e) {
+                log('Stripe payment cancelled or failed: $e');
+                if (context.mounted) {
+                  ToastDialog.showError('Payment cancelled or failed', context);
+                }
+              }
+            });
+          }
+        } else if (paymentMethod == 'wallet') {
+          if (next.value?.paymentReference != null && next.value!.paymentReference!.isNotEmpty && createdBookingId != null) {
+            ref.read(verifyPaymentProvider.notifier).verify(
+                  next.value!.paymentReference!,
+                  createdBookingId!,
+                );
+          } else if (createdBookingId != null) {
+            ToastDialog.showSuccess('Booking paid successfully from Wallet', context);
+            BookingAlertManager.show(context, {
+              'title': 'Booking Received',
+              'booking_id': createdBookingId,
+              'recruiter_name': ref.read(userControllerProvider).name ?? 'Recruiter',
+              'price': budgetController.text,
+            });
+            NavigationService.instance.pushReplacement(
+              PaymentSuccessfulView(
+                creatorName: widget.creatorProfile.name,
+                creatorId: widget.creatorProfile.id,
+                bookingId: createdBookingId,
+              ),
+            );
+          }
+        }
+      }
+      if (next is AsyncError) {
+        if (context.mounted) {
+          ToastDialog.showError(next.error.toString(), context);
+        }
+      }
+    });
+
+    ref.listen(verifyPaymentProvider, (_, value) {
+      if (value is AsyncData && createdBookingId != null) {
+        BookingAlertManager.show(context, {
+          'title': 'Booking Received',
+          'booking_id': createdBookingId,
+          'recruiter_name': ref.read(userControllerProvider).name ?? 'Recruiter',
+          'price': budgetController.text,
+        });
         NavigationService.instance.pushReplacement(
-          isTransparent: true,
-          RequestSentView(
+          PaymentSuccessfulView(
             creatorName: widget.creatorProfile.name,
+            creatorId: widget.creatorProfile.id,
+            bookingId: createdBookingId,
           ),
         );
+      }
+      if (value is AsyncError) {
+        if (context.mounted) {
+          ToastDialog.showError(value.error.toString(), context);
+        }
       }
     });
 

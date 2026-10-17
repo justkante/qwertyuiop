@@ -26,6 +26,16 @@ class BookingsService {
         data: req.toJson(),
       );
 
+      final data = response.data;
+      if (data is Map) {
+        final bookingId = data['data']?['id']?.toString() ??
+            data['booking_id']?.toString() ??
+            data['id']?.toString();
+        if (bookingId != null && bookingId.isNotEmpty) {
+          return bookingId;
+        }
+      }
+
       return parseResponseMessage(response.data, 'Booking created successfully');
     } catch (e) {
       throw e.toString();
@@ -161,7 +171,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return parseResponseMessage(response.data, 'Booking accepted successfully');
+      return parseResponseMessage(response.data, 'Accepted');
     } catch (e) {
       throw e.toString();
     }

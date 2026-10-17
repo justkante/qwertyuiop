@@ -270,7 +270,7 @@ class JobController extends StateNotifier<JobState> {
     }
   }
 
-  Future<String?> createJob(Map<String, dynamic> data) async {
+  Future<dynamic> createJob(Map<String, dynamic> data) async {
     state = state.copyWith(isLoading: true);
     try {
       final response = await _apiService.createJob(data);
@@ -279,7 +279,7 @@ class JobController extends StateNotifier<JobState> {
         await fetchMyListings();
         await fetchJobs();
         _ref.invalidate(fetchNotificationsProvider);
-        return null;
+        return response.data['data'] is Map ? response.data['data'] : response.data;
       }
       // Return specific error from backend if available
       final errors = response.data?['errors'];

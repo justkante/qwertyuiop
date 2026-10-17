@@ -12,6 +12,14 @@ import 'vm/job_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'post_job_success_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/sheets/make_payment_sheet.dart';
+import 'package:creatify_mobile/view/modules/transactions/vm/initialize_payment_vm.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/verify_payment_vm.dart';
+import 'package:creatify_mobile/view/modules/transactions/vm/stripe_init.dart';
+import 'package:flutter_stripe/flutter_stripe.dart' if (dart.library.html) 'package:creatify_mobile/core/utils/stripe_stub.dart';
+import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
+import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
+import 'dart:developer';
 
 class UploadJobView extends ConsumerStatefulWidget {
   final JobDto? job;
@@ -30,6 +38,8 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
   final _durationController = TextEditingController(text: '0');
   final _hourController = TextEditingController();
   final _minuteController = TextEditingController();
+  String paymentMethod = '';
+  String? createdJobId;
 
   String? _selectedService;
   String? _selectedWorkMode;
@@ -133,6 +143,70 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(initializePaymentProvider, (_, next) async {
+      if (next is AsyncData) {
+        if (paymentMethod == 'online') {
+          if (next.value?.currency == 'NGN') {
+            NavigationService.instance.push(
+              WebviewScreen(
+                url: next.value?.authorizationUrl ?? '',
+                paymentReference: next.value?.paymentReference,
+                bookingId: createdJobId,
+                routeName: 'Job Payment',
+              ),
+            );
+          } else {
+            await initStripePayment(
+              paymentIntent: next.value?.stripePaymentIntentId ?? '',
+              clientSecret: next.value?.clientSecret ?? '',
+              context: context,
+            ).then((_) async {
+              try {
+                await Stripe.instance.presentPaymentSheet();
+                if (context.mounted && createdJobId != null) {
+                  ref.read(verifyPaymentProvider.notifier).verify(
+                        next.value?.paymentReference ?? '',
+                        createdJobId!,
+                      );
+                }
+              } catch (e) {
+                log('Stripe payment cancelled or failed: $e');
+                if (context.mounted) {
+                  ToastDialog.showError('Payment cancelled or failed', context);
+                }
+              }
+            });
+          }
+        } else if (paymentMethod == 'wallet') {
+          if (next.value?.paymentReference != null && next.value!.paymentReference!.isNotEmpty && createdJobId != null) {
+            ref.read(verifyPaymentProvider.notifier).verify(
+                  next.value!.paymentReference!,
+                  createdJobId!,
+                );
+          } else if (createdJobId != null) {
+            ToastDialog.showSuccess('Job paid successfully from Wallet', context);
+            NavigationService.instance.pushReplacement(const PostJobSuccessView());
+          }
+        }
+      }
+      if (next is AsyncError) {
+        if (context.mounted) {
+          ToastDialog.showError(next.error.toString(), context);
+        }
+      }
+    });
+
+    ref.listen(verifyPaymentProvider, (_, value) {
+      if (value is AsyncData && createdJobId != null) {
+        NavigationService.instance.pushReplacement(const PostJobSuccessView());
+      }
+      if (value is AsyncError) {
+        if (context.mounted) {
+          ToastDialog.showError(value.error.toString(), context);
+        }
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         leading: const BackButton(),
@@ -555,11 +629,11 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         'duration': '${_durationController.text.isEmpty ? '1' : _durationController.text} $_durationUnit',
       };
 
-      String? error;
+      dynamic result;
       try {
-        error = await ref.read(jobControllerProvider.notifier).createJob(payload);
+        result = await ref.read(jobControllerProvider.notifier).createJob(payload);
       } catch (e) {
-        error = e.toString();
+        result = e.toString();
       }
 
       if (isDraft) {
@@ -570,11 +644,30 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         }
         return;
       } else {
-        if (error == null && mounted) {
-          ToastDialog.showSuccess('Job posted successfully', context);
-          NavigationService.instance.pushReplacement(const PostJobSuccessView());
+        if (result is Map && mounted) {
+          final jobId = result['id']?.toString() ?? result['job_id']?.toString() ?? '';
+          createdJobId = jobId;
+          final jobPrice = double.tryParse(_priceController.text) ?? 0.0;
+
+          if (jobId.isEmpty) {
+            ToastDialog.showError('Job created but missing ID for payment', context);
+            return;
+          }
+
+          final method = await AppBottomSheet.showBottomSheet(
+            context,
+            widget: MakePaymentOptionsSheet(
+              amountDue: jobPrice,
+              bookingId: jobId,
+            ),
+          );
+
+          if (method != null && mounted) {
+            paymentMethod = method;
+            ref.read(initializePaymentProvider.notifier).initializePayment(jobId, method);
+          }
         } else if (mounted) {
-          ToastDialog.showError(error ?? 'Failed to process job. Please try again.', context);
+          ToastDialog.showError(result?.toString() ?? 'Failed to process job. Please try again.', context);
         }
       }
     }
