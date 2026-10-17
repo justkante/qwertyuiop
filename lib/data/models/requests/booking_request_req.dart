@@ -42,10 +42,25 @@ class ReportBookingReq {
         details: json["details"],
       );
 
-  Map<String, dynamic> toJson() => {
-        "booking_id": bookingId,
-        "reported_user_id": reportedUserId,
-        "report_reason_id": reportedReasonId,
-        "details": details,
-      };
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (bookingId != null && bookingId!.isNotEmpty) {
+      map["booking_id"] = bookingId;
+    }
+    if (reportedUserId != null && reportedUserId!.isNotEmpty) {
+      map["reported_user_id"] = reportedUserId;
+      map["user_id"] = reportedUserId;
+      map["reported_id"] = reportedUserId;
+    }
+    if (reportedReasonId != null && reportedReasonId!.isNotEmpty) {
+      map["report_reason_id"] = reportedReasonId;
+      map["reason_id"] = reportedReasonId;
+      map["reported_reason_id"] = reportedReasonId;
+    }
+    if (details != null && details!.isNotEmpty) {
+      map["details"] = details;
+      map["description"] = details;
+    }
+    return map;
+  }
 }

@@ -248,18 +248,23 @@ class ChatPusherService {
 
     // Register booking, job application, wallet, subscription, and notification events
     final bookingEvents = [
-      'booking.created', 'new-booking', 'booking',
-      'booking.confirmed', 'booking.paid', 'booking.accepted',
-      'booking.cancelled', 'booking.declined',
-      'deliverable.approved', 'booking.deliverable.approved',
-      'revision.requested', 'booking.revision.requested',
-      'deliverable.submitted', 'booking.deliverable.submitted'
+      'booking.created', 'new-booking', 'booking', 'booking_created', 'booking-created',
+      'booking.confirmed', 'booking.paid', 'booking.accepted', 'booking_confirmed', 'booking_paid', 'booking_accepted',
+      'booking.cancelled', 'booking.declined', 'booking_cancelled', 'booking_declined',
+      'deliverable.approved', 'booking.deliverable.approved', 'deliverable_approved', 'booking_deliverable_approved',
+      'revision.requested', 'booking.revision.requested', 'revision_requested', 'booking_revision_requested',
+      'deliverable.submitted', 'booking.deliverable.submitted', 'deliverable_submitted', 'booking_deliverable_submitted',
+      'BookingCreated', 'NewBooking', 'BookingConfirmed', 'BookingPaid', 'BookingAccepted'
     ];
     for (var ev in bookingEvents) {
       final keyName = ev.replaceAll('.', '_').replaceAll('-', '_');
       _pusherService.registerEventCallback(ev, (data) {
         if (_eventHandlers.containsKey(keyName)) {
           _eventHandlers[keyName]!(data);
+        }
+        // Also check if lowercased/direct key exists
+        if (_eventHandlers.containsKey(ev)) {
+          _eventHandlers[ev]!(data);
         }
       });
     }
@@ -315,15 +320,19 @@ class ChatPusherService {
   }
 
   /// Subscribe to user's personal channel for new conversations and messages
-  Future<void> subscribeToUserChannel() async {
-    if (_currentUserId == null || _currentUserId!.isEmpty) {
-      _currentUserId = SharedPrefManager.userId;
-    }
+  Future<void> subscribeToUserChannel({String? userId}) async {
+    final targetUserId = (userId != null && userId.isNotEmpty)
+        ? userId
+        : (_currentUserId?.isNotEmpty == true ? _currentUserId : SharedPrefManager.userId);
 
-    if (_currentUserId != null && _currentUserId!.isNotEmpty) {
-      final channelName = 'private-user.$_currentUserId';
+    _currentUserId = targetUserId;
+
+    if (targetUserId != null && targetUserId.isNotEmpty) {
+      final channelName = 'private-user.$targetUserId';
       await _pusherService.subscribeToPrivateChannel(channelName);
       log('Subscribed to user channel: $channelName');
+    } else {
+      log('Cannot subscribe to user channel: userId is empty');
     }
   }
 

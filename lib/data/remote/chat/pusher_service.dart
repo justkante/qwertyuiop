@@ -574,7 +574,57 @@ class PusherService {
         _handleUserPresenceEvent(event);
         break;
       default:
-        log('Unhandled event type: ${event.eventName}');
+        _handleGenericEvent(event);
+    }
+  }
+
+  /// Handle generic/custom events registered in _eventCallbacks
+  void _handleGenericEvent(PusherEvent event) {
+    try {
+      dynamic parsedData;
+      if (event.data.isNotEmpty) {
+        try {
+          parsedData = json.decode(event.data);
+        } catch (_) {
+          parsedData = event.data;
+        }
+      }
+
+      final mapData = parsedData is Map<String, dynamic>
+          ? parsedData
+          : (parsedData is Map
+              ? Map<String, dynamic>.from(parsedData)
+              : {'data': parsedData});
+
+      final rawName = event.eventName;
+      // Strip Laravel event class namespaces if present (e.g. App\Events\BookingCreated -> BookingCreated)
+      final strippedName = rawName.contains('\\') ? rawName.split('\\').last : rawName;
+
+      final variations = {
+        rawName,
+        strippedName,
+        rawName.replaceAll('.', '_').replaceAll('-', '_'),
+        strippedName.replaceAll('.', '_').replaceAll('-', '_'),
+        rawName.toLowerCase(),
+        strippedName.toLowerCase(),
+        rawName.replaceAll('.', '_').replaceAll('-', '_').toLowerCase(),
+        strippedName.replaceAll('.', '_').replaceAll('-', '_').toLowerCase(),
+      };
+
+      bool handled = false;
+      for (final varName in variations) {
+        if (_eventCallbacks.containsKey(varName)) {
+          log('Triggering callback for matched event variation: $varName (original: $rawName)');
+          _eventCallbacks[varName]!(mapData);
+          handled = true;
+        }
+      }
+
+      if (!handled) {
+        log('Unhandled event type: $rawName (variations: $variations)');
+      }
+    } catch (e) {
+      log('Error handling generic event ${event.eventName}: $e');
     }
   }
 

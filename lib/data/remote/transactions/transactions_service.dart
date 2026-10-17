@@ -2,6 +2,7 @@ import 'package:creatify_mobile/core/error/api_exception.dart';
 import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/core/http/http_service.dart';
 import 'package:creatify_mobile/core/utils/app_url.dart';
+import 'package:creatify_mobile/core/utils/constants.dart';
 import 'package:creatify_mobile/data/models/responses/stripe_onboarding_data_dto.dart';
 import 'package:creatify_mobile/data/models/requests/change_wallet_pin_req.dart';
 import 'package:creatify_mobile/data/models/requests/create_wallet_pin_req.dart';
@@ -35,7 +36,7 @@ class TransactionsService {
         RequestMethod.get,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -107,7 +108,7 @@ class TransactionsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -121,7 +122,7 @@ class TransactionsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -135,7 +136,7 @@ class TransactionsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } on ApiException catch (e) {
       final data = e.responseData?['data'];
       if (data != null && data['requires_stripe_onboarding'] == true) {
@@ -185,7 +186,7 @@ class TransactionsService {
         RequestMethod.get,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -201,7 +202,7 @@ class TransactionsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -217,7 +218,7 @@ class TransactionsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -234,7 +235,7 @@ class TransactionsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -252,7 +253,7 @@ class TransactionsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }

@@ -108,7 +108,12 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
 
     ref.listen(acceptBookingProvider, (_, value) {
       if (value is AsyncData) {
-        ToastDialog.showSuccess('You have accepted the Booking'.toTitleCase(), context);
+        final bookingData = bookingDetails.value;
+        final recruiterName = bookingData?.recruiter?.name ?? 'recruiter';
+        ToastDialog.showSuccess(
+          'Booking accepted but not confirmed, the $recruiterName can proceed to make payment',
+          context,
+        );
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
@@ -178,23 +183,40 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
               clientSecret: next.value?.clientSecret ?? '',
               context: context,
             ).then((value) async {
-              // Show the Payment Sheet
-              await Stripe.instance.presentPaymentSheet().then((val) {
+              try {
+                // Show the Payment Sheet
+                await Stripe.instance.presentPaymentSheet();
                 if (context.mounted) {
-                  log('Payment successful for reference: ${next.value?.paymentReference}');
-                  // Pop the Screen and refresh Balance and Transactions if successful
-                  ToastDialog.showSuccess('Your payment was successful', context);
+                  log('Stripe payment successful for reference: ${next.value?.paymentReference}');
+                  // Verify with backend before showing success
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     ref
                         .read(verifyPaymentProvider.notifier)
                         .verify(next.value?.paymentReference ?? '', widget.bookingId ?? '');
                   });
                 }
-              });
+              } catch (e) {
+                log('Stripe payment cancelled or failed: $e');
+                // Do NOT call verify or show success if payment was cancelled/abandoned
+              }
             });
           }
         } else if (paymentMethod == 'wallet') {
-          ToastDialog.showSuccess('Booking paid succesfully from Wallet', context);
+          // Verify wallet payment reference with backend before confirming success
+          if (next.value?.paymentReference != null && next.value!.paymentReference!.isNotEmpty) {
+            ref
+                .read(verifyPaymentProvider.notifier)
+                .verify(next.value!.paymentReference!, widget.bookingId ?? '');
+          } else {
+            ToastDialog.showSuccess('Booking paid successfully from Wallet', context);
+            NavigationService.instance.pushReplacement(
+              PaymentSuccessfulView(
+                creatorName: creator,
+                creatorId: creatorId,
+                bookingId: widget.bookingId,
+              ),
+            );
+          }
         }
       }
       if (next is AsyncError) {

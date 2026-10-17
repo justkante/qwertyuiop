@@ -7,9 +7,13 @@ import 'package:creatify_mobile/core/services/mixpanel_service.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/data/models/responses/user_dto.dart';
+import 'package:creatify_mobile/data/remote/auth/push_notifications_impl.dart';
 import 'package:creatify_mobile/data/remote/chat/pusher_service.dart';
 import 'package:creatify_mobile/view/modules/authentication/login_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/fetched_recruiter_profile_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/booking_watcher_provider.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
+import 'package:creatify_mobile/view/modules/chats/vm/chat_providers.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/jobs/job_details_view.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
@@ -92,6 +96,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       _initializeMixpanel();
       _appLinksDeepLink.onDeepLink = _handleDeepLink;
       _appLinksDeepLink.initDeepLinks();
+      ref.read(pusherInitializationProvider);
+      ref.read(oneSignalpushNotificationProvider).init();
+      ref.read(bookingWatcherProvider);
     });
   }
 
@@ -199,6 +206,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         log('App Resumed'.toUpperCase());
         // Ensure Pusher reconnects if needed
         _ensurePusherReconnection();
+        ref.invalidate(fetchReceivedBookingsProvider);
+        ref.invalidate(fetchSentBookingsProvider);
+        ref.invalidate(fetchNotificationsProvider);
       case AppLifecycleState.inactive:
         appState();
         log('App Inactive'.toUpperCase());
@@ -282,6 +292,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // perform the navigation that _handleDeepLink deferred.
     ref.listen(isLoadingUserProvider, (prev, isLoading) {
       if (prev == true && isLoading == false) {
+        ref.read(pusherInitializationProvider);
+        ref.read(bookingWatcherProvider);
         final pendingCode = ref.read(pendingDeepLinkProvider);
         final pendingJob = ref.read(pendingJobDeepLinkProvider);
         if (pendingCode != null || pendingJob != null) _navigateForDeepLink();

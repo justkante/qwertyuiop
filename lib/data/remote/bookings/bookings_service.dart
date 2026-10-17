@@ -1,5 +1,6 @@
 import 'package:creatify_mobile/core/http/http_service.dart';
 import 'package:creatify_mobile/core/utils/app_url.dart';
+import 'package:creatify_mobile/core/utils/constants.dart';
 import 'package:creatify_mobile/data/models/requests/booking_request_req.dart';
 import 'package:creatify_mobile/data/models/requests/cancel_booking_req.dart';
 import 'package:creatify_mobile/data/models/requests/book_creator_req.dart';
@@ -25,7 +26,7 @@ class BookingsService {
         data: req.toJson(),
       );
 
-      return (response.data is Map ? response.data['message'] : null) ?? 'Booking created successfully';
+      return parseResponseMessage(response.data, 'Booking created successfully');
     } catch (e) {
       throw e.toString();
     }
@@ -39,7 +40,7 @@ class BookingsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -52,7 +53,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -160,7 +161,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data, 'Booking accepted successfully');
     } catch (e) {
       throw e.toString();
     }
@@ -177,7 +178,7 @@ class BookingsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -196,7 +197,7 @@ class BookingsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -213,7 +214,7 @@ class BookingsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -260,7 +261,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -276,7 +277,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -290,7 +291,7 @@ class BookingsService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -310,7 +311,7 @@ class BookingsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -329,7 +330,7 @@ class BookingsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -348,7 +349,7 @@ class BookingsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -368,7 +369,7 @@ class BookingsService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -381,7 +382,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -427,7 +428,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -440,7 +441,7 @@ class BookingsService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -454,7 +455,7 @@ class BookingsService {
         data: review.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }

@@ -176,7 +176,7 @@ class AuthService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -192,7 +192,7 @@ class AuthService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -208,7 +208,7 @@ class AuthService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -222,7 +222,7 @@ class AuthService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -236,7 +236,7 @@ class AuthService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -250,7 +250,7 @@ class AuthService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -270,7 +270,7 @@ class AuthService {
       await _storage.deleteAllData();
       SharedPrefManager.clearExceptFirstLaunch();
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -286,7 +286,7 @@ class AuthService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }

@@ -1,6 +1,8 @@
 import 'package:creatify_mobile/data/models/responses/notifications_dto.dart';
+import 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/delete_notification_vm.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/mark_notifications_read_vm.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
@@ -58,6 +60,17 @@ class NotificationItem extends ConsumerWidget {
         ],
       ),
       child: ListTile(
+        onTap: () {
+          final bookingId = notification.data?.bookingId;
+          if (bookingId != null && bookingId.isNotEmpty) {
+            if (notification.isRead == false) {
+              ref.read(markNotificationsAsReadProvider.notifier).markNotificationAsRead(
+                    notificationId: notification.id ?? '',
+                  );
+            }
+            NavigationService.instance.push(BookingDetailsView(bookingId: bookingId));
+          }
+        },
         leading: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

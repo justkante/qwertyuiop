@@ -62,14 +62,34 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   @override
   void initState() {
     super.initState();
+    final initialCategories = categoriesNotifier.value;
     setState(() {
-      selectedCategories = categoriesNotifier.value;
+      selectedCategories = initialCategories;
       amountRange = RangeValues(
         minPriceNotifier.value.clamp(minAmount, maxAmount),
         maxPriceNotifier.value.clamp(minAmount, maxAmount),
       );
       locationController.text = locationNotifier.value?.name ?? '';
       selectedWorkMode = workModeNotifier.value;
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final categoriesAsync = ref.read(fetchGroupedCreatorNichesProvider);
+      categoriesAsync.whenData((groups) {
+        final selectedNormalized = initialCategories.map((e) => e.toLowerCase().trim()).toSet();
+        for (final group in groups) {
+          final childNames = (group.categories ?? []).map((c) => (c.name ?? '').toLowerCase().trim()).toSet();
+          if (selectedNormalized.contains((group.name ?? '').toLowerCase().trim()) ||
+              childNames.any((child) => selectedNormalized.contains(child))) {
+            if (mounted) {
+              setState(() {
+                expandedCategoryId = group.id;
+              });
+            }
+            break;
+          }
+        }
+      });
     });
   }
 
@@ -498,12 +518,21 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
               runSpacing: 8,
               children: parentCategories.map((group) {
                 final catName = group.name ?? '';
-                final isSelected = selectedCategories.contains(catName);
+                final normalizedCatName = catName.toLowerCase().trim();
+                final childNames = (group.categories ?? []).map((c) => c.name ?? '').toSet();
+                final childNamesNormalized = childNames.map((c) => c.toLowerCase().trim()).toSet();
+                final selectedNormalized = selectedCategories.map((e) => e.toLowerCase().trim()).toSet();
+
+                final isSelected = selectedNormalized.contains(normalizedCatName) ||
+                    childNamesNormalized.any((child) => selectedNormalized.contains(child));
+
                 return GestureDetector(
                   onTap: () {
                     setState(() {
                       if (isSelected) {
-                        selectedCategories.remove(catName);
+                        selectedCategories.removeWhere((e) =>
+                            e.toLowerCase().trim() == normalizedCatName ||
+                            childNamesNormalized.contains(e.toLowerCase().trim()));
                         expandedCategoryId = null;
                       } else {
                         selectedCategories.add(catName);

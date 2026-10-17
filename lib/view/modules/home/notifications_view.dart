@@ -39,6 +39,9 @@ class _NotificationsViewState extends ConsumerState<NotificationsView>
       onFinish: () => TourService.markScreenDone(TourService.notifications),
     );
     _tourStarted = !TourService.shouldShowScreenTour(TourService.notifications);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(fetchNotificationsProvider);
+    });
   }
 
   @override

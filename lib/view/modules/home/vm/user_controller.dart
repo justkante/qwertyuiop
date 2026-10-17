@@ -54,6 +54,9 @@ class UserController extends StateNotifier<UserDto> {
 
   Future<void> saveUserToStorage(UserDto user) async {
     try {
+      if (user.id != null && user.id!.isNotEmpty) {
+        SharedPrefManager.userId = user.id!;
+      }
       await storageService.set(StorageKey.userProfileData.name, user);
       log('User saved to storage: ${user.name ?? ""}, id: ${user.id}');
     } catch (e) {
@@ -65,6 +68,9 @@ class UserController extends StateNotifier<UserDto> {
     try {
       final result = storageService.get(StorageKey.userProfileData.name);
       if (result != null && result is UserDto) {
+        if (result.id != null && result.id!.isNotEmpty) {
+          SharedPrefManager.userId = result.id!;
+        }
         log('User loaded from storage: ${result.name ?? ""}, id: ${result.id}');
         state = result;
       } else {

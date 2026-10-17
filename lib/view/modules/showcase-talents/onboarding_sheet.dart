@@ -80,20 +80,20 @@ class _OnboardingSheetState extends ConsumerState<OnboardingSheet> {
         context,
         onSuccess: (result) {
           log(result.toString());
-
-          if (result[0]['message'] == 'Session completed') {
-            if (context.mounted) {
-              log('In Dojah context');
-              ref.invalidate(getOnboardingStatusProvider);
-            }
+          if (context.mounted) {
+            ref.invalidate(getOnboardingStatusProvider);
+            ref.read(getOnboardingStatusProvider.future);
           }
-
           if (kDebugMode) {
             log("Success");
           }
         },
         onClose: (close) {
           NavigationService.instance.currentState?.context.pop();
+          if (context.mounted) {
+            ref.invalidate(getOnboardingStatusProvider);
+            ref.read(getOnboardingStatusProvider.future);
+          }
           if (kDebugMode) {
             log('Widget Closed');
           }

@@ -6,6 +6,7 @@ import 'package:creatify_mobile/core/services/cloudinary_service.dart';
 import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/core/http/http_service.dart';
 import 'package:creatify_mobile/core/utils/app_url.dart';
+import 'package:creatify_mobile/core/utils/constants.dart';
 import 'package:creatify_mobile/data/models/requests/rates_card_req.dart' hide Category;
 import 'package:creatify_mobile/data/models/requests/report_account_req.dart';
 import 'package:creatify_mobile/data/models/requests/resolve_bank_acct_req.dart';
@@ -58,7 +59,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -235,7 +236,7 @@ class CreatorService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -262,7 +263,7 @@ class CreatorService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -275,7 +276,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -290,7 +291,7 @@ class CreatorService {
         options: Options(contentType: 'multipart/form-data'),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -316,7 +317,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -346,7 +347,7 @@ class CreatorService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -445,7 +446,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -458,7 +459,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -504,7 +505,7 @@ class CreatorService {
         data: req.toJson(),
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -549,7 +550,7 @@ class CreatorService {
         RequestMethod.get,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -562,7 +563,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -594,7 +595,7 @@ class CreatorService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -620,7 +621,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -633,7 +634,7 @@ class CreatorService {
         RequestMethod.post,
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -664,7 +665,7 @@ class CreatorService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }
@@ -730,7 +731,7 @@ class CreatorService {
         },
       );
 
-      return response.data['message'];
+      return parseResponseMessage(response.data);
     } catch (e) {
       throw e.toString();
     }

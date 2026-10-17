@@ -5,9 +5,13 @@ import 'package:creatify_mobile/data/models/responses/conversation_dto.dart';
 import 'package:creatify_mobile/data/models/responses/conversation_message_dto.dart';
 import 'package:creatify_mobile/data/remote/chat/chat_pusher_service.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
+import 'package:creatify_mobile/view/modules/bookings/widgets/booking_alert_popup.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/get_transactions_vm.dart';
+import 'package:creatify_mobile/view/route/navigation_service.dart';
+import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'dart:developer';
 
@@ -20,12 +24,21 @@ final chatPusherServiceProvider = Provider<ChatPusherService>((ref) {
 final pusherInitializationProvider = FutureProvider<bool>((ref) async {
   try {
     final pusherService = ref.read(chatPusherServiceProvider);
+    // Watch user state so that whenever user data is loaded or changes, we subscribe to the correct channel
+    final user = ref.watch(userControllerProvider);
+    final userId = user.id ?? SharedPrefManager.userId;
+
     // Create NetworkService instance for Pusher authorization
     final httpService = NetworkService();
 
     await pusherService.initialize(httpService: httpService);
+    
     // Subscribe to user channel to receive new conversations and user-specific events
-    await pusherService.subscribeToUserChannel();
+    if (userId.isNotEmpty) {
+      await pusherService.subscribeToUserChannel(userId: userId);
+    } else {
+      log('pusherInitializationProvider: User ID not available yet, channel subscription deferred');
+    }
 
     // Set up event handlers for real-time updates
     pusherService.registerEventHandler('refresh_conversations', (data) {
@@ -86,35 +99,73 @@ final pusherInitializationProvider = FutureProvider<bool>((ref) async {
     final refreshBookingsAndNotifications = (data) {
       ref.invalidate(fetchReceivedBookingsProvider);
       ref.invalidate(fetchSentBookingsProvider);
-      ref.invalidate(fetchNotificationsProvider);
+      ref.invalidate(fetchPendingReviewsProvider);
+
+      if (data is Map) {
+        final bookingId = data['id']?.toString() ?? data['booking_id']?.toString() ?? data['bookingId']?.toString();
+        if (bookingId != null && bookingId.isNotEmpty) {
+          ref.invalidate(fetchBookingDetailsProvider(bookingId));
+          ref.invalidate(fetchBookingDeliverablesProvider(bookingId));
+        }
+      }
+      
+      // Delay invalidating notifications slightly to allow backend DB commit
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        ref.invalidate(fetchNotificationsProvider);
+      });
+
+      final mapData = data is Map<String, dynamic>
+          ? data
+          : (data is Map ? Map<String, dynamic>.from(data) : {'title': data?.toString() ?? 'New Booking Request'});
+      BookingAlertManager.show(null, mapData);
     };
 
     final refreshJobsAndApplications = (data) {
       ref.invalidate(jobControllerProvider);
-      ref.invalidate(fetchNotificationsProvider);
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        ref.invalidate(fetchNotificationsProvider);
+      });
     };
 
     final refreshWalletAndTransactions = (data) {
       ref.invalidate(getTransactionsProvider);
-      ref.invalidate(fetchNotificationsProvider);
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        ref.invalidate(fetchNotificationsProvider);
+      });
     };
 
     final refreshSubscription = (data) {
       ref.invalidate(fetchMySubscriptionProvider);
-      ref.invalidate(fetchNotificationsProvider);
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        ref.invalidate(fetchNotificationsProvider);
+      });
     };
 
     final refreshNotificationsOnly = (data) {
-      ref.invalidate(fetchNotificationsProvider);
+      Future.delayed(const Duration(milliseconds: 1000), () {
+        ref.invalidate(fetchNotificationsProvider);
+      });
+
+      final context = NavigationService.instance.currentContext;
+      if (context != null && context.mounted) {
+        String message = 'New notification received';
+        if (data is Map) {
+          message = data['message']?.toString() ?? data['title']?.toString() ?? message;
+        } else if (data != null) {
+          message = data.toString();
+        }
+        ToastDialog.showSuccess(message, context);
+      }
     };
 
     final bookingKeys = [
-      'booking_created', 'new_booking', 'booking',
-      'booking_confirmed', 'booking_paid', 'booking_accepted',
+      'booking_created', 'new_booking', 'booking', 'booking.created', 'booking-created',
+      'booking_confirmed', 'booking_paid', 'booking_accepted', 'booking.confirmed', 'booking-confirmed',
       'booking_cancelled', 'booking_declined',
       'deliverable_approved', 'booking_deliverable_approved',
       'revision_requested', 'booking_revision_requested',
-      'deliverable_submitted', 'booking_deliverable_submitted'
+      'deliverable_submitted', 'booking_deliverable_submitted',
+      'BookingCreated', 'NewBooking', 'BookingConfirmed', 'BookingPaid', 'BookingAccepted'
     ];
     for (var key in bookingKeys) {
       pusherService.registerEventHandler(key, refreshBookingsAndNotifications);

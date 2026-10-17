@@ -37,9 +37,22 @@ class ReportAccountReq {
         details: json["details"],
       );
 
-  Map<String, dynamic> toJson() => {
-        "reported_user_id": reportedUserId,
-        "report_reason_id": reportReasonId,
-        "details": details,
-      };
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (reportedUserId != null && reportedUserId!.isNotEmpty) {
+      map["reported_user_id"] = reportedUserId;
+      map["user_id"] = reportedUserId;
+      map["reported_id"] = reportedUserId;
+    }
+    if (reportReasonId != null && reportReasonId!.isNotEmpty) {
+      map["report_reason_id"] = reportReasonId;
+      map["reason_id"] = reportReasonId;
+      map["reported_reason_id"] = reportReasonId;
+    }
+    if (details != null && details!.isNotEmpty) {
+      map["details"] = details;
+      map["description"] = details;
+    }
+    return map;
+  }
 }
