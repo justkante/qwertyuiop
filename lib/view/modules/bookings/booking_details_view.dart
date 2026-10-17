@@ -108,12 +108,11 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
 
     ref.listen(acceptBookingProvider, (_, value) {
       if (value is AsyncData) {
-        final bookingData = bookingDetails.value;
-        final recruiterName = bookingData?.recruiter?.name ?? 'recruiter';
-        ToastDialog.showSuccess(
-          'Booking accepted but not confirmed, the $recruiterName can proceed to make payment',
-          context,
-        );
+        final msg = value.value;
+        final displayMsg = (msg != null && msg.isNotEmpty)
+            ? msg
+            : 'You have accepted the Booking'.toTitleCase();
+        ToastDialog.showSuccess(displayMsg, context);
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);

@@ -12,8 +12,22 @@ class Constants {
 /// Safely parse response message from API response data, preventing null reference errors on buttons/actions
 String parseResponseMessage(dynamic responseData, [String defaultMsg = 'Operation successful']) {
   if (responseData is Map) {
+    final status = responseData['status'];
+    final success = responseData['success'];
+    final error = responseData['error'];
+
+    if (status == false ||
+        status == 'failed' ||
+        status == 'error' ||
+        success == false ||
+        error == true) {
+      throw responseData['message']?.toString() ??
+            responseData['error']?.toString() ??
+            'Operation failed';
+    }
+
     return responseData['message']?.toString() ??
-           responseData['status']?.toString() ??
+           (status is String ? status : null) ??
            defaultMsg;
   }
   return defaultMsg;

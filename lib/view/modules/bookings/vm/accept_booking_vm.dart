@@ -11,6 +11,8 @@ class AcceptBookingNotifier extends AutoDisposeAsyncNotifier<String> {
     String? recruiterName,
     String? bookingDescription,
   }) async {
+    if (state.isLoading) return;
+
     state = const AsyncValue.loading();
 
     state = await AsyncValue.guard(() => ref.read(bookingsRepository).acceptBooking(bookingId));
@@ -21,11 +23,11 @@ class AcceptBookingNotifier extends AutoDisposeAsyncNotifier<String> {
         'recruiter_name': recruiterName ?? 'N/A',
         'booking_description': bookingDescription ?? 'N/A',
       });
-
-      ref.invalidate(fetchReceivedBookingsProvider);
-      ref.invalidate(fetchSentBookingsProvider);
-      ref.invalidate(fetchBookingDetailsProvider(bookingId));
     }
+
+    ref.invalidate(fetchReceivedBookingsProvider);
+    ref.invalidate(fetchSentBookingsProvider);
+    ref.invalidate(fetchBookingDetailsProvider(bookingId));
   }
 
   @override

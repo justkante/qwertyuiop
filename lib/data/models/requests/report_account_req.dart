@@ -43,6 +43,9 @@ class ReportAccountReq {
       map["reported_user_id"] = reportedUserId;
       map["user_id"] = reportedUserId;
       map["reported_id"] = reportedUserId;
+      map["profile_id"] = reportedUserId;
+      map["creator_id"] = reportedUserId;
+      map["target_id"] = reportedUserId;
     }
     if (reportReasonId != null && reportReasonId!.isNotEmpty) {
       map["report_reason_id"] = reportReasonId;
@@ -52,6 +55,7 @@ class ReportAccountReq {
     if (details != null && details!.isNotEmpty) {
       map["details"] = details;
       map["description"] = details;
+      map["reason"] = details;
     }
     return map;
   }

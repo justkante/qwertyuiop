@@ -36,8 +36,11 @@ class MainButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isButtonLoading = isLoading ?? false;
+    final bool isButtonDisabled = onPressed == null || isButtonLoading;
+
     return GestureDetector(
-      onTap: onPressed == null
+      onTap: isButtonDisabled
           ? null
           : () {
               FocusScope.of(context).unfocus();

@@ -95,13 +95,15 @@ class BookingAlertPopup extends StatelessWidget {
 class BookingAlertManager {
   static String? _lastShownBookingId;
   static DateTime? _lastShownTime;
+  static Map<String, dynamic>? _pendingData;
 
   /// Main entry point to display the Booking Alert Popup safely from anywhere
   static void show(BuildContext? context, Map<String, dynamic> data) {
     final ctx = context ?? NavigationService.instance.currentContext;
     log('🚨 BookingAlertManager.show called with data: $data, ctx: $ctx, mounted: ${ctx?.mounted}');
     if (ctx == null || !ctx.mounted) {
-      log('❌ BookingAlertManager: context is null or not mounted!');
+      log('❌ BookingAlertManager: context is null or not mounted! Storing as pending.');
+      _pendingData = data;
       return;
     }
 
@@ -128,6 +130,17 @@ class BookingAlertManager {
     BookingAlertPopup.show(ctx, data);
   }
 
+  /// Check and show any pending alert if context becomes available
+  static void checkPending() {
+    if (_pendingData != null) {
+      final data = _pendingData!;
+      _pendingData = null;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        show(null, data);
+      });
+    }
+  }
+
   /// Handles incoming OneSignal Push Notifications (Foreground or Clicked)
   static void handlePushNotification({
     Map<String, dynamic>? additionalData,
@@ -150,7 +163,9 @@ class BookingAlertManager {
         (title != null && title.toLowerCase().contains('booking')) ||
         (body != null && body.toLowerCase().contains('booking')) ||
         data.containsKey('booking_id') ||
-        data.containsKey('bookingId');
+        data.containsKey('bookingId') ||
+        data.containsKey('id') ||
+        data.isNotEmpty;
 
     if (isBookingEvent) {
       show(null, data);

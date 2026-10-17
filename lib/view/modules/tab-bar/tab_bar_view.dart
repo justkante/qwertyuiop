@@ -1,5 +1,6 @@
 import 'package:creatify_mobile/core/services/tour_service.dart';
 import 'package:creatify_mobile/view/modules/bookings/bookings_view.dart';
+import 'package:creatify_mobile/view/modules/bookings/widgets/booking_alert_popup.dart';
 import 'package:creatify_mobile/view/modules/chats/chats_view.dart';
 import 'package:creatify_mobile/view/modules/home/home_view.dart';
 import 'package:creatify_mobile/view/modules/jobs/jobs_main_view.dart';
@@ -99,6 +100,9 @@ class _TabarViewState extends ConsumerState<TabBarSection> {
       scope: _scope,
       onFinish: _onTourFinish,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      BookingAlertManager.checkPending();
+    });
   }
 
   @override
