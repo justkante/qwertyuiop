@@ -629,13 +629,6 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         'duration': '${_durationController.text.isEmpty ? '1' : _durationController.text} $_durationUnit',
       };
 
-      dynamic result;
-      try {
-        result = await ref.read(jobControllerProvider.notifier).createJob(payload);
-      } catch (e) {
-        result = e.toString();
-      }
-
       if (isDraft) {
         await ref.read(jobControllerProvider.notifier).saveLocalDraft(payload);
         if (mounted) {
@@ -644,27 +637,37 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         }
         return;
       } else {
+        final jobPrice = double.tryParse(_priceController.text) ?? 0.0;
+
+        // 1. Open Payment Modal FIRST before sending anything to the backend
+        final method = await AppBottomSheet.showBottomSheet(
+          context,
+          widget: MakePaymentOptionsSheet(
+            amountDue: jobPrice,
+            bookingId: '',
+          ),
+        );
+
+        if (method == null) return; // User cancelled payment modal
+
+        paymentMethod = method;
+
+        // 2. ONLY AFTER payment method is selected, submit job to backend
+        dynamic result;
+        try {
+          result = await ref.read(jobControllerProvider.notifier).createJob(payload);
+        } catch (e) {
+          result = e.toString();
+        }
+
         if (result is Map && mounted) {
           final jobId = result['id']?.toString() ?? result['job_id']?.toString() ?? '';
           createdJobId = jobId;
-          final jobPrice = double.tryParse(_priceController.text) ?? 0.0;
 
-          if (jobId.isEmpty) {
+          if (jobId.isNotEmpty) {
+            ref.read(initializePaymentProvider.notifier).initializePayment(jobId, paymentMethod);
+          } else {
             ToastDialog.showError('Job created but missing ID for payment', context);
-            return;
-          }
-
-          final method = await AppBottomSheet.showBottomSheet(
-            context,
-            widget: MakePaymentOptionsSheet(
-              amountDue: jobPrice,
-              bookingId: jobId,
-            ),
-          );
-
-          if (method != null && mounted) {
-            paymentMethod = method;
-            ref.read(initializePaymentProvider.notifier).initializePayment(jobId, method);
           }
         } else if (mounted) {
           ToastDialog.showError(result?.toString() ?? 'Failed to process job. Please try again.', context);

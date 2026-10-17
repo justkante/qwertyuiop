@@ -141,18 +141,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
         final bookingId = value.value;
         if (bookingId != null && bookingId.isNotEmpty) {
           createdBookingId = bookingId;
-          final amount = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
-
-          final method = await AppBottomSheet.showBottomSheet(
-            context,
-            widget: MakePaymentOptionsSheet(
-              amountDue: amount,
-              bookingId: bookingId,
-            ),
-          );
-
-          if (method != null) {
-            paymentMethod = method;
+          if (paymentMethod.isNotEmpty) {
             ref.read(initializePaymentProvider.notifier).initializePayment(bookingId, paymentMethod);
           }
         }
@@ -595,7 +584,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               MainButton(
                 text: 'Send Invite',
                 isLoading: bookingCreatorLoading,
-                onPressed: () {
+                onPressed: () async {
                   if (selectedProjectType == null || selectedProjectType!.isEmpty) {
                     ToastDialog.showError('Please select a project type', context);
                     return;
@@ -628,6 +617,22 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                       }
                     }
 
+                    final totalBudget = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
+
+                    // 1. Present Payment Modal FIRST (before sending anything to the backend)
+                    final method = await AppBottomSheet.showBottomSheet(
+                      context,
+                      widget: MakePaymentOptionsSheet(
+                        amountDue: totalBudget,
+                        bookingId: '',
+                      ),
+                    );
+
+                    if (method == null) return; // User cancelled payment modal
+
+                    paymentMethod = method;
+
+                    // 2. ONLY AFTER payment method is selected, send booking request to backend
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
                         creatorId: widget.creatorProfile.id,
@@ -639,7 +644,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: $endDateStr\nDuration: $durationStr\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         workMode: workModeController.text.toLowerCase(),
-                        price: num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0,
+                        price: totalBudget,
                         bookingType: selectedBookingType == 'Deliverable Based' ? 'deliverable-based' : 'time-based',
                         startTime: selectedStartTime != null
                             ? '${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}'
