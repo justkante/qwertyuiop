@@ -31,6 +31,7 @@ class DeliveryBasedCreatorBookingNotifier extends AutoDisposeAsyncNotifier<Strin
       ref.invalidate(fetchReceivedBookingsProvider);
       ref.invalidate(fetchSentBookingsProvider);
       ref.invalidate(fetchNotificationsProvider);
+      ref.invalidate(fetchNotificationsProvider);
     }
   }
 

@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:creatify_mobile/view/utils/extensions.dart';
+import 'package:creatify_mobile/core/utils/generate_uuid.dart';
 
 BookingItemDto bookingItemDtoFromJson(String str) => BookingItemDto.fromJson(json.decode(str));
 
@@ -69,7 +70,7 @@ class BookingItemDto {
   });
 
   factory BookingItemDto.fromJson(Map<String, dynamic> json) => BookingItemDto(
-        id: json["id"],
+        id: json["id"]?.toString() ?? json["booking_id"]?.toString() ?? json["invite_id"]?.toString() ?? generateUuid(),
         bookingType: json["booking_type"],
         jobDescription: json["job_description"],
         startDate: json["start_date"] == null

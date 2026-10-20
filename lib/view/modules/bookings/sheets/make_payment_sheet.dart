@@ -58,9 +58,11 @@ class _MakePaymentOptionsSheetState extends ConsumerState<MakePaymentOptionsShee
               // Handle card payment option
               context.pop('online');
 
-              ref
-                  .read(initializePaymentProvider.notifier)
-                  .initializePayment(widget.bookingId, 'online');
+              if (widget.bookingId.isNotEmpty) {
+                ref
+                    .read(initializePaymentProvider.notifier)
+                    .initializePayment(widget.bookingId, 'online');
+              }
             },
           ),
           ListTile(
@@ -87,9 +89,11 @@ class _MakePaymentOptionsSheetState extends ConsumerState<MakePaymentOptionsShee
                 // Handle wallet payment option
                 context.pop('wallet');
 
-                ref
-                    .read(initializePaymentProvider.notifier)
-                    .initializePayment(widget.bookingId, 'wallet');
+                if (widget.bookingId.isNotEmpty) {
+                  ref
+                      .read(initializePaymentProvider.notifier)
+                      .initializePayment(widget.bookingId, 'wallet');
+                }
               } else {
                 // Show error message
                 ToastDialog.showError('Insufficient Balance', context);

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:creatify_mobile/core/utils/generate_uuid.dart';
 import 'user_dto.dart';
 import 'niche_item_dto.dart';
 import 'job_application_dto.dart';
@@ -170,7 +171,7 @@ class JobDto {
       );
 
   factory JobDto.fromJson(Map<String, dynamic> json) => JobDto(
-        id: json["id"],
+        id: json["id"]?.toString() ?? generateUuid(),
         userId: json["user_id"],
         categoryId: json["category_id"],
         title: json["title"],
