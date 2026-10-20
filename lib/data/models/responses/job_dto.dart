@@ -171,7 +171,7 @@ class JobDto {
       );
 
   factory JobDto.fromJson(Map<String, dynamic> json) => JobDto(
-        id: json["id"]?.toString() ?? generateUuid(),
+        id: json["id"]?.toString() ?? UUIDGenerator.generateUUID(),
         userId: json["user_id"],
         categoryId: json["category_id"],
         title: json["title"],

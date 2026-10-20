@@ -70,7 +70,7 @@ class BookingItemDto {
   });
 
   factory BookingItemDto.fromJson(Map<String, dynamic> json) => BookingItemDto(
-        id: json["id"]?.toString() ?? json["booking_id"]?.toString() ?? json["invite_id"]?.toString() ?? generateUuid(),
+        id: json["id"]?.toString() ?? json["booking_id"]?.toString() ?? json["invite_id"]?.toString() ?? UUIDGenerator.generateUUID(),
         bookingType: json["booking_type"],
         jobDescription: json["job_description"],
         startDate: json["start_date"] == null
