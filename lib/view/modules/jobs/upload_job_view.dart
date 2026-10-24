@@ -637,22 +637,6 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         }
         return;
       } else {
-        final jobPrice = double.tryParse(_priceController.text) ?? 0.0;
-
-        // 1. Open Payment Modal FIRST before sending anything to the backend
-        final method = await AppBottomSheet.showBottomSheet(
-          context,
-          widget: MakePaymentOptionsSheet(
-            amountDue: jobPrice,
-            bookingId: '',
-          ),
-        );
-
-        if (method == null) return; // User cancelled payment modal
-
-        paymentMethod = method;
-
-        // 2. ONLY AFTER payment method is selected, submit job to backend
         dynamic result;
         try {
           result = await ref.read(jobControllerProvider.notifier).createJob(payload);
@@ -660,15 +644,9 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
           result = e.toString();
         }
 
-        if (result is Map && mounted) {
-          final jobId = result['id']?.toString() ?? result['job_id']?.toString() ?? '';
-          createdJobId = jobId;
-
-          if (jobId.isNotEmpty) {
-            ref.read(initializePaymentProvider.notifier).initializePayment(jobId, paymentMethod);
-          } else {
-            ToastDialog.showError('Job created but missing ID for payment', context);
-          }
+        if ((result is Map || result == null) && mounted) {
+          ToastDialog.showSuccess('Job posted successfully', context);
+          NavigationService.instance.pushReplacement(const PostJobSuccessView());
         } else if (mounted) {
           ToastDialog.showError(result?.toString() ?? 'Failed to process job. Please try again.', context);
         }

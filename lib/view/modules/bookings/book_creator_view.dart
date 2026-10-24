@@ -136,15 +136,15 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   Widget build(BuildContext context) {
     final bookingCreatorLoading = ref.watch(deliveryBasedCreatorBookingProvider).isLoading;
 
-    ref.listen(deliveryBasedCreatorBookingProvider, (_, value) async {
+    ref.listen(deliveryBasedCreatorBookingProvider, (_, value) {
       if (value is AsyncData) {
-        final bookingId = value.value;
-        if (bookingId != null && bookingId.isNotEmpty) {
-          createdBookingId = bookingId;
-          if (paymentMethod.isNotEmpty) {
-            ref.read(initializePaymentProvider.notifier).initializePayment(bookingId, paymentMethod);
-          }
-        }
+        ToastDialog.showSuccess('Booking request sent successfully', context);
+        NavigationService.instance.pushReplacement(
+          isTransparent: true,
+          RequestSentView(
+            creatorName: widget.creatorProfile.name,
+          ),
+        );
       }
       if (value is AsyncError) {
         ToastDialog.showError(value.error.toString(), context);
@@ -619,20 +619,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
 
                     final totalBudget = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
 
-                    // 1. Present Payment Modal FIRST (before sending anything to the backend)
-                    final method = await AppBottomSheet.showBottomSheet(
-                      context,
-                      widget: MakePaymentOptionsSheet(
-                        amountDue: totalBudget,
-                        bookingId: '',
-                      ),
-                    );
-
-                    if (method == null) return; // User cancelled payment modal
-
-                    paymentMethod = method;
-
-                    // 2. ONLY AFTER payment method is selected, send booking request to backend
+                    // Send booking request to backend (no payment required at initial request)
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
                         creatorId: widget.creatorProfile.id,

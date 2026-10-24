@@ -109,9 +109,9 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
     ref.listen(acceptBookingProvider, (_, value) {
       if (value is AsyncData) {
         final msg = value.value;
-        final displayMsg = (msg != null && msg.isNotEmpty)
+        final displayMsg = (msg != null && msg.isNotEmpty && msg != 'Accepted')
             ? msg
-            : 'Accepted'.toTitleCase();
+            : 'Request accepted, proceed to payment';
         ToastDialog.showSuccess(displayMsg, context);
       }
       if (value is AsyncError) {
