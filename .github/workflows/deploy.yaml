@@ -167,9 +167,7 @@ jobs:
         run: rm -rf build/ios/ipa/*.ipa
 
       - name: Build iOS IPA
-        run: |
-          BUILD_NUMBER=$(awk '/^version:/ {print $2}' pubspec.yaml | cut -d+ -f2)
-          flutter build ipa --release --build-name=1.1.4 --build-number=$BUILD_NUMBER --export-options-plist=ios/ExportOptions.plist --dart-define=ENVIRONMENT=prod
+        run: flutter build ipa --release --build-name=1.1.4 --build-number=272 --export-options-plist=ios/ExportOptions.plist --dart-define=ENVIRONMENT=prod
         env:
           FLUTTER_XCODE_DISABLE_SPM: true
           COCOAPODS_DISABLE_STATS: true
