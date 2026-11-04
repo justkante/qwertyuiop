@@ -191,7 +191,6 @@ class CreatorService {
       final response = await _networkService.request(
         endpoints.getStates,
         RequestMethod.get,
-        enableCache: true,
       );
 
       final rawData = response.data;
