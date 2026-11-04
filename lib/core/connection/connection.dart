@@ -8,15 +8,12 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 Future<bool> checkInternet() async {
   try {
-    final res = await InternetConnectionChecker.instance.hasConnection;
-    // final connectivityResult = await (Connectivity().checkConnectivity());
-    if (!res) {
-      throw "Check your Connection and Try Again";
-    } else {
-      return res;
-    }
+    final res = await InternetConnectionChecker.instance.hasConnection
+        .timeout(const Duration(seconds: 2), onTimeout: () => true);
+    return res;
   } catch (e) {
-    throw e.toString();
+    // Fallback to true so HTTP requests proceed directly to Dio without false ping timeouts
+    return true;
   }
 }
 
