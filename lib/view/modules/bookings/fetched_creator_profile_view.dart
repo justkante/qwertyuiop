@@ -154,16 +154,51 @@ class _CreatorUpgradeProfileViewState extends ConsumerState<FetchedCreatorProfil
                   children: [
                     // MARK: Profile Image and Name
                     Center(
-                      child: ExpandableProfileImage(
-                        imageUrl: data.profileImage,
-                        initials: data.initials,
-                        size: 80,
-                        initialsFallback: Center(
-                          child: InitialAvatar(
-                            initials: data.initials,
-                            padding: const EdgeInsets.all(16),
-                            size: 32,
-                          ),
+                      child: SizedBox(
+                        width: 120,
+                        height: 90,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          alignment: Alignment.center,
+                          children: [
+                            ExpandableProfileImage(
+                              imageUrl: data.profileImage,
+                              initials: data.initials,
+                              size: 80,
+                              initialsFallback: Center(
+                                child: InitialAvatar(
+                                  initials: data.initials,
+                                  padding: const EdgeInsets.all(16),
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                            if (data.isPremium == true)
+                              Positioned(
+                                top: -8,
+                                right: -30,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE0F2F1),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: AppColors.grey200),
+                                    boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SvgPicture.asset(AppImages.premiumBadge, height: 16),
+                                      4.0.width,
+                                      const Text(
+                                        'Premium',
+                                        style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ),

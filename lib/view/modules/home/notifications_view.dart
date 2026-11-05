@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/delete_notification_vm.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/mark_notifications_read_vm.dart';
@@ -26,6 +28,7 @@ class NotificationsView extends ConsumerStatefulWidget {
 class _NotificationsViewState extends ConsumerState<NotificationsView>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  Timer? _refreshTimer;
 
   bool _tourStarted = false;
   late final ShowcaseView _showcaseView;
@@ -42,11 +45,20 @@ class _NotificationsViewState extends ConsumerState<NotificationsView>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.invalidate(fetchNotificationsProvider);
     });
+
+    // Auto-refresh notifications every 3 seconds
+    _refreshTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+      if (mounted) {
+        ref.invalidate(fetchNotificationsProvider);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _showcaseView.unregister();
+    _tabController.dispose();
     super.dispose();
   }
 

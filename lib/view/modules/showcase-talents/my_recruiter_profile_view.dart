@@ -697,10 +697,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                   const Text('Recent Bookings', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
                   TextButton(
                     onPressed: () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      }
-                      ref.read(navBarController.notifier).index = 3;
+                      NavigationService.instance.push(const RecruiterRecentBookingsView());
                     },
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -770,11 +767,7 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
                   const Text('Recent Applications', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
                   TextButton(
                     onPressed: () {
-                      if (Navigator.of(context).canPop()) {
-                        Navigator.of(context).pop();
-                      }
-                      ref.read(jobTabIndexProvider.notifier).state = 2;
-                      ref.read(navBarController.notifier).index = 2;
+                      NavigationService.instance.push(const RecruiterRecentApplicationsView());
                     },
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -993,6 +986,178 @@ class _MyRecruiterProfileViewState extends ConsumerState<MyRecruiterProfileView>
           const Text('Complete bookings to receive reviews.', style: TextStyle(color: AppColors.body, fontSize: 11)),
         ],
       ),
+    );
+  }
+}
+
+class RecruiterRecentBookingsView extends ConsumerWidget {
+  const RecruiterRecentBookingsView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bookingsAsync = ref.watch(fetchReceivedBookingsProvider);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text('Recent Bookings', style: TextStyle(color: Color(0xFF1B3131), fontWeight: FontWeight.bold, fontSize: 16)),
+      ),
+      body: bookingsAsync.when(
+        data: (bookings) {
+          if (bookings.isEmpty) {
+            return const Center(child: Text('No recent bookings yet'));
+          }
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: bookings.length,
+            separatorBuilder: (_, __) => 12.0.height,
+            itemBuilder: (context, index) {
+              final booking = bookings[index];
+              final status = booking.status?.toString() ?? 'Completed';
+              final isCompleted = status.toLowerCase() == 'completed';
+              return GestureDetector(
+                onTap: () {
+                  if (booking.id != null) {
+                    NavigationService.instance.push(BookingDetailsView(bookingId: booking.id));
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.grey200),
+                  ),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: booking.creator?.profileImage != null
+                            ? NetworkImage(booking.creator!.profileImage!)
+                            : const AssetImage(AppImages.dummyAvatar) as ImageProvider,
+                      ),
+                      12.0.width,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(booking.creator?.name ?? 'Creator', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                            4.0.height,
+                            Text(booking.jobDescription ?? '', style: const TextStyle(color: AppColors.body, fontSize: 12), maxLines: 1),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isCompleted ? const Color(0xFFE8F5E9) : const Color(0xFFE3F2FD),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          status.toTitleCase(),
+                          style: TextStyle(
+                            color: isCompleted ? const Color(0xFF2E7D32) : const Color(0xFF2196F3),
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+      ),
+    );
+  }
+}
+
+class RecruiterRecentApplicationsView extends ConsumerWidget {
+  const RecruiterRecentApplicationsView({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final jobState = ref.watch(jobControllerProvider);
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: const Text('Recent Applications', style: TextStyle(color: Color(0xFF1B3131), fontWeight: FontWeight.bold, fontSize: 16)),
+      ),
+      body: jobState.applications.isEmpty
+          ? const Center(child: Text('No recent applications yet'))
+          : ListView.separated(
+              padding: const EdgeInsets.all(16),
+              itemCount: jobState.applications.length,
+              separatorBuilder: (_, __) => 12.0.height,
+              itemBuilder: (context, index) {
+                final app = jobState.applications[index];
+                final status = app.status ?? 'New';
+                return GestureDetector(
+                  onTap: () {
+                    NavigationService.instance.push(ApplicantProfileView(application: app));
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.grey50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.grey200),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: app.user?.profileImage != null
+                              ? NetworkImage(app.user!.profileImage!)
+                              : const AssetImage(AppImages.dummyAvatar) as ImageProvider,
+                        ),
+                        12.0.width,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(app.user?.name ?? 'Applicant', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                              4.0.height,
+                              Text(app.job?.category?.name ?? 'Creative', style: const TextStyle(color: AppColors.body, fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFF8E1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            status.toTitleCase(),
+                            style: const TextStyle(
+                              color: Color(0xFFF57C00),
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
     );
   }
 }

@@ -753,12 +753,7 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
                         // And current date is before start date (for Time Based). if current date is same as start date, check time also (For Time Based)
                         if (!widget.isSent &&
                             data.isRenegotiated == false &&
-                            data.status != BookingStatus.accepted &&
-                            (data.bookingType == 'deliverable-based'
-                                ? DateTime.now().isBefore(data.startDate ?? DateTime.now())
-                                : DateTime.now().isBefore(data.startDate?.toDateTimeFromString(
-                                        timeString: data.startTime ?? "00:00:00") ??
-                                    DateTime.now()))) ...[
+                            data.status == BookingStatus.pending) ...[
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

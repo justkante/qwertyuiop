@@ -58,20 +58,41 @@ class _BankSheetState extends ConsumerState<StateSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final userData = ref.watch(userControllerProvider);
     final statesAsync = ref.watch(fetchStatesProvider);
 
     return statesAsync.when(
       data: (apiStates) {
-        List<StatesItemDto> countryStates = List.from(apiStates);
+        final Map<String, StatesItemDto> uniqueStatesMap = {};
 
-        if (widget.isOnSiteBooking && widget.creatorProfile != null) {
-          if (widget.creatorProfile?.location != null && widget.creatorProfile!.location!.isNotEmpty) {
-            final loc = widget.creatorProfile!.location!;
-            if (!countryStates.any((s) => (s.name ?? '').toLowerCase() == loc.toLowerCase())) {
-              countryStates.insert(0, StatesItemDto(id: loc, name: loc));
-            }
+        void addUniqueState(String? name, {String? id}) {
+          if (name == null || name.trim().isEmpty) return;
+          final cleanName = _cleanCityName(name);
+          final key = cleanName.toLowerCase();
+          if (!uniqueStatesMap.containsKey(key)) {
+            uniqueStatesMap[key] = StatesItemDto(
+              id: id ?? cleanName,
+              name: cleanName,
+            );
           }
         }
+
+        // 1. Add Creator's location
+        if (widget.creatorProfile?.location != null && widget.creatorProfile!.location!.isNotEmpty) {
+          addUniqueState(widget.creatorProfile!.location);
+        }
+
+        // 2. Add Recruiter's location
+        if (userData.location != null && userData.location!.isNotEmpty) {
+          addUniqueState(userData.location);
+        }
+
+        // 3. Add API states & de-duplicate any repeated cities/countries
+        for (var s in apiStates) {
+          addUniqueState(s.name, id: s.id);
+        }
+
+        List<StatesItemDto> countryStates = uniqueStatesMap.values.toList();
 
         if (_searchQuery.isNotEmpty) {
           countryStates = countryStates

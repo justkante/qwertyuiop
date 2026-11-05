@@ -93,6 +93,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
 
   Future<void> _pickFiles() async {
     try {
+      if (attachedFiles.length >= 5) {
+        ToastDialog.showError('Maximum of 5 files allowed. You cannot add more attachments.', context);
+        return;
+      }
+
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
         type: FileType.custom,
@@ -100,6 +105,16 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
       );
 
       if (result != null && result.files.isNotEmpty) {
+        if (attachedFiles.length + result.files.length > 5) {
+          if (mounted) {
+            ToastDialog.showError(
+              'Maximum of 5 files allowed. You can only add ${5 - attachedFiles.length} more file(s).',
+              context,
+            );
+          }
+          return;
+        }
+
         setState(() {
           for (var file in result.files) {
             if (file.path != null && attachedFiles.length < 5) {
@@ -428,6 +443,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                 onChanged: (_) => setState(() {}),
+                                style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: AppColors.grey50,
@@ -502,6 +518,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                       if (val != null) {
                         setState(() {
                           workModeController.text = val;
+                          if (val.toLowerCase() == 'remote') {
+                            locationController.text = 'Remote';
+                          } else if (locationController.text.toLowerCase() == 'remote') {
+                            locationController.text = '';
+                          }
                         });
                       }
                     },
@@ -514,47 +535,65 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               // Location Dropdown
               _buildLabel('Location'),
               8.0.height,
-              InkWell(
-                onTap: () async {
-                  final isOnSite = workModeController.text.toLowerCase() == 'on site';
-                  final selectedState = await AppBottomSheet.showBottomSheet(
-                    context,
-                    widget: StateSheet(
-                      creatorProfile: widget.creatorProfile,
-                      isOnSiteBooking: isOnSite,
+              Builder(
+                builder: (context) {
+                  final isRemote = workModeController.text.toLowerCase() == 'remote';
+
+                  return InkWell(
+                    onTap: isRemote
+                        ? null
+                        : () async {
+                            final isOnSite = workModeController.text.toLowerCase() == 'on site';
+                            final selectedState = await AppBottomSheet.showBottomSheet(
+                              context,
+                              widget: StateSheet(
+                                creatorProfile: widget.creatorProfile,
+                                isOnSiteBooking: isOnSite,
+                              ),
+                            );
+                            if (selectedState != null) {
+                              setState(() {
+                                locationController.text = selectedState.name ?? '';
+                              });
+                            }
+                          },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+                      decoration: BoxDecoration(
+                        color: isRemote ? AppColors.grey200.withOpacity(0.5) : AppColors.grey50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.grey200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 18,
+                            color: isRemote ? AppColors.body.withOpacity(0.5) : AppColors.body,
+                          ),
+                          8.0.width,
+                          Expanded(
+                            child: Text(
+                              isRemote
+                                  ? 'Remote'
+                                  : (locationController.text.isEmpty ? 'Search location' : locationController.text),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isRemote
+                                    ? AppColors.body
+                                    : (locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131)),
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (!isRemote)
+                            const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
+                        ],
+                      ),
                     ),
                   );
-                  if (selectedState != null) {
-                    setState(() {
-                      locationController.text = selectedState.name ?? '';
-                    });
-                  }
                 },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
-                  decoration: BoxDecoration(
-                    color: AppColors.grey50,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, size: 18, color: AppColors.body),
-                      8.0.width,
-                      Expanded(
-                        child: Text(
-                          locationController.text.isEmpty ? 'Search location' : locationController.text,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
-                    ],
-                  ),
-                ),
               ),
               20.0.height,
 
@@ -566,6 +605,21 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                 'e.g. 50,000',
                 prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? '₦'} ',
               ),
+              if ((ref.watch(userControllerProvider).primaryCurrency ?? 'NGN') !=
+                  (widget.creatorProfile.primaryCurrency ?? 'NGN')) ...[
+                6.0.height,
+                ValueListenableBuilder(
+                  valueListenable: budgetController,
+                  builder: (context, value, _) {
+                    final recruiterCurr = ref.watch(userControllerProvider).primaryCurrency ?? 'NGN';
+                    final creatorCurr = widget.creatorProfile.primaryCurrency ?? 'NGN';
+                    return Text(
+                      'Cross-border booking: Your currency ($recruiterCurr) will be converted to creator currency ($creatorCurr)',
+                      style: const TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500),
+                    );
+                  },
+                ),
+              ],
               20.0.height,
 
               // Deliverables Section (Only if Deliverable Based)
@@ -618,6 +672,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     }
 
                     final totalBudget = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
+
+                    if (totalBudget < 1000) {
+                      ToastDialog.showError('The budget must be at least 1000', context);
+                      return;
+                    }
 
                     // Send booking request to backend (no payment required at initial request)
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
@@ -724,6 +783,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     8.0.height,
                     TextFormField(
                       controller: deliverable.descriptionController,
+                      style: const TextStyle(fontSize: 14, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
                       decoration: InputDecoration(
                         hintText: 'Description (e.g. 3 Instagram Reels)',
                         hintStyle: const TextStyle(color: AppColors.body, fontSize: 14),
@@ -736,17 +796,17 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       ),
-                      style: const TextStyle(fontSize: 14),
                     ),
                     8.0.height,
                     TextFormField(
                       controller: deliverable.priceController,
                       keyboardType: TextInputType.number,
+                      style: const TextStyle(fontSize: 14, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
                       decoration: InputDecoration(
                         hintText: 'Price (e.g. 15,000)',
                         hintStyle: const TextStyle(color: AppColors.body, fontSize: 14),
                         prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? '₦'} ',
-                        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14),
+                        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131), fontSize: 14),
                         fillColor: Colors.white,
                         filled: true,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
@@ -756,7 +816,6 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       ),
-                      style: const TextStyle(fontSize: 14),
                     ),
                   ],
                 ),
@@ -812,7 +871,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
             Expanded(
               child: Text(
                 selectedStartTime == null ? 'Select start time' : selectedStartTime!.format(context),
-                style: TextStyle(fontSize: 13, color: selectedStartTime == null ? AppColors.body : Colors.black),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: selectedStartTime == null ? AppColors.body : const Color(0xFF1B3131),
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -835,12 +898,12 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
       controller: controller,
       enableInteractiveSelection: true,
       keyboardType: hint.contains('50,000') ? TextInputType.number : TextInputType.text,
-      style: const TextStyle(fontSize: 16),
+      style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: const TextStyle(color: AppColors.body, fontSize: 15),
         prefixText: prefixText,
-        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 16),
+        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131), fontSize: 16),
         prefixIcon: icon != null ? Icon(icon, color: AppColors.body, size: 22) : null,
         fillColor: AppColors.grey50,
         filled: true,
@@ -865,7 +928,12 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           isExpanded: true,
           value: validValue,
           hint: const Text('Select project type', style: TextStyle(fontSize: 15, color: AppColors.body)),
-          items: projectTypes.map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15)))).toList(),
+          items: projectTypes
+              .map((e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(e, style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
+                  ))
+              .toList(),
           onChanged: (val) => setState(() => selectedProjectType = val),
           icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
         ),
@@ -882,7 +950,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           maxLines: 4,
           maxLength: 500,
           enableInteractiveSelection: true,
-          style: const TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
           decoration: InputDecoration(
             hintText: 'Tell the creator about your project, goals, style, and any specific requirements...',
             hintStyle: const TextStyle(color: AppColors.body, fontSize: 15),
@@ -935,7 +1003,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
             Expanded(
               child: Text(
                 startDateController.text.isEmpty ? 'Select start date' : startDateController.text,
-                style: TextStyle(fontSize: 13, color: startDateController.text.isEmpty ? AppColors.body : Colors.black),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: startDateController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -960,7 +1032,11 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           Expanded(
             child: Text(
               endStr,
-              style: TextStyle(fontSize: 13, color: endDt != null ? Colors.black : AppColors.body),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: endDt != null ? const Color(0xFF1B3131) : AppColors.body,
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
