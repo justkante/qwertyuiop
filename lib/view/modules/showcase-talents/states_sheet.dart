@@ -82,9 +82,9 @@ class _BankSheetState extends ConsumerState<StateSheet> {
           addUniqueState(widget.creatorProfile!.location);
         }
 
-        // 2. Add Recruiter's location
-        if (userData.location != null && userData.location!.isNotEmpty) {
-          addUniqueState(userData.location);
+        // 2. Add Recruiter's country
+        if (userData.countryCode != null && userData.countryCode!.isNotEmpty) {
+          addUniqueState(userData.countryCode!);
         }
 
         // 3. Add API states & de-duplicate any repeated cities/countries
