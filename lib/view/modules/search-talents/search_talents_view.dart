@@ -67,9 +67,11 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
   }
 
   void _onSearchChanged() {
+    final query = searchController.text.trim();
     setState(() {
-      _searchQuery = searchController.text.toLowerCase();
+      _searchQuery = query.toLowerCase();
     });
+    ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: query);
   }
 
   void clearFilters() {
@@ -253,8 +255,11 @@ class _SearchTalentsViewState extends ConsumerState<SearchTalentsView>
               SearchTextInputField(
                 controller: searchController,
                 hintText: 'Search name, skill, or keyword...',
+                onChanged: (val) {
+                  ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val.trim());
+                },
                 onSubmitted: (val) {
-                   ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val);
+                   ref.read(filter_vm.filterCreatorsProvider.notifier).filterCreators(name: val.trim());
                 },
                 trailingIcon: InkWell(
                   onTap: () {

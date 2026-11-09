@@ -42,10 +42,13 @@ class FilterCreatorsNotifier extends AutoDisposeAsyncNotifier<List<CreatorProfil
           bool matchesAvailability = true;
           bool matchesWorkMode = true;
 
-          if (name != null && name.isNotEmpty) {
-            final q = name.toLowerCase();
-            matchesName = (creator.name?.toLowerCase().contains(q) ?? false) ||
-                          (creator.categories?.any((c) => c.name?.toLowerCase().contains(q) ?? false) ?? false);
+          if (name != null && name.trim().isNotEmpty) {
+            final q = name.trim().toLowerCase();
+            final queryWords = q.split(RegExp(r'\s+'));
+            matchesName = queryWords.any((word) {
+              return (creator.name?.toLowerCase().contains(word) ?? false) ||
+                     (creator.categories?.any((c) => c.name?.toLowerCase().contains(word) ?? false) ?? false);
+            });
           }
 
           if (location != null && location.isNotEmpty) {
