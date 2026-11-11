@@ -171,6 +171,15 @@ class TransactionsService {
         throw 'Failed to initialize payment: No data received from server';
       }
       return FundWalletDto.fromJson(data);
+    } on ApiException catch (e) {
+      final data = e.responseData?['data'];
+      if (data != null && data['requires_stripe_onboarding'] == true) {
+        throw StripeOnboardingException(
+          message: e.message,
+          onboardingData: StripeOnboardingData.fromJson(data),
+        );
+      }
+      throw e.message;
     } catch (e) {
       if (e is ApiException) {
          throw e.message;

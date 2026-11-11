@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/data/models/responses/fund_wallet_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/stripe_init.dart';
@@ -82,7 +83,19 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
       }
       if (next is AsyncError) {
         if (context.mounted) {
-          ToastDialog.showError(next.error.toString(), context);
+          if (next.error is StripeOnboardingException) {
+            final onboardingData = (next.error as StripeOnboardingException).onboardingData;
+            if (onboardingData.onboardingUrl != null) {
+              NavigationService.instance.push(
+                WebviewScreen(
+                  url: onboardingData.onboardingUrl!,
+                  routeName: 'Stripe Onboarding',
+                ),
+              );
+            }
+          } else {
+            ToastDialog.showError(next.error.toString(), context);
+          }
         }
       }
     });
