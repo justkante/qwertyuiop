@@ -97,7 +97,7 @@ class _BankSheetState extends ConsumerState<BankSheet> {
                             return ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text(
-                                bank.name ?? '',
+                                (bank.name ?? '').toTitleCase(),
                                 style: context.textTheme.bodyMedium?.copyWith(
                                   color: AppColors.subHeading,
                                 ),
