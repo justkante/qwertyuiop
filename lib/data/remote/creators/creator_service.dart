@@ -167,22 +167,7 @@ class CreatorService {
 
       return list.map((x) => BankItemDto.fromJson(x)).toList();
     } catch (e) {
-      return [
-        BankItemDto(name: 'Access Bank', code: '044'),
-        BankItemDto(name: 'Guaranty Trust Bank', code: '058'),
-        BankItemDto(name: 'First Bank of Nigeria', code: '011'),
-        BankItemDto(name: 'United Bank for Africa', code: '033'),
-        BankItemDto(name: 'Zenith Bank', code: '057'),
-        BankItemDto(name: 'Kuda Bank', code: '50211'),
-        BankItemDto(name: 'OPay', code: '999992'),
-        BankItemDto(name: 'PalmPay', code: '999991'),
-        BankItemDto(name: 'Moniepoint', code: '50515'),
-        BankItemDto(name: 'Wema Bank', code: '035'),
-        BankItemDto(name: 'Sterling Bank', code: '232'),
-        BankItemDto(name: 'Unity Bank', code: '215'),
-        BankItemDto(name: 'Fidelity Bank', code: '070'),
-        BankItemDto(name: 'Stanbic IBTC Bank', code: '221'),
-      ];
+      throw 'Failed to get bank details';
     }
   }
 
