@@ -167,7 +167,7 @@ class CreatorService {
 
       return list.map((x) => BankItemDto.fromJson(x)).toList();
     } catch (e) {
-      throw 'Failed to get bank details';
+      throw 'failed to get banks from paystack';
     }
   }
 

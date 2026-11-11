@@ -1,8 +1,8 @@
 import 'dart:developer';
 
-import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/data/models/responses/fund_wallet_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/modules/showcase-talents/stripe_verification_info_view.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/stripe_init.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/wallet_funding_vm.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
@@ -18,7 +18,7 @@ import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -83,16 +83,10 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
       }
       if (next is AsyncError) {
         if (context.mounted) {
-          if (next.error is StripeOnboardingException) {
-            final onboardingData = (next.error as StripeOnboardingException).onboardingData;
-            if (onboardingData.onboardingUrl != null) {
-              NavigationService.instance.push(
-                WebviewScreen(
-                  url: onboardingData.onboardingUrl!,
-                  routeName: 'Stripe Onboarding',
-                ),
-              );
-            }
+          final errStr = next.error.toString();
+          if (errStr.toLowerCase().contains('stripe') && (errStr.toLowerCase().contains('onboard') || errStr.toLowerCase().contains('verification'))) {
+            context.pop();
+            NavigationService.instance.push(const StripeVerificationInfoView());
           } else {
             ToastDialog.showError(next.error.toString(), context);
           }
@@ -142,12 +136,11 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return 'This field is required';
-              } else if (((double.tryParse(value.removeCommas()) ?? 0) < 1000) &&
-                  userData.countryCode == 'NG') {
-                return 'Amount cannot be less than ${1000.amountWithCurrency(userData.primaryCurrency ?? '')}';
-              } else if (((double.tryParse(value.removeCommas()) ?? 0) < 5) &&
-                  userData.countryCode != 'NG') {
-                return 'Amount cannot be less than ${5.amountWithCurrency(userData.primaryCurrency ?? '')}';
+              } 
+              final parsed = double.tryParse(value.replaceAll(',', '')) ?? 0;
+              final isNigeria = (userData.countryCode ?? 'NG') == 'NG';
+              if (parsed < (isNigeria ? 1000 : 5)) {
+                return 'Amount cannot be less than ${(isNigeria ? 1000 : 5).amountWithCurrency(userData.primaryCurrency ?? (isNigeria ? 'NGN' : 'USD'))}';
               }
               return null;
             },
@@ -157,9 +150,10 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
           ListenableBuilder(
             listenable: Listenable.merge([amount]),
             builder: (context, _) {
+              final isNigeria = (userData.countryCode ?? 'NG') == 'NG';
+              final parsedAmount = num.tryParse(amount.text.replaceAll(',', '')) ?? 0;
               final isCodeValid = validateRequiredFields([amount.text]) &&
-                  ((num.tryParse(amount.text.replaceAll(',', '')) ?? 0) >=
-                      (userData.countryCode == 'NG' ? 1000 : 5));
+                  (parsedAmount >= (isNigeria ? 1000 : 5));
 
               return MainButton(
                 text: 'Fund',
