@@ -154,7 +154,7 @@ class CreatorService {
       final response = await _networkService.request(
         endpoints.getBanks,
         RequestMethod.get,
-        enableCache: true,
+        enableCache: false,
       );
 
       final rawData = response.data;
