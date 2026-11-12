@@ -72,8 +72,9 @@ class _BankSheetState extends ConsumerState<BankSheet> {
           Expanded(
             child: getBankList.when(
               data: (banks) {
-                final filteredBanks =
-                    banks.where((bank) => bank.name!.toLowerCase().contains(_searchQuery)).toList();
+                final filteredBanks = banks
+                    .where((bank) => bank.name != null && bank.name!.isNotEmpty && bank.name!.toLowerCase().contains(_searchQuery))
+                    .toList();
 
                 return Column(
                   children: [
