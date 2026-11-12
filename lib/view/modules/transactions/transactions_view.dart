@@ -329,11 +329,7 @@ class _TransactionsViewState extends ConsumerState<TransactionsView> {
   }
 
   void _openStripeDashboard() {
-     ref.read(getCreatorDashboardProvider.future).then((value) {
-          if (context.mounted) NavigationService.instance.push(WebviewScreen(url: value.url ?? '', routeName: "Payout Dashboard"));
-        }).catchError((e) {
-          if (context.mounted) ToastDialog.showError(e.toString(), context);
-        });
+    NavigationService.instance.push(const StripeVerificationInfoView());
   }
 
   Widget _buildQuickAction(IconData icon, String label, Color bgColor, Color iconColor, VoidCallback onTap) {
