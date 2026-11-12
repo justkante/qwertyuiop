@@ -113,7 +113,35 @@ class _BankSheetState extends ConsumerState<BankSheet> {
                   ],
                 );
               },
-              error: (error, stackTrace) => Text('Error: $error'),
+              error: (error, stackTrace) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 40, color: AppColors.highlightRed),
+                      12.0.height,
+                      const Text(
+                        'failed to get banks from paystack',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontWeight: FontWeight.w600, color: AppColors.subHeading),
+                      ),
+                      16.0.height,
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          ref.invalidate(fetchBanksProvider);
+                        },
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Try Again'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               loading: () => const Center(child: CircularProgressIndicator.adaptive()),
             ),
           ),

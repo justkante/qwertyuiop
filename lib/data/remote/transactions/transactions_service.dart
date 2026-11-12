@@ -163,6 +163,13 @@ class TransactionsService {
 
       final resData = response.data;
       if (resData is Map && resData['success'] == false) {
+        final data = resData['data'];
+        if (data != null && data['requires_stripe_onboarding'] == true) {
+          throw StripeOnboardingException(
+            message: resData['message'] ?? 'Stripe onboarding required',
+            onboardingData: StripeOnboardingData.fromJson(data),
+          );
+        }
         throw resData['message'] ?? 'Failed to initialize payment';
       }
 
