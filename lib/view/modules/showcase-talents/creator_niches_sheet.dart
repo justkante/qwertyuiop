@@ -80,7 +80,6 @@ class _CreatorNicheSheetState extends ConsumerState<CreatorNicheSheet> {
                         interactive: true,
                         thickness: 2,
                         child: ListView.separated(
-                          shrinkWrap: true,
                           itemCount: filteredNiches.length,
                           separatorBuilder: (_, __) => 0.0.height,
                           itemBuilder: (context, index) {

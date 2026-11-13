@@ -89,7 +89,6 @@ class _BankSheetState extends ConsumerState<BankSheet> {
                         interactive: true,
                         thickness: 2,
                         child: ListView.separated(
-                          shrinkWrap: true,
                           itemCount: filteredBanks.length,
                           separatorBuilder: (_, __) => 0.0.height,
                           itemBuilder: (context, index) {
@@ -98,7 +97,7 @@ class _BankSheetState extends ConsumerState<BankSheet> {
                             return ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text(
-                                (bank.name ?? '').toTitleCase(),
+                                bank.name ?? '',
                                 style: context.textTheme.bodyMedium?.copyWith(
                                   color: AppColors.subHeading,
                                 ),
