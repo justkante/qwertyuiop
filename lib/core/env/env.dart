@@ -44,4 +44,17 @@ final class Env {
 
   @EnviedField(varName: 'PROD_STRIPE_PUBLISHABLE_KEY')
   static final String prodStripePublishableKey = _Env.prodStripePublishableKey;
+
+  @EnviedField(varName: 'PAYSTACK_PUBLIC_KEY')
+  static final String paystackPublicKey = _Env.paystackPublicKey;
+
+  @EnviedField(varName: 'PAYSTACK_PRIVATE_KEY')
+  static final String paystackPrivateKey = _Env.paystackPrivateKey;
+
+  @EnviedField(varName: 'PROD_PAYSTACK_PUBLIC_KEY')
+  static final String prodPaystackPublicKey = _Env.prodPaystackPublicKey;
+
+  @EnviedField(varName: 'PROD_PAYSTACK_PRIVATE_KEY')
+  static final String prodPaystackPrivateKey = _Env.prodPaystackPrivateKey;
 }
+

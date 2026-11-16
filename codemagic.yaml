@@ -25,6 +25,10 @@ workflows:
           echo "MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
           echo "STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY" >> .env
           echo "PROD_STRIPE_PUBLISHABLE_KEY=$PROD_STRIPE_PUBLISHABLE_KEY" >> .env
+          echo "PAYSTACK_PUBLIC_KEY=${PAYSTACK_PUBLIC_KEY:-dummy}" >> .env
+          echo "PAYSTACK_PRIVATE_KEY=${PAYSTACK_PRIVATE_KEY:-dummy}" >> .env
+          echo "PROD_PAYSTACK_PUBLIC_KEY=${PROD_PAYSTACK_PUBLIC_KEY:-dummy}" >> .env
+          echo "PROD_PAYSTACK_PRIVATE_KEY=${PROD_PAYSTACK_PRIVATE_KEY:-dummy}" >> .env
       - name: Get Flutter packages
         script: |
           flutter pub get
@@ -69,6 +73,10 @@ workflows:
           echo "MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
           echo "STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY" >> .env
           echo "PROD_STRIPE_PUBLISHABLE_KEY=$PROD_STRIPE_PUBLISHABLE_KEY" >> .env
+          echo "PAYSTACK_PUBLIC_KEY=${PAYSTACK_PUBLIC_KEY:-dummy}" >> .env
+          echo "PAYSTACK_PRIVATE_KEY=${PAYSTACK_PRIVATE_KEY:-dummy}" >> .env
+          echo "PROD_PAYSTACK_PUBLIC_KEY=${PROD_PAYSTACK_PUBLIC_KEY:-dummy}" >> .env
+          echo "PROD_PAYSTACK_PRIVATE_KEY=${PROD_PAYSTACK_PRIVATE_KEY:-dummy}" >> .env
       - name: Get Flutter packages
         script: |
           flutter pub get

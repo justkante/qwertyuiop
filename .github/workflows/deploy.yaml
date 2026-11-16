@@ -98,6 +98,10 @@ jobs:
           echo "MIXPANEL_TOKEN=dummy" >> .env
           echo "STRIPE_PUBLISHABLE_KEY=dummy" >> .env
           echo "PROD_STRIPE_PUBLISHABLE_KEY=dummy" >> .env
+          echo "PAYSTACK_PUBLIC_KEY=dummy" >> .env
+          echo "PAYSTACK_PRIVATE_KEY=dummy" >> .env
+          echo "PROD_PAYSTACK_PUBLIC_KEY=dummy" >> .env
+          echo "PROD_PAYSTACK_PRIVATE_KEY=dummy" >> .env
 
       - name: Install dependencies
         run: |
@@ -167,7 +171,7 @@ jobs:
         run: rm -rf build/ios/ipa/*.ipa
 
       - name: Build iOS IPA
-        run: flutter build ipa --release --build-name=1.1.4 --build-number=522 --export-options-plist=ios/ExportOptions.plist --dart-define=ENVIRONMENT=prod
+        run: flutter build ipa --release --build-name=1.1.4 --build-number=523 --export-options-plist=ios/ExportOptions.plist --dart-define=ENVIRONMENT=prod
         env:
           FLUTTER_XCODE_DISABLE_SPM: true
           COCOAPODS_DISABLE_STATS: true
