@@ -99,6 +99,7 @@ class NetworkService implements HttpService {
     Options? options,
   }) async {
     Response response;
+    _dio.options.baseUrl = ApiEndpoints.baseUrl;
 
     try {
       switch (method) {
