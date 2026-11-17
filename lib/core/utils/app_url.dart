@@ -17,9 +17,9 @@ class ApiEndpoints {
   ApiEndpoints._privateConstructor() {
     if (_environment == null) {
       logger.info(
-        "${"ApiEndpoints----->"} ,Call init to set the environment, environment set to dev by default",
+        "${"ApiEndpoints----->"} ,Call init to set the environment, environment set to prod by default",
       );
-      _environment = Environmentx.staging;
+      _environment = Environmentx.prod;
     }
   }
 
@@ -28,7 +28,7 @@ class ApiEndpoints {
     _environment = environment;
   }
 
-  static const String devURL = "https://staging-api.creatifyapp.com";
+  static const String devURL = "https://api.creatifyapp.com";
   static const String productionURL = "https://api.creatifyapp.com";
   static const String localURL = "http://10.0.2.2:8000";
 
