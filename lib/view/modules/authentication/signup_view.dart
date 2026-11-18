@@ -315,25 +315,30 @@ class _SignupViewState extends ConsumerState<SignupView> {
                 ),
                 32.0.height,
                 Center(
-                  child: RichText(
-                    text: TextSpan(
-                      text: "Already have an account? ",
-                      style: context.textTheme.bodySmall,
-                      children: [
-                        TextSpan(
-                          text: 'Sign In',
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              context.pushAndRemoveUntil(const LoginView());
-                            },
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.highlightCoral,
-                              ),
-                        ),
-                      ],
+                  child: InkWell(
+                    onTap: () {
+                      if (context.canPop) {
+                        context.pop();
+                      } else {
+                        context.pushAndRemoveUntil(const LoginView());
+                      }
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Already have an account? ",
+                        style: context.textTheme.bodySmall,
+                        children: [
+                          TextSpan(
+                            text: 'Sign In',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.highlightCoral,
+                                ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
                 48.0.height,

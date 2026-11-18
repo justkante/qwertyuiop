@@ -425,25 +425,30 @@ class _LoginViewState extends ConsumerState<LoginView> {
                 ),
                 32.0.height,
                 Center(
-                  child: RichText(
-                    text: TextSpan(
-                      text: "Don't have an account? ",
-                      style: context.textTheme.bodySmall,
-                      children: [
-                        TextSpan(
-                          text: 'Create Account',
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              context.pushAndRemoveUntil(const SignupView());
-                            },
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.highlightCoral,
-                              ),
-                        ),
-                      ],
+                  child: InkWell(
+                    onTap: () {
+                      if (context.canPop) {
+                        context.pop();
+                      } else {
+                        context.pushAndRemoveUntil(const SignupView());
+                      }
+                    },
+                    child: RichText(
+                      text: TextSpan(
+                        text: "Don't have an account? ",
+                        style: context.textTheme.bodySmall,
+                        children: [
+                          TextSpan(
+                            text: 'Create Account',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.highlightCoral,
+                                ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 )
               ],
