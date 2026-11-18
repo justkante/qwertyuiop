@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:creatify_mobile/data/models/requests/signup_req.dart';
+import 'package:creatify_mobile/data/models/responses/countries_dto.dart';
+import 'package:creatify_mobile/view/modules/authentication/account_created_sheet.dart';
 import 'package:creatify_mobile/view/modules/authentication/get_countries_sheet.dart';
 import 'package:creatify_mobile/view/modules/authentication/enter_verification_sheet.dart';
 import 'package:creatify_mobile/view/modules/authentication/login_view.dart';
@@ -94,7 +96,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
           context,
           isDismissible: false,
           enableDrag: false,
-          widget: const AccountCreatedSheet(),
+          widget: AccountCreatedSheet(),
         );
       }
       if (value is AsyncError) {
@@ -108,7 +110,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
           context,
           isDismissible: false,
           enableDrag: false,
-          widget: const AccountCreatedSheet(),
+          widget: AccountCreatedSheet(),
         );
       }
       if (value is AsyncError) {
@@ -208,6 +210,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
                     hint: 'Enter Referral Code',
                     inputType: TextInputType.text,
                     textCapitalization: TextCapitalization.characters,
+                    validator: null,
                   ),
                   32.0.height,
                   MainButton(
