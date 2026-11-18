@@ -1,15 +1,12 @@
 import 'dart:io';
 
 import 'package:creatify_mobile/data/models/requests/signup_req.dart';
-import 'package:creatify_mobile/data/models/responses/countries_dto.dart';
-import 'package:creatify_mobile/view/modules/authentication/account_created_sheet.dart';
-import 'package:creatify_mobile/view/modules/authentication/enter_verification_sheet.dart';
 import 'package:creatify_mobile/view/modules/authentication/get_countries_sheet.dart';
+import 'package:creatify_mobile/view/modules/authentication/enter_verification_sheet.dart';
 import 'package:creatify_mobile/view/modules/authentication/login_view.dart';
 import 'package:creatify_mobile/view/modules/authentication/vm/apple_sign_in_vm.dart';
 import 'package:creatify_mobile/view/modules/authentication/vm/google_sign_in_vm.dart';
 import 'package:creatify_mobile/view/modules/authentication/vm/signup_vm.dart';
-import 'package:creatify_mobile/view/modules/authentication/widgets/or_button.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
@@ -26,6 +23,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import 'vm/signup_vm.dart';
+import 'vm/apple_sign_in_vm.dart';
+import 'vm/google_sign_in_vm.dart';
+import 'get_countries_sheet.dart';
+import 'enter_verification_sheet.dart';
+import 'login_view.dart';
+
 class SignupView extends ConsumerStatefulWidget {
   const SignupView({super.key});
 
@@ -41,9 +45,6 @@ class _SignupViewState extends ConsumerState<SignupView> {
   final TextEditingController referralCodeController = TextEditingController();
 
   CountriesItemDto? selectedCountry;
-
-  // Password Stuvs
-  bool obscure = true;
 
   @override
   void dispose() {
@@ -131,144 +132,151 @@ class _SignupViewState extends ConsumerState<SignupView> {
       }
     });
 
-    return AbsorbPointer(
-      absorbing: signingUp,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: context.canPop,
-          title: Text(
-            'Create Account',
-            style: context.textTheme.displayMedium?.copyWith(fontSize: 19),
+    return PopScope(
+      canPop: true,
+      child: AbsorbPointer(
+        absorbing: signingUp,
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: context.canPop,
+            title: Text(
+              'Create Account',
+              style: context.textTheme.displayMedium?.copyWith(fontSize: 19),
+            ),
           ),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          child: Form(
-            child: Column(
-              children: [
-                Image.asset(AppImages.signupCard),
-                25.0.height,
-                TextInputField(
-                  controller: nameController,
-                  header: 'Name',
-                  hint: 'Enter Full Name',
-                  inputType: TextInputType.text,
-                  validator: validateGeneric,
-                ),
-                16.0.height,
-                TextInputField(
-                  controller: emailController,
-                  header: 'Email',
-                  hint: 'Enter Email Address',
-                  inputType: TextInputType.emailAddress,
-                  autoCorrect: false,
-                  validator: validateEmail,
-                ),
-                16.0.height,
-                TextInputField(
-                  controller: referralCodeController,
-                  header: 'Referral Code (Optional)',
-                  hint: 'Enter Referral Code',
-                  inputType: TextInputType.text,
-                  validator: null,
-                ),
-                16.0.height,
-                TextInputField(
-                  header: 'Current Location',
-                  controller: countryController,
-                  hint: 'Select Country of Residence',
-                  inputType: TextInputType.text,
-                  textCapitalization: TextCapitalization.words,
-                  readOnly: true,
-                  suffixIcon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: AppColors.body,
-                    size: 18,
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: Form(
+              child: Column(
+                children: [
+                  Image.asset(AppImages.signupCard),
+                  25.0.height,
+                  TextInputField(
+                    controller: nameController,
+                    header: 'Name',
+                    hint: 'Enter Full Name',
+                    inputType: TextInputType.text,
+                    validator: validateGeneric,
                   ),
-                  onPressed: () {
-                    AppBottomSheet.showBottomSheet(
-                      context,
-                      widget: GetCountriesSheet(
-                        onCountrySelected: (country) {
-                          countryController.text = country.name ?? '';
+                  16.0.height,
+                  TextInputField(
+                    controller: emailController,
+                    header: 'Email',
+                    hint: 'Enter Email Address',
+                    inputType: TextInputType.emailAddress,
+                    validator: validateEmail,
+                  ),
+                  16.0.height,
+                  TextInputField(
+                    controller: passwordController,
+                    header: 'Password',
+                    hint: 'Enter Password',
+                    inputType: TextInputType.visiblePassword,
+                    obscureText: true,
+                    validator: validatePassword,
+                  ),
+                  16.0.height,
+                  TextInputField(
+                    controller: countryController,
+                    header: 'Country of Residence',
+                    hint: 'Select Country',
+                    inputType: TextInputType.text,
+                    readOnly: true,
+                    onPressed: () async {
+                      final country = await AppBottomSheet.showBottomSheet(
+                        context,
+                        widget: const GetCountriesSheet(),
+                      );
+                      if (country != null) {
+                        setState(() {
                           selectedCountry = country;
-                          setState(() {});
-                        },
-                      ),
-                    );
-                  },
-                  validator: validateGeneric,
-                ),
-                16.0.height,
-                TextInputField(
-                  controller: passwordController,
-                  header: 'Password',
-                  hint: 'Enter Password',
-                  obscureText: obscure,
-                  maxLines: 1,
-                  inputType: TextInputType.visiblePassword,
-                  autoCorrect: false,
-                  suffixIcon: InkWell(
-                    onTap: () {
-                      obscure = !obscure;
-                      setState(() {});
+                          countryController.text = "${country.flag} ${country.name}";
+                        });
+                      }
                     },
-                    child: Icon(
-                      size: 22,
-                      obscure ? Icons.visibility : Icons.visibility_off,
-                      color: AppColors.grey400,
+                    suffixIcon: const Icon(
+                      Icons.keyboard_arrow_down,
+                      color: AppColors.body,
+                      size: 18,
                     ),
+                    validator: validateGeneric,
                   ),
-                  validator: validateFirstPassword,
-                ),
-                32.0.height,
-                ListenableBuilder(
-                  listenable: Listenable.merge([
-                    nameController,
-                    emailController,
-                    passwordController,
-                    countryController,
-                  ]),
-                  builder: (context, _) {
-                    bool isValid = validateRequiredFields([
-                      nameController.text,
-                      emailController.text,
-                      passwordController.text,
-                      countryController.text,
-                    ]);
-                    return MainButton(
-                      text: 'Create Account',
-                      isLoading: signingUp,
-                      onPressed: isValid
-                          ? () {
-                              if (Form.of(context).validate()) {
-                                ref.read(signUpProvider.notifier).signUp(
-                                      SignUpReq(
-                                        name: nameController.text,
-                                        email: emailController.text,
-                                        password: passwordController.text,
-                                        referralCode: referralCodeController.text.isNotEmpty
-                                            ? referralCodeController.text
-                                            : null,
-                                        countryCode: selectedCountry?.code,
+                  16.0.height,
+                  TextInputField(
+                    controller: referralCodeController,
+                    header: 'Referrer Code (Optional)',
+                    hint: 'Enter Referral Code',
+                    inputType: TextInputType.text,
+                    textCapitalization: TextCapitalization.characters,
+                  ),
+                  32.0.height,
+                  MainButton(
+                    text: 'Sign Up',
+                    isLoading: signingUp,
+                    width: double.infinity,
+                    borderRadius: 30,
+                    fontSize: 15,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    onPressed: () {
+                      ref.read(signUpProvider.notifier).signUp(
+                            SignUpReq(
+                              name: nameController.text.trim(),
+                              email: emailController.text.trim(),
+                              password: passwordController.text,
+                              countryCode: selectedCountry?.code,
+                              referralCode: referralCodeController.text.trim().isNotEmpty
+                                  ? referralCodeController.text.trim()
+                                  : null,
+                            ),
+                          );
+                    },
+                  ),
+                  24.0.height,
+                  Row(
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.grey300)),
+                      16.0.width,
+                      Text(
+                        'Or Sign Up with',
+                        style: context.textTheme.bodySmall?.copyWith(color: AppColors.body),
+                      ),
+                      16.0.width,
+                      const Expanded(child: Divider(color: AppColors.grey300)),
+                    ],
+                  ),
+                  24.0.height,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (Platform.isIOS) ...[
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              ref.read(appleAuthProvider.notifier).appleAuth();
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              decoration: BoxDecoration(
+                                color: AppColors.grey100,
+                                borderRadius: BorderRadius.circular(48),
+                              ),
+                              child: loggingInApple
+                                  ? Center(
+                                      child: LoadingAnimationWidget.staggeredDotsWave(
+                                        color: AppColors.black2,
+                                        size: 20,
                                       ),
-                                    );
-                              }
-                            }
-                          : null,
-                    );
-                  },
-                ),
-                12.0.height,
-                const OrButton(),
-                16.0.height,
-                Row(
-                  children: [
-                    if (Platform.isIOS) ...[
+                                    )
+                                  : SvgPicture.asset(AppImages.apple, height: 20),
+                            ),
+                          ),
+                        ),
+                        16.0.width,
+                      ],
                       Expanded(
                         child: InkWell(
                           onTap: () {
-                            ref.read(appleAuthProvider.notifier).appleAuth();
+                            ref.read(googleAuthProvider.notifier).googleAuth();
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 14),
@@ -276,53 +284,21 @@ class _SignupViewState extends ConsumerState<SignupView> {
                               color: AppColors.grey100,
                               borderRadius: BorderRadius.circular(48),
                             ),
-                            child: loggingInApple
+                            child: loggingInGoogle
                                 ? Center(
                                     child: LoadingAnimationWidget.staggeredDotsWave(
                                       color: AppColors.black2,
                                       size: 20,
                                     ),
                                   )
-                                : SvgPicture.asset(AppImages.apple, height: 20),
+                                : SvgPicture.asset(AppImages.google, height: 20),
                           ),
                         ),
                       ),
-                      16.0.width,
                     ],
-                    Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          ref.read(googleAuthProvider.notifier).googleAuth();
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: AppColors.grey100,
-                            borderRadius: BorderRadius.circular(48),
-                          ),
-                          child: loggingInGoogle
-                              ? Center(
-                                  child: LoadingAnimationWidget.staggeredDotsWave(
-                                    color: AppColors.black2,
-                                    size: 20,
-                                  ),
-                                )
-                              : SvgPicture.asset(AppImages.google, height: 20),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                32.0.height,
-                Center(
-                  child: InkWell(
-                    onTap: () {
-                      if (context.canPop) {
-                        context.pop();
-                      } else {
-                        context.pushAndRemoveUntil(const LoginView());
-                      }
-                    },
+                  ),
+                  32.0.height,
+                  Center(
                     child: RichText(
                       text: TextSpan(
                         text: "Already have an account? ",
@@ -330,6 +306,10 @@ class _SignupViewState extends ConsumerState<SignupView> {
                         children: [
                           TextSpan(
                             text: 'Sign In',
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                context.pushAndRemoveUntil(const LoginView());
+                              },
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   fontWeight: FontWeight.w600,
                                   color: AppColors.highlightCoral,
@@ -340,9 +320,9 @@ class _SignupViewState extends ConsumerState<SignupView> {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                ),
-                48.0.height,
-              ],
+                  48.0.height,
+                ],
+              ),
             ),
           ),
         ),
