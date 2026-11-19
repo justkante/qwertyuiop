@@ -246,9 +246,13 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     setState(() => isBackground = false);
   }
 
+  Widget? _cachedHome;
+
   Widget _getHomeScreen(UserDto user, bool isLoadingUser) {
+    if (_cachedHome != null) return _cachedHome!;
+
     if (SharedPrefManager.isFirstLaunch) {
-      return const OnboardingView();
+      return _cachedHome = const OnboardingView();
     }
 
     // Show loading while user is being fetched from storage
@@ -265,7 +269,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     log("User ID: ${user.id}");
 
     if (!SharedPrefManager.isLoggedIn) {
-      return const LoginView();
+      return _cachedHome = const LoginView();
     }
 
     // Handle Abandoned State: Redirect incomplete creators to onboarding
@@ -274,10 +278,10 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
     if (isCreator && isIncomplete) {
       log("Redirecting incomplete creator to onboarding");
-      return const OnboardingView();
+      return _cachedHome = const OnboardingView();
     }
 
-    return const TabBarSection();
+    return _cachedHome = const TabBarSection();
   }
 
   @override
