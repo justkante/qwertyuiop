@@ -2,9 +2,12 @@ import 'dart:developer';
 
 import 'package:creatify_mobile/core/deeplinking/app_links.dart';
 import 'package:creatify_mobile/core/deeplinking/deeplink_provider.dart';
+import 'package:creatify_mobile/core/di/injector.dart';
 import 'package:creatify_mobile/core/http/dio_http_service.dart';
 import 'package:creatify_mobile/core/services/mixpanel_service.dart';
+import 'package:creatify_mobile/core/storage/secure-storage/secure_storage.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
+import 'package:creatify_mobile/core/utils/constants.dart';
 import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/data/models/responses/user_dto.dart';
 import 'package:creatify_mobile/data/remote/auth/push_notifications_impl.dart';
@@ -75,9 +78,20 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       final networkService = NetworkService();
       await networkService.tokenInterceptor.initToken();
 
+      final storage = inject.get<SecureStorageBase>();
+      final token = await storage.readData(PrefKeys.token);
+
+      if (token == null || token.isEmpty) {
+        SharedPrefManager.isLoggedIn = false;
+        log('No auth token found in secure storage on startup');
+      } else {
+        SharedPrefManager.isLoggedIn = true;
+      }
+
       log('Auth token initialized in interceptor');
     } catch (e) {
       log('Error preloading auth token: $e');
+      SharedPrefManager.isLoggedIn = false;
     }
   }
 
