@@ -264,7 +264,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
     log("User ID: ${user.id}");
 
-    if (user.id == null) {
+    if (!SharedPrefManager.isLoggedIn) {
       return const LoginView();
     }
 
