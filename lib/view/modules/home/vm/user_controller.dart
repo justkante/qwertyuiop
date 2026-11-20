@@ -24,9 +24,7 @@ class UserController extends StateNotifier<UserDto> {
 
   Future<void> refreshUser() async {
     try {
-      final user = await ref.read(authRepository).getMe();
-      state = user;
-      await saveUserToStorage(user);
+      // User controller refresh
     } catch (e) {
       log('Error refreshing user data: $e');
     }
@@ -73,6 +71,7 @@ class UserController extends StateNotifier<UserDto> {
         }
         log('User loaded from storage: ${result.name ?? ""}, id: ${result.id}');
         state = result;
+        refreshUser();
       } else {
         log('No user found in storage or invalid data');
         state = UserDto();
