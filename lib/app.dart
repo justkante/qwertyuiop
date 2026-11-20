@@ -81,7 +81,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       final storage = inject.get<SecureStorageBase>();
       final token = await storage.readData(PrefKeys.token);
 
-      if (token == null || token.isEmpty) {
+      log("STARTUP CHECK - Token read from secure storage: ${token.isNotEmpty ? 'SUCCESS (length: ${token.length})' : 'EMPTY'}");
+
+      if (token.isEmpty) {
         SharedPrefManager.isLoggedIn = false;
         log('No auth token found in secure storage on startup');
       } else {

@@ -4,7 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureStorage implements SecureStorageBase {
   static FlutterSecureStorage storage = const FlutterSecureStorage(
-    iOptions: IOSOptions(),
+    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
 
