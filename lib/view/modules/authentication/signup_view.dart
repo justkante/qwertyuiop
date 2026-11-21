@@ -226,7 +226,7 @@ class _SignupViewState extends ConsumerState<SignupView> {
                               name: nameController.text.trim(),
                               email: emailController.text.trim(),
                               password: passwordController.text,
-                              countryCode: selectedCountry?.code,
+                              countryCode: selectedCountry?.code ?? selectedCountry?.id ?? 'NG',
                               referralCode: referralCodeController.text.trim().isNotEmpty
                                   ? referralCodeController.text.trim()
                                   : null,
