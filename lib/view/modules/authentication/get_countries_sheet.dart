@@ -91,8 +91,12 @@ class _GetCountriesSheetState extends ConsumerState<GetCountriesSheet> {
 
                             return InkWell(
                               onTap: () {
-                                context.pop();
-                                widget.onCountrySelected!(country);
+                                if (widget.onCountrySelected != null) {
+                                  widget.onCountrySelected!(country);
+                                  context.pop();
+                                } else {
+                                  context.pop(country);
+                                }
                               },
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
