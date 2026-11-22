@@ -294,7 +294,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
               // Work Mode
               _buildDropdownField(
                 'Work Mode',
-                ['Remote', 'On-site', 'Hybrid'],
+                ['remote', 'on-site', 'hybrid'],
                 (val) => setState(() => _selectedWorkMode = val),
                 initialValue: _selectedWorkMode,
               ),
@@ -621,7 +621,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         'location': _locationController.text.isEmpty ? 'Remote' : _locationController.text,
         'price': double.tryParse(_priceController.text) ?? 0.0,
         'type': _jobType,
-        'work_mode': (_selectedWorkMode ?? 'Remote').toLowerCase(),
+        'work_mode': _selectedWorkMode ?? 'remote',
         'status': isDraft ? 'draft' : 'active',
         'currency': ref.read(userControllerProvider).primaryCurrency ?? 'NGN',
         'start_date': _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : DateFormat('yyyy-MM-dd').format(DateTime.now()),
