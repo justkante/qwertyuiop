@@ -448,7 +448,24 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
                           ('Start Date', data.startDate?.toLocal().toFormattedDateWithYear()),
                           ('End Date', data.endDate?.toLocal().toFormattedDateWithYear()),
                           ('Duration', data.duration),
-                          ('Location', data.location ?? 'Remote'),
+                          (
+                            'Location',
+                            () {
+                              String loc = data.location ?? 'Remote';
+                              if ((data.workMode ?? '').toLowerCase() == 'onsite') {
+                                final rLoc = data.recruiter?.location;
+                                final cLoc = data.creator?.location;
+                                if (rLoc != null && cLoc != null && rLoc.isNotEmpty && cLoc.isNotEmpty) {
+                                  loc = '$rLoc & $cLoc';
+                                } else if (rLoc != null && rLoc.isNotEmpty) {
+                                  loc = rLoc;
+                                } else if (cLoc != null && cLoc.isNotEmpty) {
+                                  loc = cLoc;
+                                }
+                              }
+                              return loc;
+                            }()
+                          ),
                           (
                             'Payment Status',
                             switch (data.paymentStatus) {

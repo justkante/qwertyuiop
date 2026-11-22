@@ -197,6 +197,7 @@ class Creator {
   final String? email;
   final String? profileImage;
   final String? countryCode;
+  final String? location;
 
   String get initials {
     if (name == null || name!.isEmpty) return '';
@@ -211,6 +212,7 @@ class Creator {
     this.email,
     this.profileImage,
     this.countryCode,
+    this.location,
   });
 
   factory Creator.fromJson(Map<String, dynamic> json) => Creator(
@@ -219,6 +221,7 @@ class Creator {
         email: json["email"],
         profileImage: json["profile_image"],
         countryCode: json["country_code"],
+        location: json["location"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -227,6 +230,7 @@ class Creator {
         "email": email,
         "profile_image": profileImage,
         "country_code": countryCode,
+        "location": location,
       };
 }
 
