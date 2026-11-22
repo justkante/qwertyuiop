@@ -1,3 +1,4 @@
+import 'package:creatify_mobile/core/utils/currency_converter.dart';
 import 'package:creatify_mobile/data/models/responses/countries_dto.dart';
 import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
 import 'package:creatify_mobile/view/modules/authentication/get_countries_sheet.dart';
@@ -24,6 +25,15 @@ class _JobFilterSheetState extends ConsumerState<JobFilterSheet> {
   RangeValues _currentRangeValues = const RangeValues(1000, 10000000);
   final Set<String> _selectedCategories = {};
   StatesItemDto? _selectedLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'NGN';
+    final minVal = CurrencyConverter.getEquivalent(1000, userCurrency);
+    final maxVal = CurrencyConverter.getEquivalent(10000000, userCurrency);
+    _currentRangeValues = RangeValues(minVal, maxVal);
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -69,16 +69,44 @@ class BookingItemDto {
     this.cancellation,
   });
 
-  factory BookingItemDto.fromJson(Map<String, dynamic> json) => BookingItemDto(
+  factory BookingItemDto.fromJson(Map<String, dynamic> json) {
+    DateTime? parsedStartDate;
+    String? adjustedStartTime = json["start_time"];
+
+    if (json["start_date"] != null) {
+      try {
+        final dateStr = json["start_date"].toString().split('T')[0];
+        final timeStr = json["start_time"] ?? "00:00:00";
+        final dateParts = dateStr.split('-');
+        final timeParts = timeStr.split(':');
+
+        if (dateParts.length == 3 && timeParts.length >= 2) {
+          final year = int.parse(dateParts[0]);
+          final month = int.parse(dateParts[1]);
+          final day = int.parse(dateParts[2]);
+          final hour = int.parse(timeParts[0]);
+          final minute = int.parse(timeParts[1]);
+
+          // Parse backend start_date + start_time as UTC, then convert to local timezone
+          final utcDt = DateTime.utc(year, month, day, hour, minute);
+          final localDt = utcDt.toLocal();
+
+          parsedStartDate = localDt;
+          adjustedStartTime = '${localDt.hour.toString().padLeft(2, '0')}:${localDt.minute.toString().padLeft(2, '0')}';
+        }
+      } catch (e) {
+        parsedStartDate = DateTime.parse(json["start_date"])
+            .addTimeFromString(json["start_time"] ?? "00:00:00");
+      }
+    }
+
+    return BookingItemDto(
         id: json["id"]?.toString() ?? json["booking_id"]?.toString() ?? json["invite_id"]?.toString() ?? UUIDGenerator.generateUUID(),
         bookingType: json["booking_type"],
         jobDescription: json["job_description"],
-        startDate: json["start_date"] == null
-            ? null
-            : DateTime.parse(json["start_date"])
-                .addTimeFromString(json["start_time"] ?? "00:00:00"),
+        startDate: parsedStartDate,
         endDate: json["end_date"] == null ? null : DateTime.parse(json["end_date"]),
-        startTime: json["start_time"],
+        startTime: adjustedStartTime,
         duration: json["duration"],
         location: json["location"],
         workMode: json["work_mode"],

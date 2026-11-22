@@ -12,6 +12,7 @@ import 'package:creatify_mobile/view/modules/home/favorites_view.dart';
 import 'package:creatify_mobile/view/modules/home/logout_sheet.dart';
 import 'package:creatify_mobile/view/modules/home/notifications_view.dart';
 import 'package:creatify_mobile/view/modules/home/search_preferences_view.dart';
+import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/view/modules/home/support_view.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/home/widgets/initials_avatar.dart';
@@ -29,6 +30,7 @@ import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
+import 'package:creatify_mobile/view/utils/tour/tour_providers.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -254,6 +256,16 @@ class _HomeDrawerState extends ConsumerState<HomeDrawer> {
                       title: 'Contact Support',
                       onTap: () {
                         NavigationService.instance.push(const SupportView());
+                      },
+                    ),
+                    DrawerMenuItem(
+                      icon: AppImages.map,
+                      title: 'App Tour / Guide',
+                      onTap: () {
+                        Navigator.pop(context);
+                        SharedPrefManager.hasSeenTourDialog = false;
+                        SharedPrefManager.tourAccepted = true;
+                        ref.read(startMainTourProvider.notifier).state = true;
                       },
                     ),
 

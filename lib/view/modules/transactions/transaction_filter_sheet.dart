@@ -1,3 +1,5 @@
+import 'package:creatify_mobile/core/utils/currency_converter.dart';
+import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/transactions/vm/get_transactions_vm.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/app_theme.dart';
@@ -21,9 +23,9 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
   // Filter state variables
   String selectedCategory = '';
   String selectedStatus = '';
-  RangeValues amountRange = const RangeValues(1000, 5000000);
-  static const double minAmount = 1000;
-  static const double maxAmount = 5000000;
+  late double minAmount;
+  late double maxAmount;
+  late RangeValues amountRange;
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   String? startDate;
@@ -32,6 +34,11 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
   @override
   void initState() {
     super.initState();
+    final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'NGN';
+    minAmount = CurrencyConverter.getEquivalent(1000, userCurrency);
+    maxAmount = CurrencyConverter.getEquivalent(5000000, userCurrency);
+    amountRange = RangeValues(minAmount, maxAmount);
+
     // Initialize filters from initialFilters if provided
     if (widget.initialFilters != null) {
       selectedCategory = widget.initialFilters!['category'] ?? '';

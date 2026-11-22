@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:creatify_mobile/core/utils/constants.dart';
+import 'package:creatify_mobile/core/utils/currency_converter.dart';
 import 'package:creatify_mobile/data/models/requests/book_creator_req.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/draft_booking_item_dto.dart';
@@ -672,11 +673,25 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     }
 
                     final totalBudget = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
+                    final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'NGN';
+                    final minBudget = CurrencyConverter.getEquivalent(1000, userCurrency);
 
-                    if (totalBudget < 1000) {
-                      ToastDialog.showError('The budget must be at least 1000', context);
+                    if (totalBudget < minBudget) {
+                      ToastDialog.showError('The budget must be at least ${minBudget.amountInt()} $userCurrency', context);
                       return;
                     }
+
+                    final localDate = selectedStartDate?.unavailableDate ?? DateTime.now();
+                    final localHour = selectedStartTime?.hour ?? 0;
+                    final localMinute = selectedStartTime?.minute ?? 0;
+
+                    final localDt = DateTime(localDate.year, localDate.month, localDate.day, localHour, localMinute);
+                    final utcDt = localDt.toUtc();
+
+                    final utcStartDate = DateTime(utcDt.year, utcDt.month, utcDt.day);
+                    final utcStartTime = selectedStartTime != null
+                        ? '${utcDt.hour.toString().padLeft(2, '0')}:${utcDt.minute.toString().padLeft(2, '0')}'
+                        : null;
 
                     // Send booking request to backend (no payment required at initial request)
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
@@ -685,16 +700,14 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         creatorCategoryId: widget.creatorProfile.categories?.isNotEmpty == true
                             ? widget.creatorProfile.categories!.first.id
                             : (widget.creatorProfile.id ?? '1'),
-                        startDate: selectedStartDate?.unavailableDate ?? DateTime.now(),
+                        startDate: utcStartDate,
                         endDate: calculatedEndDate,
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: $endDateStr\nDuration: $durationStr\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         workMode: workModeController.text.toLowerCase(),
                         price: totalBudget,
                         bookingType: selectedBookingType == 'Deliverable Based' ? 'deliverable-based' : 'time-based',
-                        startTime: selectedStartTime != null
-                            ? '${selectedStartTime!.hour.toString().padLeft(2, '0')}:${selectedStartTime!.minute.toString().padLeft(2, '0')}'
-                            : null,
+                        startTime: utcStartTime,
                         duration: durationStr,
                         deliverables: selectedBookingType == 'Deliverable Based' && deliverablesList.isNotEmpty
                             ? deliverablesList

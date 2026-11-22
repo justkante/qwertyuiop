@@ -42,6 +42,7 @@ import 'package:creatify_mobile/view/utils/app_dialog.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
 import 'package:creatify_mobile/view/utils/tour/tour_dialog.dart';
+import 'package:creatify_mobile/view/utils/tour/tour_providers.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
 import 'package:flutter/material.dart';
@@ -82,12 +83,17 @@ class _HomeViewState extends ConsumerState<HomeView> {
       );
       if (accepted == true) {
         SharedPrefManager.tourAccepted = true;
-        return;
+        ref.read(startMainTourProvider.notifier).state = true;
       }
     }
 
     if (!mounted) return;
-    if (SharedPrefManager.countryUpdatedAt.isEmpty) {
+    final userData = ref.read(userControllerProvider);
+    if (userData.countryCode != null && userData.countryCode!.isNotEmpty) {
+      if (SharedPrefManager.countryUpdatedAt.isEmpty) {
+        SharedPrefManager.countryUpdatedAt = DateTime.now().toIso8601String();
+      }
+    } else if (SharedPrefManager.countryUpdatedAt.isEmpty) {
       AppBottomSheet.showBottomSheet(context, widget: const SetCountrySheet());
     }
 

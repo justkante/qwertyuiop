@@ -1,3 +1,4 @@
+import 'package:creatify_mobile/core/utils/currency_converter.dart';
 import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/states_sheet.dart';
@@ -32,11 +33,11 @@ class TalentFilterSheet extends ConsumerStatefulWidget {
 class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   // Filter state variables
   Set<String> selectedCategories = {};
-  RangeValues amountRange = const RangeValues(1000, 10000000);
-  RangeValues internationalAmountRange = const RangeValues(1, 10000000);
-  static const double minAmount = 1000;
-  static const double minInternationalAmount = 1;
-  static const double maxAmount = 10000000;
+  late double minAmount;
+  late double minInternationalAmount;
+  late double maxAmount;
+  late RangeValues amountRange;
+  late RangeValues internationalAmountRange;
   final TextEditingController locationController = TextEditingController();
 
   double? selectedRating;
@@ -62,6 +63,13 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
   @override
   void initState() {
     super.initState();
+    final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'NGN';
+    minAmount = CurrencyConverter.getEquivalent(1000, userCurrency);
+    minInternationalAmount = CurrencyConverter.getEquivalent(1, userCurrency);
+    maxAmount = CurrencyConverter.getEquivalent(10000000, userCurrency);
+    amountRange = RangeValues(minAmount, maxAmount);
+    internationalAmountRange = RangeValues(minInternationalAmount, maxAmount);
+
     final initialCategories = categoriesNotifier.value;
     setState(() {
       selectedCategories = initialCategories;

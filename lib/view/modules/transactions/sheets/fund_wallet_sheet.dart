@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:creatify_mobile/core/utils/currency_converter.dart';
 import 'package:creatify_mobile/data/models/responses/fund_wallet_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/stripe_verification_info_view.dart';
@@ -138,9 +139,10 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
                 return 'This field is required';
               } 
               final parsed = double.tryParse(value.replaceAll(',', '')) ?? 0;
-              final isNigeria = (userData.countryCode ?? 'NG') == 'NG';
-              if (parsed < (isNigeria ? 1000 : 5)) {
-                return 'Amount cannot be less than ${(isNigeria ? 1000 : 5).amountWithCurrency(userData.primaryCurrency ?? (isNigeria ? 'NGN' : 'USD'))}';
+              final userCurrency = userData.primaryCurrency ?? 'NGN';
+              final minFund = CurrencyConverter.getEquivalent(1000, userCurrency);
+              if (parsed < minFund) {
+                return 'Amount cannot be less than ${minFund.amountInt()} $userCurrency';
               }
               return null;
             },
@@ -150,10 +152,11 @@ class _EnterVerificationCodeSheetState extends ConsumerState<FundWalletSheet> {
           ListenableBuilder(
             listenable: Listenable.merge([amount]),
             builder: (context, _) {
-              final isNigeria = (userData.countryCode ?? 'NG') == 'NG';
+              final userCurrency = userData.primaryCurrency ?? 'NGN';
+              final minFund = CurrencyConverter.getEquivalent(1000, userCurrency);
               final parsedAmount = num.tryParse(amount.text.replaceAll(',', '')) ?? 0;
               final isCodeValid = validateRequiredFields([amount.text]) &&
-                  (parsedAmount >= (isNigeria ? 1000 : 5));
+                  (parsedAmount >= minFund);
 
               return MainButton(
                 text: 'Fund',

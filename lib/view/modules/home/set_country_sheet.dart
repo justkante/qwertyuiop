@@ -40,10 +40,16 @@ class _SetCountrySheetState extends ConsumerState<SetCountrySheet> {
         ToastDialog.showSuccess('Country Updated!', context);
       }
       if (value is AsyncError) {
-        if (value.error.toString().contains('cannot be changed')) {
+        final errStr = value.error.toString().toLowerCase();
+        if (errStr.contains('cannot be changed') ||
+            errStr.contains('country') ||
+            errStr.contains('signin') ||
+            errStr.contains('sign-in') ||
+            errStr.contains('invalid')) {
           SharedPrefManager.countryUpdatedAt = DateTime.now().toIso8601String();
-
-          context.pop();
+          if (mounted && Navigator.canPop(context)) {
+            context.pop();
+          }
         }
 
         ToastDialog.showError(value.error.toString(), context);
