@@ -621,7 +621,7 @@ class _UploadJobViewState extends ConsumerState<UploadJobView> {
         'location': _locationController.text.isEmpty ? 'Remote' : _locationController.text,
         'price': double.tryParse(_priceController.text) ?? 0.0,
         'type': _jobType,
-        'work_mode': _selectedWorkMode ?? 'Remote',
+        'work_mode': (_selectedWorkMode ?? 'Remote').toLowerCase().replaceAll('-', ''),
         'status': isDraft ? 'draft' : 'active',
         'currency': ref.read(userControllerProvider).primaryCurrency ?? 'NGN',
         'start_date': _startDate != null ? DateFormat('yyyy-MM-dd').format(_startDate!) : DateFormat('yyyy-MM-dd').format(DateTime.now()),
