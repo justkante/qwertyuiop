@@ -511,7 +511,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     isExpanded: true,
                     value: workModeController.text.isNotEmpty ? workModeController.text : null,
                     hint: const Text('Select Work Mode', style: TextStyle(fontSize: 15, color: AppColors.body)),
-                    items: ['On site', 'Hybrid', 'Remote']
+                    items: ['On-site', 'Hybrid', 'Remote']
                         .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131)))))
                         .toList(),
                     onChanged: (val) {
@@ -543,7 +543,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     onTap: isRemote
                         ? null
                         : () async {
-                            final isOnSite = workModeController.text.toLowerCase() == 'on site';
+                            final isOnSite = workModeController.text.toLowerCase() == 'on-site';
                             final selectedState = await AppBottomSheet.showBottomSheet(
                               context,
                               widget: StateSheet(
