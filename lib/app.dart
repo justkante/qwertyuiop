@@ -2,102 +2,17 @@ import 'dart:developer';
 
 import 'package:creatify_mobile/core/deeplinking/app_links.dart';
 import 'package:creatify_mobile/core/deeplinking/deeplink_provider.dart';
-import 'package:creatify_mobile/core/di/injector.dart';
 import 'package:creatify_mobile/core/http/dio_http_service.dart';
 import 'package:creatify_mobile/core/services/mixpanel_service.dart';
-import 'package:creatify_mobile/core/storage/secure-storage/secure_storage.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
-import 'package:creatify_mobile/core/utils/constants.dart';
-import 'package:creatify_mobile/data/models/responses/job_dto.dart';
 import 'package:creatify_mobile/data/models/responses/user_dto.dart';
-import 'package:creatify_mobile/data/remote/auth/push_notifications_impl.dart';
 import 'package:creatify_mobile/data/remote/chat/pusher_service.dart';
 import 'package:creatify_mobile/view/modules/authentication/login_view.dart';
-import 'package:creatify_mobile/view/modules/bookings/fetched_recruiter_profile_view.dart';
-import 'package:creatify_mobile/view/modules/bookings/vm/booking_watcher_provider.dart';
-import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
-import 'package:creatify_mobile/view/modules/chats/vm/chat_providers.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
-import 'package:creatify_mobile/view/modules/jobs/job_details_view.dart';
-import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/onboarding/onboarding_view.dart';
 import 'package:creatify_mobile/view/modules/search-talents/search_talents_view.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/tab_bar_view.dart';
-import Failed to build iOS app
-Error output from Xcode build:
-↳
-** ARCHIVE FAILED **
-Xcode's output:
-↳
-Writing result bundle at path:
-/var/folders/q2/p1t6rgxj5fj32g1dc7dmd49r0000gn/T/flutter_tools.yPCMEj/flutter_ios_build_temp_dir8MgEun/temporary_xcresult_bundle
-/Users/runner/work/qwertyuiop/qwertyuiop/ios/Pods/Pods.xcodeproj: video_compress: ld: warning: search path '/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.sTu0HD/Metal.xctoolchain/usr/lib/swift/iphoneos' not found
-<module-includes>:2:9: note: in file included from <module-includes>:2:
-1 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/AVAssetTrackUtils.h"
-2 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPAVFactory.h"
-|         `- note: in file included from <module-includes>:2:
-3 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPAssetProvider.h"
-4 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPDisplayLink.h"
-1 warning generated.
-/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPAVFactory.h:38:4: warning: 'AVKeyValueStatus' is deprecated: first deprecated in iOS 16.0 - Use AVAsyncProperty.Status instead
-36 |
-37 | /// Wraps the underlying asset's statusOfValueForKey:error: method.
-38 | - (AVKeyValueStatus)statusOfValueForKey:(NSString *)key
-|    `- warning: 'AVKeyValueStatus' is deprecated: first deprecated in iOS 16.0 - Use AVAsyncProperty.Status instead
-39 |                                   error:(NSError *_Nullable *_Nullable)outError;
-40 |
-/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsynchronousKeyValueLoading.h:16:28: note: 'AVKeyValueStatus' has been explicitly marked deprecated here
-14 | NS_ASSUME_NONNULL_BEGIN
-15 |
-16 | typedef NS_ENUM(NSInteger, AVKeyValueStatus) {
-|                            `- note: 'AVKeyValueStatus' has been explicitly marked deprecated here
-17 | 	AVKeyValueStatusUnknown = 0,
-18 | 	AVKeyValueStatusLoading = 1,
-/Users/runner/.pub-cache/hosted/pub.dev/location-5.0.3/ios/Classes/LocationPlugin.m:122:28: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
-^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:758:37: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
-(data.status != BookingStatus.cancelled)) ...[
-^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:773:44: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
-data.status == BookingStatus.pending) ...[
-^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:832:44: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
-data.status == BookingStatus.accepted &&
-^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:833:51: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingPaymentStatus'.
-data.paymentStatus == BookingPaymentStatus.paid) ...[
-^^^^^^^^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:875:65: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingPaymentStatus'.
-data.paymentStatus == BookingPaymentStatus.paid &&
-^^^^^^^^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:896:48: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
-if (data.status == BookingStatus.negotiated &&
-^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:917:48: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
-if (data.status == BookingStatus.accepted) ...[
-^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:926:65: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingPaymentStatus'.
-text: data.paymentStatus == BookingPaymentStatus.unpaid
-^^^^^^^^^^^^^^^^^^^^
-lib/view/modules/bookings/booking_details_view.dart:930:65: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
-- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
-'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
+import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:flutter/material.dart';
@@ -152,22 +67,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       final networkService = NetworkService();
       await networkService.tokenInterceptor.initToken();
 
-      final storage = inject.get<SecureStorageBase>();
-      final token = await storage.readData(PrefKeys.token);
-
-      log("STARTUP CHECK - Token read from secure storage: ${token.isNotEmpty ? 'SUCCESS (length: ${token.length})' : 'EMPTY'}");
-
-      if (token.isEmpty) {
-        SharedPrefManager.isLoggedIn = false;
-        log('No auth token found in secure storage on startup');
-      } else {
-        SharedPrefManager.isLoggedIn = true;
-      }
-
       log('Auth token initialized in interceptor');
     } catch (e) {
       log('Error preloading auth token: $e');
-      SharedPrefManager.isLoggedIn = false;
     }
   }
 
@@ -186,86 +88,57 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       _initializeMixpanel();
       _appLinksDeepLink.onDeepLink = _handleDeepLink;
       _appLinksDeepLink.initDeepLinks();
-      ref.read(pusherInitializationProvider);
-      ref.read(oneSignalpushNotificationProvider).init();
-      ref.read(bookingWatcherProvider);
     });
   }
 
   /// Called by [AppLinksDeepLink] whenever a deep link is received.
   ///
-  /// Handles URI formats:
-  ///  - Universal Link:  https://creatifyapp.com/profile/[CODE]?job_id=[ID] or https://creatifyapp.com/job/[ID]
-  ///  - Custom scheme:   creatify://profile/[CODE] or creatify://job/[ID]  (simulator / local testing)
+  /// Handles two URI formats:
+  ///  - Universal Link:  https://creatifyapp.com/profile/[CODE]
+  ///  - Custom scheme:   creatify://profile/[CODE]  (simulator / local testing)
   void _handleDeepLink(Uri uri) {
     String? profileId;
-    String? jobId;
 
     if (uri.scheme == 'https' && uri.host == 'creatifyapp.com') {
+      // https://creatifyapp.com/profile/CODE
       final segments = uri.pathSegments;
       if (segments.length >= 2 && segments[0] == 'profile') {
         profileId = segments[1];
-        jobId = uri.queryParameters['job_id'];
-      } else if (segments.length >= 2 && (segments[0] == 'job' || segments[0] == 'jobs')) {
-        jobId = segments[1];
       }
-    } else if (uri.scheme == 'creatify') {
-      if (uri.host == 'profile') {
-        profileId = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
-        jobId = uri.queryParameters['job_id'];
-      } else if (uri.host == 'job' || uri.host == 'jobs') {
-        jobId = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
-      }
+    } else if (uri.scheme == 'creatify' && uri.host == 'profile') {
+      // creatify://profile/CODE
+      profileId = uri.pathSegments.isNotEmpty ? uri.pathSegments[0] : null;
     }
 
-    if ((profileId == null || profileId.isEmpty) && (jobId == null || jobId.isEmpty)) return;
+    if (profileId == null || profileId.isEmpty) return;
 
+    // Debounce: on cold start, uriLinkStream can echo the same URI that
+    // getInitialLink() already returned (within milliseconds). Drop any
+    // duplicate that arrives within 500 ms.
     final now = DateTime.now().millisecondsSinceEpoch;
     if (now - _lastDeepLinkMs < 500) return;
     _lastDeepLinkMs = now;
 
+    // New link — reset the guard so navigation fires exactly once for it.
     _navigatingForDeepLink = false;
-    if (jobId != null && jobId.isNotEmpty) {
-      ref.read(pendingJobDeepLinkProvider.notifier).state = jobId;
-      ref.read(pendingDeepLinkProvider.notifier).state = null;
-    } else if (profileId != null && profileId.isNotEmpty) {
-      ref.read(pendingDeepLinkProvider.notifier).state = profileId;
-      ref.read(pendingJobDeepLinkProvider.notifier).state = null;
-    }
+    ref.read(pendingDeepLinkProvider.notifier).state = profileId;
 
     final isLoading = ref.read(isLoadingUserProvider);
     if (!isLoading) _navigateForDeepLink();
+    // If user is still loading from storage, the ref.listen in build() handles it.
   }
 
+  /// Switches to the Search Talents tab (logged-in) or pushes the view (guest).
+  /// The [_navigatingForDeepLink] flag ensures this runs at most once per link.
   void _navigateForDeepLink() {
     if (_navigatingForDeepLink) return;
     _navigatingForDeepLink = true;
 
-    final pendingJob = ref.read(pendingJobDeepLinkProvider);
-    final pendingProfile = ref.read(pendingDeepLinkProvider);
-
-    if (pendingJob != null && pendingJob.isNotEmpty) {
-      ref.read(pendingJobDeepLinkProvider.notifier).state = null;
-      _navigateToJobAdvert(pendingJob);
-    } else if (pendingProfile != null && pendingProfile.isNotEmpty) {
-      ref.read(pendingDeepLinkProvider.notifier).state = null;
-      _navigateToRecruiterProfile(pendingProfile);
-    }
-  }
-
-  void _navigateToRecruiterProfile(String profileId) {
-    NavigationService.instance.push(FetchedRecruiterProfileView(
-      creatorId: profileId,
-      creatorName: 'Recruiter',
-    ));
-  }
-
-  void _navigateToJobAdvert(String jobId) async {
-    final job = await ref.read(jobControllerProvider.notifier).getJobById(jobId);
-    if (job != null) {
-      NavigationService.instance.push(JobDetailView(job: job));
+    final user = ref.read(userControllerProvider);
+    if (user.id != null) {
+      ref.read(navBarController.notifier).index = 1;
     } else {
-      NavigationService.instance.push(JobDetailView(job: JobDto(id: jobId)));
+      NavigationService.instance.push(const SearchTalentsView());
     }
   }
 
@@ -296,9 +169,6 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
         log('App Resumed'.toUpperCase());
         // Ensure Pusher reconnects if needed
         _ensurePusherReconnection();
-        ref.invalidate(fetchReceivedBookingsProvider);
-        ref.invalidate(fetchSentBookingsProvider);
-        ref.invalidate(fetchNotificationsProvider);
       case AppLifecycleState.inactive:
         appState();
         log('App Inactive'.toUpperCase());
@@ -386,11 +256,8 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     // perform the navigation that _handleDeepLink deferred.
     ref.listen(isLoadingUserProvider, (prev, isLoading) {
       if (prev == true && isLoading == false) {
-        ref.read(pusherInitializationProvider);
-        ref.read(bookingWatcherProvider);
         final pendingCode = ref.read(pendingDeepLinkProvider);
-        final pendingJob = ref.read(pendingJobDeepLinkProvider);
-        if (pendingCode != null || pendingJob != null) _navigateForDeepLink();
+        if (pendingCode != null) _navigateForDeepLink();
       }
     });
 
@@ -417,9 +284,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
               child: MaterialApp(
                 title: "Creatify",
                 navigatorKey: NavigationService.instance.navigatorKey,
-                navigatorObservers: [routeObserver],
                 debugShowCheckedModeBanner: false,
                 theme: themeData(),
+                key: navigatorKey,
                 home: _getHomeScreen(user, isLoadingUser),
                 builder: (context, child) {
                   return MediaQuery(
