@@ -23,7 +23,81 @@ import 'package:creatify_mobile/view/modules/jobs/vm/job_controller.dart';
 import 'package:creatify_mobile/view/modules/onboarding/onboarding_view.dart';
 import 'package:creatify_mobile/view/modules/search-talents/search_talents_view.dart';
 import 'package:creatify_mobile/view/modules/tab-bar/tab_bar_view.dart';
-import 'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
+import Failed to build iOS app
+Error output from Xcode build:
+↳
+** ARCHIVE FAILED **
+Xcode's output:
+↳
+Writing result bundle at path:
+/var/folders/q2/p1t6rgxj5fj32g1dc7dmd49r0000gn/T/flutter_tools.yPCMEj/flutter_ios_build_temp_dir8MgEun/temporary_xcresult_bundle
+/Users/runner/work/qwertyuiop/qwertyuiop/ios/Pods/Pods.xcodeproj: video_compress: ld: warning: search path '/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.6.109.0.sTu0HD/Metal.xctoolchain/usr/lib/swift/iphoneos' not found
+<module-includes>:2:9: note: in file included from <module-includes>:2:
+1 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/AVAssetTrackUtils.h"
+2 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPAVFactory.h"
+|         `- note: in file included from <module-includes>:2:
+3 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPAssetProvider.h"
+4 | #import "/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPDisplayLink.h"
+1 warning generated.
+/Users/runner/work/qwertyuiop/qwertyuiop/ios/Flutter/ephemeral/Packages/.packages/video_player_avfoundation-2.11.0/Sources/video_player_avfoundation_objc/include/video_player_avfoundation_objc/FVPAVFactory.h:38:4: warning: 'AVKeyValueStatus' is deprecated: first deprecated in iOS 16.0 - Use AVAsyncProperty.Status instead
+36 |
+37 | /// Wraps the underlying asset's statusOfValueForKey:error: method.
+38 | - (AVKeyValueStatus)statusOfValueForKey:(NSString *)key
+|    `- warning: 'AVKeyValueStatus' is deprecated: first deprecated in iOS 16.0 - Use AVAsyncProperty.Status instead
+39 |                                   error:(NSError *_Nullable *_Nullable)outError;
+40 |
+/Applications/Xcode_26.6.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.5.sdk/System/Library/Frameworks/AVFoundation.framework/Headers/AVAsynchronousKeyValueLoading.h:16:28: note: 'AVKeyValueStatus' has been explicitly marked deprecated here
+14 | NS_ASSUME_NONNULL_BEGIN
+15 |
+16 | typedef NS_ENUM(NSInteger, AVKeyValueStatus) {
+|                            `- note: 'AVKeyValueStatus' has been explicitly marked deprecated here
+17 | 	AVKeyValueStatusUnknown = 0,
+18 | 	AVKeyValueStatusLoading = 1,
+/Users/runner/.pub-cache/hosted/pub.dev/location-5.0.3/ios/Classes/LocationPlugin.m:122:28: warning: 'authorizationStatus' is deprecated: first deprecated in iOS 14.0 [-Wdeprecated-declarations]
+^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:758:37: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
+(data.status != BookingStatus.cancelled)) ...[
+^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:773:44: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
+data.status == BookingStatus.pending) ...[
+^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:832:44: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
+data.status == BookingStatus.accepted &&
+^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:833:51: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingPaymentStatus'.
+data.paymentStatus == BookingPaymentStatus.paid) ...[
+^^^^^^^^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:875:65: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingPaymentStatus'.
+data.paymentStatus == BookingPaymentStatus.paid &&
+^^^^^^^^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:896:48: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
+if (data.status == BookingStatus.negotiated &&
+^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:917:48: Error: The getter 'BookingStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingStatus'.
+if (data.status == BookingStatus.accepted) ...[
+^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:926:65: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'BookingPaymentStatus'.
+text: data.paymentStatus == BookingPaymentStatus.unpaid
+^^^^^^^^^^^^^^^^^^^^
+lib/view/modules/bookings/booking_details_view.dart:930:65: Error: The getter 'BookingPaymentStatus' isn't defined for the type '_BookingDetailsViewState'.
+- '_BookingDetailsViewState' is from 'package:creatify_mobile/view/modules/bookings/booking_details_view.dart' ('lib/view/modules/bookings/booking_details_view.dart').
+'package:creatify_mobile/view/modules/tab-bar/vm/tab_controller.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:flutter/material.dart';
