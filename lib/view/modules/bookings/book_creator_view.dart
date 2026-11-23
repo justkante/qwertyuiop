@@ -693,6 +693,28 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         ? '${utcDt.hour.toString().padLeft(2, '0')}:${utcDt.minute.toString().padLeft(2, '0')}'
                         : null;
 
+                    final userData = ref.read(userControllerProvider);
+                    final userCurrency = (userData.primaryCurrency ?? 'ngn').toLowerCase();
+                    
+                    num priceInNgn = totalBudget;
+                    if (userCurrency == 'gbp') {
+                      priceInNgn = totalBudget / 0.00056;
+                    } else if (userCurrency == 'usd') {
+                      priceInNgn = totalBudget / 0.00067;
+                    } else if (userCurrency == 'eur') {
+                      priceInNgn = totalBudget / 0.00062;
+                    } else if (userCurrency == 'cad') {
+                      priceInNgn = totalBudget / 0.00095;
+                    } else if (userCurrency == 'aud') {
+                      priceInNgn = totalBudget / 0.0010;
+                    } else if (userCurrency == 'ghs') {
+                      priceInNgn = totalBudget / 0.0083;
+                    } else if (userCurrency == 'kes') {
+                      priceInNgn = totalBudget / 0.087;
+                    } else if (userCurrency == 'zar') {
+                      priceInNgn = totalBudget / 0.012;
+                    }
+
                     // Send booking request to backend (no payment required at initial request)
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
@@ -705,7 +727,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: $endDateStr\nDuration: $durationStr\n\n${projectDescriptionController.text}",
                         location: locationController.text,
                         workMode: workModeController.text.toLowerCase(),
-                        price: totalBudget,
+                        price: priceInNgn,
                         bookingType: selectedBookingType == 'Deliverable Based' ? 'deliverable-based' : 'time-based',
                         startTime: utcStartTime,
                         duration: durationStr,
