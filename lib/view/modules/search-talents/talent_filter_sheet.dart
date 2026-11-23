@@ -659,8 +659,8 @@ class _TalentFilterSheetState extends ConsumerState<TalentFilterSheet> {
 
     setState(() {
       selectedCategories.clear();
-      amountRange = const RangeValues(minAmount, maxAmount);
-      internationalAmountRange = const RangeValues(minInternationalAmount, maxAmount);
+      amountRange = RangeValues(minAmount, maxAmount);
+      internationalAmountRange = RangeValues(minInternationalAmount, maxAmount);
       locationController.text = '';
       selectedRating = null;
       selectedAvailability = null;
