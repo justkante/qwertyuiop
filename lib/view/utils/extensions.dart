@@ -52,11 +52,40 @@ extension Amount on dynamic {
       'idr': 'Rp',
       'myr': 'RM',
       'thb': '฿',
-      'aed': 'AED',
+      'aed': 'د.إ',
     };
-    final currencySymbol = currencySymbols[symbol.toLowerCase()] ?? '';
-    var formatter = NumberFormat.currency(symbol: currencySymbol, decimalDigits: 2);
-    return formatter.format(this);
+
+    const nGNtoCurrencyRates = {
+      'ngn': 1.0,
+      'usd': 0.00067,
+      'gbp': 0.00056,
+      'eur': 0.00062,
+      'cad': 0.00095,
+      'aud': 0.0010,
+      'ghs': 0.0083,
+      'kes': 0.087,
+      'zar': 0.012,
+      'sgd': 0.00090,
+      'aed': 0.0024,
+    };
+
+    final sym = symbol.toLowerCase();
+    final currencySymbol = currencySymbols[sym] ?? '';
+    
+    final double rawValue = (this is String)
+        ? double.tryParse(this) ?? 0.0
+        : (this is num)
+            ? this.toDouble()
+            : 0.0;
+
+    final rate = nGNtoCurrencyRates[sym] ?? 1.0;
+    final convertedValue = rawValue * rate;
+
+    var formatter = NumberFormat.currency(
+      symbol: currencySymbol, 
+      decimalDigits: sym == 'ngn' ? 0 : 2,
+    );
+    return formatter.format(convertedValue);
   }
 }
 
