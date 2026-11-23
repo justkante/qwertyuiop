@@ -457,7 +457,7 @@ class _TransactionFilterSheetState extends ConsumerState<TransactionFilterSheet>
     setState(() {
       selectedCategory = '';
       selectedStatus = '';
-      amountRange = const RangeValues(minAmount, maxAmount);
+      amountRange = RangeValues(minAmount, maxAmount);
       startDate = null;
       endDate = null;
       startDateController.clear();
