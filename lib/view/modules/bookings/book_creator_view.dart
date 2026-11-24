@@ -693,25 +693,24 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         ? '${utcDt.hour.toString().padLeft(2, '0')}:${utcDt.minute.toString().padLeft(2, '0')}'
                         : null;
 
-                    final userData = ref.read(userControllerProvider);
-                    final userCurrency = (userData.primaryCurrency ?? 'ngn').toLowerCase();
+                    final currencyCode = userCurrency.toLowerCase();
                     
                     num priceInNgn = totalBudget;
-                    if (userCurrency == 'gbp') {
+                    if (currencyCode == 'gbp') {
                       priceInNgn = totalBudget / 0.00056;
-                    } else if (userCurrency == 'usd') {
+                    } else if (currencyCode == 'usd') {
                       priceInNgn = totalBudget / 0.00067;
-                    } else if (userCurrency == 'eur') {
+                    } else if (currencyCode == 'eur') {
                       priceInNgn = totalBudget / 0.00062;
-                    } else if (userCurrency == 'cad') {
+                    } else if (currencyCode == 'cad') {
                       priceInNgn = totalBudget / 0.00095;
-                    } else if (userCurrency == 'aud') {
+                    } else if (currencyCode == 'aud') {
                       priceInNgn = totalBudget / 0.0010;
-                    } else if (userCurrency == 'ghs') {
+                    } else if (currencyCode == 'ghs') {
                       priceInNgn = totalBudget / 0.0083;
-                    } else if (userCurrency == 'kes') {
+                    } else if (currencyCode == 'kes') {
                       priceInNgn = totalBudget / 0.087;
-                    } else if (userCurrency == 'zar') {
+                    } else if (currencyCode == 'zar') {
                       priceInNgn = totalBudget / 0.012;
                     }
 
