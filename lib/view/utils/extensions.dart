@@ -441,7 +441,7 @@ extension DateExtension on DateTime {
 }
 
 extension TimeStringExtension on String {
-  // Helper function to get date time from this format: "08:00:00"(24 hour) to this format: 12:00PM
+  // Helper function to get date time from UTC time string to local device timezone
   String toBookingTime() {
     try {
       final timeParts = split(':');
@@ -449,17 +449,22 @@ extension TimeStringExtension on String {
 
       int hour = int.parse(timeParts[0]);
       int minute = int.parse(timeParts[1]);
-      final period = hour >= 12 ? 'PM' : 'AM';
+      int second = timeParts.length > 2 ? int.parse(timeParts[2].split('.')[0]) : 0;
 
-      // Convert 24-hour format to 12-hour format
-      final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+      final now = DateTime.now().toUtc();
+      final utcDt = DateTime.utc(now.year, now.month, now.day, hour, minute, second);
+      final localDt = utcDt.toLocal();
 
-      // Add leading zero to minutes if needed
-      final displayMinute = minute.toString().padLeft(2, '0');
+      int localHour = localDt.hour;
+      int localMinute = localDt.minute;
+      final period = localHour >= 12 ? 'PM' : 'AM';
+
+      final displayHour = localHour > 12 ? localHour - 12 : (localHour == 0 ? 12 : localHour);
+      final displayMinute = localMinute.toString().padLeft(2, '0');
 
       return '$displayHour:$displayMinute$period';
     } catch (e) {
-      return this; // Return original string if parsing fails
+      return this;
     }
   }
 }
