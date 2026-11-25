@@ -1,5 +1,4 @@
 import 'package:creatify_mobile/data/models/responses/creator_availabiity_dto.dart';
-import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/onboarding/widgets/search_input_field.dart';
 import 'package:creatify_mobile/view/modules/showcase-talents/vm/creator_providers.dart';
@@ -13,13 +12,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class StateSheet extends ConsumerStatefulWidget {
-  final CreatorProfileDto? creatorProfile;
-  final bool isOnSiteBooking;
-  const StateSheet({
-    super.key,
-    this.creatorProfile,
-    this.isOnSiteBooking = false,
-  });
+  final dynamic creatorProfile;
+  final bool? isOnSiteBooking;
+  const StateSheet({super.key, this.creatorProfile, this.isOnSiteBooking});
 
   @override
   ConsumerState<StateSheet> createState() => _BankSheetState();
@@ -27,7 +22,60 @@ class StateSheet extends ConsumerStatefulWidget {
 
 class _BankSheetState extends ConsumerState<StateSheet> {
   final searchController = TextEditingController();
+
   String _searchQuery = '';
+
+  static final List<StatesItemDto> _globalCitiesFallback = [
+    // Nigeria
+    StatesItemDto(id: 'Lagos, Nigeria', name: 'Lagos, Nigeria'),
+    StatesItemDto(id: 'Abuja, Nigeria', name: 'Abuja, Nigeria'),
+    StatesItemDto(id: 'Port Harcourt, Nigeria', name: 'Port Harcourt, Nigeria'),
+    StatesItemDto(id: 'Ibadan, Nigeria', name: 'Ibadan, Nigeria'),
+    StatesItemDto(id: 'Kano, Nigeria', name: 'Kano, Nigeria'),
+    StatesItemDto(id: 'Enugu, Nigeria', name: 'Enugu, Nigeria'),
+    // United Kingdom
+    StatesItemDto(id: 'London, United Kingdom', name: 'London, United Kingdom'),
+    StatesItemDto(id: 'Manchester, United Kingdom', name: 'Manchester, United Kingdom'),
+    StatesItemDto(id: 'Birmingham, United Kingdom', name: 'Birmingham, United Kingdom'),
+    StatesItemDto(id: 'Edinburgh, United Kingdom', name: 'Edinburgh, United Kingdom'),
+    StatesItemDto(id: 'Glasgow, United Kingdom', name: 'Glasgow, United Kingdom'),
+    StatesItemDto(id: 'Cambridge, United Kingdom', name: 'Cambridge, United Kingdom'),
+    StatesItemDto(id: 'Oxford, United Kingdom', name: 'Oxford, United Kingdom'),
+    StatesItemDto(id: 'Bristol, United Kingdom', name: 'Bristol, United Kingdom'),
+    // Brazil
+    StatesItemDto(id: 'São Paulo, Brazil', name: 'São Paulo, Brazil'),
+    StatesItemDto(id: 'Rio de Janeiro, Brazil', name: 'Rio de Janeiro, Brazil'),
+    StatesItemDto(id: 'Brasília, Brazil', name: 'Brasília, Brazil'),
+    StatesItemDto(id: 'Salvador, Brazil', name: 'Salvador, Brazil'),
+    StatesItemDto(id: 'Fortaleza, Brazil', name: 'Fortaleza, Brazil'),
+    StatesItemDto(id: 'Belo Horizonte, Brazil', name: 'Belo Horizonte, Brazil'),
+    StatesItemDto(id: 'Curitiba, Brazil', name: 'Curitiba, Brazil'),
+    StatesItemDto(id: 'Manaus, Brazil', name: 'Manaus, Brazil'),
+    StatesItemDto(id: 'Recife, Brazil', name: 'Recife, Brazil'),
+    StatesItemDto(id: 'Porto Alegre, Brazil', name: 'Porto Alegre, Brazil'),
+    // USA
+    StatesItemDto(id: 'New York, USA', name: 'New York, USA'),
+    StatesItemDto(id: 'Los Angeles, USA', name: 'Los Angeles, USA'),
+    StatesItemDto(id: 'Chicago, USA', name: 'Chicago, USA'),
+    StatesItemDto(id: 'Houston, USA', name: 'Houston, USA'),
+    StatesItemDto(id: 'Miami, USA', name: 'Miami, USA'),
+    // Canada
+    StatesItemDto(id: 'Toronto, Canada', name: 'Toronto, Canada'),
+    StatesItemDto(id: 'Vancouver, Canada', name: 'Vancouver, Canada'),
+    StatesItemDto(id: 'Montreal, Canada', name: 'Montreal, Canada'),
+    // Ghana
+    StatesItemDto(id: 'Accra, Ghana', name: 'Accra, Ghana'),
+    StatesItemDto(id: 'Kumasi, Ghana', name: 'Kumasi, Ghana'),
+    // Kenya
+    StatesItemDto(id: 'Nairobi, Kenya', name: 'Nairobi, Kenya'),
+    StatesItemDto(id: 'Mombasa, Kenya', name: 'Mombasa, Kenya'),
+    // South Africa
+    StatesItemDto(id: 'Johannesburg, South Africa', name: 'Johannesburg, South Africa'),
+    StatesItemDto(id: 'Cape Town, South Africa', name: 'Cape Town, South Africa'),
+    // UAE
+    StatesItemDto(id: 'Dubai, UAE', name: 'Dubai, UAE'),
+    StatesItemDto(id: 'Abu Dhabi, UAE', name: 'Abu Dhabi, UAE'),
+  ];
 
   void _onSearchChanged() {
     setState(() {
@@ -48,185 +96,85 @@ class _BankSheetState extends ConsumerState<StateSheet> {
     super.dispose();
   }
 
-  static const Map<String, String> _countryCodeToName = {
-    'NG': 'Nigeria',
-    'GB': 'United Kingdom',
-    'US': 'United States',
-    'CA': 'Canada',
-    'GH': 'Ghana',
-    'KE': 'Kenya',
-    'ZA': 'South Africa',
-    'AE': 'UAE',
-    'DE': 'Germany',
-    'FR': 'France',
-  };
-
-  static const Map<String, List<String>> _countryStatesMap = {
-    'NG': ['Lagos', 'Abuja', 'Rivers', 'Oyo', 'Kano', 'Enugu', 'Delta', 'Kaduna', 'Edo', 'Ogun', 'Akwa Ibom', 'Anambra'],
-    'GB': ['London', 'Manchester', 'Birmingham', 'Edinburgh', 'Glasgow', 'Leeds', 'Liverpool', 'Bristol', 'Oxford', 'Cambridge'],
-    'US': ['New York', 'California', 'Texas', 'Florida', 'Illinois', 'Georgia', 'Washington', 'Nevada', 'Massachusetts'],
-    'CA': ['Toronto', 'Vancouver', 'Montreal', 'Calgary', 'Ottawa'],
-    'GH': ['Accra', 'Kumasi', 'Tamale', 'Takoradi'],
-    'KE': ['Nairobi', 'Mombasa', 'Kisumu', 'Nakuru'],
-    'ZA': ['Johannesburg', 'Cape Town', 'Durban', 'Pretoria'],
-    'AE': ['Dubai', 'Abu Dhabi', 'Sharjah'],
-    'DE': ['Berlin', 'Munich', 'Frankfurt', 'Hamburg'],
-    'FR': ['Paris', 'Lyon', 'Marseille'],
-  };
-
-  String _cleanCityName(String? raw) {
-    if (raw == null || raw.isEmpty) return '';
-    if (raw.contains(',')) {
-      return raw.split(',').first.trim();
-    }
-    return raw.trim();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final userData = ref.watch(userControllerProvider);
-    final statesAsync = ref.watch(fetchStatesProvider);
+    final getStatesList = ref.watch(fetchStatesProvider);
 
-    return statesAsync.when(
-      data: (apiStates) {
-        final Map<String, StatesItemDto> uniqueStatesMap = {};
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.7,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          12.0.height,
 
-        void addUniqueState(String? name, {String? id}) {
-          if (name == null || name.trim().isEmpty) return;
-          final key = name.trim().toLowerCase();
-          if (!uniqueStatesMap.containsKey(key)) {
-            uniqueStatesMap[key] = StatesItemDto(
-              id: id ?? name.trim(),
-              name: name.trim(),
-            );
-          }
-        }
-
-        final List<StatesItemDto> topSuggested = [];
-
-        // 1. Add Creator's specific location
-        if (widget.creatorProfile?.location != null && widget.creatorProfile!.location!.isNotEmpty) {
-          final creatorLoc = widget.creatorProfile!.location!.trim();
-          topSuggested.add(StatesItemDto(
-            id: 'creator_loc',
-            name: '$creatorLoc (Creator\'s Location)',
-          ));
-          addUniqueState(creatorLoc);
-        }
-
-        // 2. Add Creator's Country States / Cities
-        final creatorCountryCode = (widget.creatorProfile?.countryCode ?? '').toUpperCase();
-        final creatorCountryName = _countryCodeToName[creatorCountryCode] ?? creatorCountryCode;
-        final creatorCities = _countryStatesMap[creatorCountryCode] ?? [];
-        for (var city in creatorCities) {
-          final fullName = creatorCountryName.isNotEmpty ? '$city, $creatorCountryName' : city;
-          addUniqueState(fullName);
-        }
-
-        // 3. Add Recruiter's Country States / Cities
-        final recruiterCountryCode = (userData.countryCode ?? '').toUpperCase();
-        final recruiterCountryName = _countryCodeToName[recruiterCountryCode] ?? recruiterCountryCode;
-        final recruiterCities = _countryStatesMap[recruiterCountryCode] ?? [];
-        for (var city in recruiterCities) {
-          final fullName = recruiterCountryName.isNotEmpty ? '$city, $recruiterCountryName' : city;
-          addUniqueState(fullName);
-        }
-
-        if (recruiterCountryName.isNotEmpty) {
-          topSuggested.add(StatesItemDto(
-            id: 'recruiter_loc',
-            name: '$recruiterCountryName (Recruiter\'s Country)',
-          ));
-          addUniqueState(recruiterCountryName);
-        }
-
-        // 4. Add API states & de-duplicate
-        for (var s in apiStates) {
-          addUniqueState(s.name, id: s.id);
-        }
-
-        List<StatesItemDto> countryStates = uniqueStatesMap.values.toList();
-
-        if (_searchQuery.isNotEmpty) {
-          countryStates = countryStates
-              .where((state) => (state.name ?? '').toLowerCase().contains(_searchQuery))
-              .toList();
-        } else if (topSuggested.isNotEmpty) {
-          // Prepend top suggested location headers
-          for (var item in topSuggested.reversed) {
-            countryStates.removeWhere((e) => e.name?.toLowerCase() == item.name?.toLowerCase());
-            countryStates.insert(0, item);
-          }
-        }
-
-        countryStates.sort((a, b) {
-          if (a.id == 'creator_loc' || a.id == 'recruiter_loc') return -1;
-          if (b.id == 'creator_loc' || b.id == 'recruiter_loc') return 1;
-          return (a.name ?? '').compareTo(b.name ?? '');
-        });
-
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.7,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          // Title
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              12.0.height,
-              // Title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Choose a Location',
-                    style: context.textTheme.headlineSmall?.copyWith(fontSize: 18),
-                  ),
-                  6.0.width,
-                  SvgPicture.asset(
-                    AppImages.bank,
-                    width: 24,
-                    height: 24,
-                  ),
-                ],
+              Text(
+                'Choose a Location',
+                style: context.textTheme.headlineSmall?.copyWith(fontSize: 18),
               ),
-              20.0.height,
-              Expanded(
-                child: Column(
-                  children: [
-                    // Search Field
-                    SearchTextInputField(
-                      hintText: 'Search location',
-                      controller: searchController,
-                    ),
-                    12.0.height,
-                    Expanded(
-                      child: _buildStateList(countryStates),
-                    ),
-                  ],
+              6.0.width,
+              SvgPicture.asset(
+                AppImages.bank,
+                width: 24,
+                height: 24,
+              ),
+            ],
+          ),
+
+          20.0.height,
+          Expanded(
+            child: Column(
+              children: [
+                // Search Field
+                SearchTextInputField(
+                  hintText: 'Search location',
+                  controller: searchController,
                 ),
-              ),
-            ],
+                12.0.height,
+                Expanded(
+                  child: getStatesList.when(
+                    data: (states) {
+                      final combinedList = [...states, ..._globalCitiesFallback];
+                      final uniqueMap = <String, StatesItemDto>{};
+                      for (var item in combinedList) {
+                        if (item.name != null && item.name!.isNotEmpty && item.name!.contains(',')) {
+                          uniqueMap[item.name!.toLowerCase()] = item;
+                        }
+                      }
+                      var filteredStates = uniqueMap.values
+                          .where((state) => state.name != null && state.name!.contains(',') && state.name!.toLowerCase().contains(_searchQuery))
+                          .toList();
+
+                      final userData = ref.watch(userControllerProvider);
+                      final userCountryCode = (userData.countryCode ?? 'NG').toUpperCase();
+
+                      // If no search query typed, include both user's country and international destinations clearly formatted with commas
+                      if (_searchQuery.isEmpty) {
+                        filteredStates = filteredStates.where((s) {
+                          final n = (s.name ?? '').toLowerCase();
+                          return n.contains(',') && (n.contains('nigeria') || n.contains('lagos') || n.contains('abuja') || n.contains('united kingdom') || n.contains('london') || n.contains('cambridge') || n.contains('manchester') || n.contains('usa') || n.contains('canada') || n.contains('ghana') || n.contains('kenya') || n.contains('south africa') || n.contains('dubai'));
+                        }).toList();
+                      }
+
+                      filteredStates.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+
+                      return _buildStateList(filteredStates);
+                    },
+                    error: (_, __) => _buildStateList(
+                      _globalCitiesFallback
+                          .where((s) => s.name != null && s.name!.contains(',') && s.name!.toLowerCase().contains(_searchQuery))
+                          .toList(),
+                    ),
+                    loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+                  ),
+                ),
+              ],
+            ),
           ),
-        );
-      },
-      loading: () => SizedBox(
-        height: 300,
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const CircularProgressIndicator.adaptive(
-                valueColor: AlwaysStoppedAnimation(AppColors.primary),
-              ),
-              12.0.height,
-              const Text('Loading Locations...'),
-            ],
-          ),
-        ),
-      ),
-      error: (err, _) => SizedBox(
-        height: 300,
-        child: Center(
-          child: Text('Error loading locations: $err'),
-        ),
+        ],
       ),
     );
   }
@@ -245,8 +193,8 @@ class _BankSheetState extends ConsumerState<StateSheet> {
               12.0.height,
               Text(
                 customName.isNotEmpty
-                    ? 'No matching states found.'
-                    : 'Search or type your city or state',
+                    ? 'No matching predefined locations.'
+                    : 'Search or type your city and country (e.g. Cambridge, United Kingdom)',
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Color(0xFF1B3131)),
               ),
@@ -254,7 +202,7 @@ class _BankSheetState extends ConsumerState<StateSheet> {
               if (customName.isNotEmpty)
                 ElevatedButton.icon(
                   onPressed: () {
-                    context.pop(StatesItemDto(id: customName, name: customName));
+                    context.pop(StatesItemDto(name: customName, id: customName));
                   },
                   icon: const Icon(Icons.check, size: 18, color: Colors.white),
                   label: Text('Select "$customName"', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -279,20 +227,17 @@ class _BankSheetState extends ConsumerState<StateSheet> {
         separatorBuilder: (_, __) => const Divider(height: 1, color: AppColors.grey100),
         itemBuilder: (context, index) {
           final state = filteredStates[index];
-          final displayName = state.name ?? '';
 
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             title: Text(
-              displayName,
+              state.name ?? '',
               style: context.textTheme.bodyMedium?.copyWith(
                 color: AppColors.subHeading,
               ),
             ),
             onTap: () {
-              final rawName = state.name ?? '';
-              final cleanName = rawName.replaceAll(RegExp(r'\s*\((Creator|Recruiter).*?\)$'), '').trim();
-              context.pop(StatesItemDto(id: state.id ?? cleanName, name: cleanName));
+              context.pop(state);
             },
           );
         },

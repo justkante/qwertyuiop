@@ -684,9 +684,14 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     final localDate = selectedStartDate?.unavailableDate ?? DateTime.now();
                     final localHour = selectedStartTime?.hour ?? 0;
                     final localMinute = selectedStartTime?.minute ?? 0;
+                    final selectedLocalDt = DateTime(localDate.year, localDate.month, localDate.day, localHour, localMinute);
 
-                    final localDt = DateTime(localDate.year, localDate.month, localDate.day, localHour, localMinute);
-                    final utcDt = localDt.toUtc();
+                    if (selectedLocalDt.isBefore(DateTime.now())) {
+                      ToastDialog.showError('Cannot select a start date and time in the past', context);
+                      return;
+                    }
+
+                    final utcDt = localDate.toUtc(); // or localDt.toUtc()
 
                     final utcStartDate = DateTime(utcDt.year, utcDt.month, utcDt.day);
                     final utcStartTime = selectedStartTime != null
