@@ -34,7 +34,7 @@ class _ReceivedBookingsViewState extends ConsumerState<ReceivedBookingsView> {
       setState(() => searchQuery = searchController.text.toLowerCase());
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(fetchReceivedBookingsProvider);
+      ref.read(fetchReceivedBookingsProvider);
     });
   }
 
