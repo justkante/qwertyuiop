@@ -1134,10 +1134,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                             (selectedTypeOfBooking == 'time-based'
                                 ? int.parse(durationController.text) <= 24
                                 : true) &&
-                            (selectedStartDate != null &&
-                                (selectedTypeOfBooking == 'time-based' ||
-                                    !selectedStartDate!.unavailableDate!
-                                        .isAtSameDateAs(DateTime.now())));
+                            (selectedStartDate != null);
 
                         return MainButton(
                           text: 'Send Offer',
@@ -1145,6 +1142,19 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                           onPressed: isBookingValid && acceptTerms
                               ? () {
                                   bool isTimeBased = selectedTypeOfBooking == 'time-based';
+
+                                  DateTime effectiveStartDate = selectedStartDate?.unavailableDate ?? DateTime.now();
+                                  if (isTimeBased && selectedStartTime != null) {
+                                    final localDt = DateTime(
+                                      effectiveStartDate.year,
+                                      effectiveStartDate.month,
+                                      effectiveStartDate.day,
+                                      selectedStartTime!.hour,
+                                      selectedStartTime!.minute,
+                                    );
+                                    final utcDt = localDt.toUtc();
+                                    effectiveStartDate = DateTime(utcDt.year, utcDt.month, utcDt.day);
+                                  }
 
                                   ref
                                       .read(deliveryBasedCreatorBookingProvider.notifier)
@@ -1161,7 +1171,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                                           jobDescription: jobDescriptionController.text.trim(),
                                           creatorCategoryId: selectedNiche?.id ?? '',
                                           workMode: workModeController.text.toLowerCase().trim(),
-                                          startDate: selectedStartDate?.unavailableDate,
+                                          startDate: effectiveStartDate,
                                           startTime: isTimeBased
                                               ? selectedStartTime?.to24HourFormat()
                                               : null,
