@@ -148,11 +148,20 @@ class _BankSheetState extends ConsumerState<StateSheet> {
                           .where((state) => state.name != null && state.name!.contains(',') && state.name!.toLowerCase().contains(_searchQuery))
                           .toList();
 
-                      final userData = ref.watch(userControllerProvider);
-                      final userCountryCode = (userData.countryCode ?? 'NG').toUpperCase();
 
-                      // If no search query typed, include both user's country and international destinations clearly formatted with commas
-                      if (_searchQuery.isEmpty) {
+
+                      if (widget.isOnSiteBooking == true && widget.creatorProfile != null) {
+                        final creatorCountry = (widget.creatorProfile?.countryCode ?? '').toLowerCase();
+                        final userData = ref.watch(userControllerProvider);
+                        final recruiterCountry = (userData.countryCode ?? '').toLowerCase();
+
+                        filteredStates = filteredStates.where((s) {
+                          final name = (s.name ?? '').toLowerCase();
+                          bool matchesCreator = creatorCountry.isNotEmpty && name.contains(creatorCountry);
+                          bool matchesRecruiter = recruiterCountry.isNotEmpty && name.contains(recruiterCountry);
+                          return matchesCreator || matchesRecruiter;
+                        }).toList();
+                      } else if (_searchQuery.isEmpty) {
                         filteredStates = filteredStates.where((s) {
                           final n = (s.name ?? '').toLowerCase();
                           return n.contains(',') && (n.contains('nigeria') || n.contains('lagos') || n.contains('abuja') || n.contains('united kingdom') || n.contains('london') || n.contains('cambridge') || n.contains('manchester') || n.contains('usa') || n.contains('canada') || n.contains('ghana') || n.contains('kenya') || n.contains('south africa') || n.contains('dubai'));
