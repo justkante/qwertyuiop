@@ -1,43 +1,43 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:creatify_mobile/core/utils/constants.dart';
-import 'package:creatify_mobile/core/utils/currency_converter.dart';
 import 'package:creatify_mobile/data/models/requests/book_creator_req.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/draft_booking_item_dto.dart';
 import 'package:creatify_mobile/data/models/responses/unavailability_time_item_dto.dart';
+import 'package:creatify_mobile/data/models/responses/user_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/sheets/creator_unavailabliity_sheet.dart';
 import 'package:creatify_mobile/view/modules/bookings/request_sent_view.dart';
-import 'package:creatify_mobile/view/modules/bookings/fetched_creator_profile_view.dart';
 import 'package:creatify_mobile/view/modules/bookings/vm/delivery_based_booking_vm.dart';
+import 'package:creatify_mobile/view/modules/bookings/vm/save_draft_booking_vm.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
+import 'package:creatify_mobile/view/modules/transactions/widgets/transaction_line.dart';
 import 'package:creatify_mobile/view/modules/webview/app_webview.dart';
-import 'package:creatify_mobile/view/modules/bookings/sheets/make_payment_sheet.dart';
-import 'package:creatify_mobile/view/modules/bookings/widgets/booking_alert_popup.dart';
-import 'package:creatify_mobile/view/modules/transactions/vm/initialize_payment_vm.dart';
-import 'package:creatify_mobile/view/modules/bookings/vm/verify_payment_vm.dart';
-import 'package:creatify_mobile/view/modules/bookings/payment_successful_view.dart';
-import 'package:creatify_mobile/view/modules/transactions/vm/stripe_init.dart';
-import 'package:flutter_stripe/flutter_stripe.dart' if (dart.library.html) 'package:creatify_mobile/core/utils/stripe_stub.dart';
 
-import 'package:creatify_mobile/view/modules/home/rating/star_rating.dart';
 import 'package:creatify_mobile/view/route/navigation_service.dart';
 import 'package:creatify_mobile/view/theme/app_colors.dart';
 import 'package:creatify_mobile/view/theme/theme_extensions.dart';
 import 'package:creatify_mobile/view/utils/app_bottomsheet.dart';
+import 'package:creatify_mobile/view/utils/app_date_picker.dart';
+import 'package:creatify_mobile/view/utils/app_dropdown.dart';
 import 'package:creatify_mobile/view/utils/app_images.dart';
 import 'package:creatify_mobile/view/utils/extensions.dart';
+import 'package:creatify_mobile/view/utils/thousands_formatter.dart';
 import 'package:creatify_mobile/view/utils/validator.dart';
 import 'package:creatify_mobile/view/widgets/buttons.dart';
+import 'package:creatify_mobile/view/widgets/input_fields.dart';
+import 'package:creatify_mobile/view/widgets/number_input_field.dart';
 import 'package:creatify_mobile/view/widgets/snackbar.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:creatify_mobile/view/modules/showcase-talents/states_sheet.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:creatify_mobile/core/services/tour_service.dart';
+import 'package:creatify_mobile/view/utils/tour/tour_keys.dart';
 
 class BookCreatorView extends ConsumerStatefulWidget {
   final CreatorProfileDto creatorProfile;
@@ -54,116 +54,235 @@ class BookCreatorView extends ConsumerStatefulWidget {
 }
 
 class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<State> nicheKey = GlobalKey();
+  final GlobalKey<State> workModeKey = GlobalKey();
+  final GlobalKey<State> unitKey = GlobalKey();
 
-  final TextEditingController projectTitleController = TextEditingController();
-  final TextEditingController projectDescriptionController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
-  final TextEditingController budgetMajorController = TextEditingController();
-  final TextEditingController budgetMinorController = TextEditingController();
+  final TextEditingController jobDescriptionController = TextEditingController();
+  final TextEditingController nicheController = TextEditingController();
+  final TextEditingController workModeController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
-  final TextEditingController endDateController = TextEditingController();
-  final TextEditingController durationNumberController = TextEditingController(text: '1');
+  final TextEditingController startTimeController = TextEditingController();
+  final TextEditingController durationController = TextEditingController();
+  final TextEditingController unitController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
 
-  num get totalBudget {
-    final major = budgetMajorController.text.trim();
-    final minor = budgetMinorController.text.trim();
-    return num.tryParse('${major.isEmpty ? '0' : major}.${minor.isEmpty ? '00' : minor}') ?? 0;
-  }
-  String selectedDurationUnit = 'Hours';
-  String paymentMethod = '';
-  String? createdBookingId;
-
-  DateTime? get calculatedEndDate {
-    if (selectedStartDate?.unavailableDate == null) return null;
-    final count = int.tryParse(durationNumberController.text.trim()) ?? 1;
-    final start = selectedStartDate!.unavailableDate!;
-    switch (selectedDurationUnit) {
-      case 'Hours':
-        return start.add(Duration(hours: count));
-      case 'Weeks':
-        return start.add(Duration(days: count * 7));
-      case 'Days':
-      default:
-        return start.add(Duration(days: count));
-    }
-  }
-
-  String? selectedProjectType;
-  String selectedBookingType = 'Deliverable Based';
+  String selectedTypeOfBooking = "";
+  Category? selectedNiche;
+  bool _isFromDraft = false;
   TimeOfDay? selectedStartTime;
   CreatorUnavailabilityItemDto? selectedStartDate;
-  CreatorUnavailabilityItemDto? selectedEndDate;
-  final List<String> projectTypes = ['UGC Video', 'Social Media Management', 'Content Creation', 'Other'];
-  List<File> attachedFiles = [];
-  final TextEditingController workModeController = TextEditingController();
-  final List<DeliverableInput> deliverableInputs = [];
+  List<Deliverable> deliverables = [];
 
-  Future<void> _pickFiles() async {
-    try {
-      if (attachedFiles.length >= 5) {
-        ToastDialog.showError('Maximum of 5 files allowed. You cannot add more attachments.', context);
-        return;
-      }
+  final TextEditingController priceController = TextEditingController();
+  final TextEditingController equivalentPriceController = TextEditingController();
 
-      final result = await FilePicker.platform.pickFiles(
-        allowMultiple: true,
-        type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+  // List to manage multiple deliverable cards
+  List<DeliverableCardData> deliverableCards = [];
+
+  // Accept Terms and Conditions
+  bool acceptTerms = false;
+
+  bool _tourStarted = false;
+  late final ShowcaseView _showcaseView;
+
+  @override
+  void initState() {
+    super.initState();
+    _showcaseView = ShowcaseView.register(
+      onFinish: () => TourService.markScreenDone(TourService.bookCreator),
+    );
+    // Initialize with one empty deliverable card
+    _addDeliverableCard();
+    _initFromDraftBooking();
+    _tourStarted = !TourService.shouldShowScreenTour(TourService.bookCreator);
+  }
+
+  void _initFromDraftBooking() {
+    final draft = widget.draftBooking;
+    if (draft == null) return;
+
+    _isFromDraft = true;
+
+    // Booking type
+    selectedTypeOfBooking = draft.bookingType ?? '';
+
+    // Category/Niche
+    if (draft.category != null) {
+      nicheController.text = draft.category!.name ?? '';
+      selectedNiche = Category(
+        id: draft.category?.id,
+        name: draft.category?.name,
       );
+    }
 
-      if (result != null && result.files.isNotEmpty) {
-        if (attachedFiles.length + result.files.length > 5) {
-          if (mounted) {
-            ToastDialog.showError(
-              'Maximum of 5 files allowed. You can only add ${5 - attachedFiles.length} more file(s).',
-              context,
-            );
-          }
-          return;
-        }
+    // Job description
+    jobDescriptionController.text = draft.jobDescription ?? '';
 
-        setState(() {
-          for (var file in result.files) {
-            if (file.path != null && attachedFiles.length < 5) {
-              attachedFiles.add(File(file.path!));
+    // Work mode (capitalize first letter since it's stored lowercase)
+    if (draft.workMode != null && draft.workMode!.isNotEmpty) {
+      workModeController.text = draft.workMode![0].toUpperCase() + draft.workMode!.substring(1);
+    }
+
+    // Start date
+    if (draft.startDate != null) {
+      startDateController.text = draft.startDate!.toFormattedDateWithYear();
+      selectedStartDate = CreatorUnavailabilityItemDto(unavailableDate: draft.startDate);
+    }
+
+    // Start time
+    if (draft.startTime != null && draft.startTime!.isNotEmpty) {
+      final parts = draft.startTime!.split(':');
+      if (parts.length >= 2) {
+        final parsedHour = int.tryParse(parts[0]);
+        final parsedMinute = int.tryParse(parts[1]);
+        if (parsedHour != null && parsedMinute != null) {
+          selectedStartTime = TimeOfDay(
+            hour: parsedHour,
+            minute: parsedMinute,
+          );
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted && selectedStartTime != null) {
+              startTimeController.text = selectedStartTime!.format(context);
             }
-          }
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ToastDialog.showError('Failed to pick file: $e', context);
+          });
+        } else {
+          log('Invalid startTime format in draft: "${draft.startTime}"');
+        }
       }
     }
+
+    // Duration and unit (stored as e.g. "2days", "3hours")
+    if (draft.duration != null && draft.duration!.isNotEmpty) {
+      final match = RegExp(r'(\d+)(\w+)').firstMatch(draft.duration!);
+      if (match != null) {
+        durationController.text = match.group(1) ?? '';
+        unitController.text = match.group(2) ?? '';
+      }
+    } else {
+      selectedTypeOfBooking == 'time-based' ? unitController.text = 'hours' : null;
+    }
+
+    // Location
+    locationController.text = draft.location ?? '';
+
+    // Price
+    if (draft.offeredPrice != null && draft.offeredPrice!.isNotEmpty) {
+      priceController.text = draft.offeredPrice!.formatDecimal();
+      final val = num.tryParse(draft.offeredPrice!.removeCommas()) ?? 0;
+      if (val != 0) {
+        final exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
+        equivalentPriceController.text = (val * exchangeRate).toString();
+      }
+    }
+
+    // Deliverables
+    if (draft.deliverables != null && draft.deliverables!.isNotEmpty) {
+      // Remove the default empty card
+      for (var card in deliverableCards) {
+        card.dispose();
+      }
+      deliverableCards.clear();
+
+      for (var deliverable in draft.deliverables!) {
+        final card = DeliverableCardData(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+        );
+        card.descriptionController.text = deliverable.description ?? '';
+        card.priceController.text = deliverable.price != null
+            ? NumberFormat.decimalPattern().format(deliverable.price)
+            : '';
+        deliverableCards.add(card);
+      }
+      _updateDeliverables();
+      _calculateTotalPrice();
+    }
+  }
+
+  void _addDeliverableCard() {
+    setState(() {
+      deliverableCards.add(
+        DeliverableCardData(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+        ),
+      );
+    });
+    _updateDeliverables();
+  }
+
+  void _removeDeliverableCard(int index) {
+    if (deliverableCards.length > 1) {
+      setState(() {
+        deliverableCards[index].dispose();
+        deliverableCards.removeAt(index);
+      });
+      _updateDeliverables();
+      _calculateTotalPrice();
+    }
+  }
+
+  void _updateDeliverables() {
+    deliverables =
+        deliverableCards.where((card) => card.isValid).map((card) => card.toDeliverable()).toList();
+  }
+
+  void _calculateTotalPrice() {
+    double totalPrice = 0.0;
+    for (var card in deliverableCards) {
+      if (card.priceController.text.trim().isNotEmpty) {
+        totalPrice += num.tryParse(card.priceController.text.replaceAll(',', '').trim()) ?? 0;
+      }
+    }
+    priceController.text = NumberFormat.decimalPattern().format(totalPrice);
+  }
+
+  bool get _canAddDeliverable {
+    if (deliverableCards.isEmpty) return false;
+    // Only allow adding new deliverable if the last (most recent) one is completed
+    return deliverableCards.last.isValid;
   }
 
   @override
   void dispose() {
-    projectTitleController.dispose();
-    projectDescriptionController.dispose();
-    locationController.dispose();
-    budgetMajorController.dispose();
-    budgetMinorController.dispose();
-    startDateController.dispose();
-    endDateController.dispose();
+    jobDescriptionController.dispose();
+    nicheController.dispose();
     workModeController.dispose();
-    durationNumberController.dispose();
-    for (var d in deliverableInputs) {
-      d.descriptionController.dispose();
-      d.priceController.dispose();
+    startDateController.dispose();
+    startTimeController.dispose();
+    durationController.dispose();
+    unitController.dispose();
+    locationController.dispose();
+    priceController.dispose();
+    equivalentPriceController.dispose();
+
+    // Dispose all deliverable card controllers
+    for (var card in deliverableCards) {
+      card.dispose();
     }
+
+    _showcaseView.unregister();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final userData = ref.watch(userControllerProvider);
+    final draftBookingLoading = ref.watch(saveDraftBookingProvider).isLoading;
     final bookingCreatorLoading = ref.watch(deliveryBasedCreatorBookingProvider).isLoading;
+
+    ref.listen(saveDraftBookingProvider, (_, value) {
+      if (value is AsyncData) {
+        context.pop();
+        ToastDialog.showSuccess('Booking has been Saved', context);
+      }
+      if (value is AsyncError) {
+        ToastDialog.showError(value.error.toString(), context);
+      }
+    });
 
     ref.listen(deliveryBasedCreatorBookingProvider, (_, value) {
       if (value is AsyncData) {
-        ToastDialog.showSuccess('Booking request sent successfully', context);
-        NavigationService.instance.pushReplacement(
+        context.pushReplacement(
           isTransparent: true,
           RequestSentView(
             creatorName: widget.creatorProfile.name,
@@ -175,584 +294,895 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
       }
     });
 
-    ref.listen(initializePaymentProvider, (_, next) async {
-      if (next is AsyncData) {
-        if (paymentMethod == 'online') {
-          if (next.value?.currency == 'NGN') {
-            NavigationService.instance.push(
-              WebviewScreen(
-                url: next.value?.authorizationUrl ?? '',
-                paymentReference: next.value?.paymentReference,
-                bookingId: createdBookingId,
-                routeName: 'Make Payment',
-              ),
-            );
-          } else {
-            await initStripePayment(
-              paymentIntent: next.value?.stripePaymentIntentId ?? '',
-              clientSecret: next.value?.clientSecret ?? '',
-              context: context,
-            ).then((_) async {
-              try {
-                await Stripe.instance.presentPaymentSheet();
-                if (context.mounted && createdBookingId != null) {
-                  ref.read(verifyPaymentProvider.notifier).verify(
-                        next.value?.paymentReference ?? '',
-                        createdBookingId!,
-                      );
-                }
-              } catch (e) {
-                log('Stripe payment cancelled or failed: $e');
-                if (context.mounted) {
-                  ToastDialog.showError('Payment cancelled or failed', context);
-                }
-              }
-            });
-          }
-        } else if (paymentMethod == 'wallet') {
-          if (next.value?.paymentReference != null && next.value!.paymentReference!.isNotEmpty && createdBookingId != null) {
-            ref.read(verifyPaymentProvider.notifier).verify(
-                  next.value!.paymentReference!,
-                  createdBookingId!,
-                );
-          } else if (createdBookingId != null) {
-            ToastDialog.showSuccess('Booking paid successfully from Wallet', context);
-            BookingAlertManager.show(context, {
-              'title': 'Booking Received',
-              'booking_id': createdBookingId,
-              'recruiter_name': ref.read(userControllerProvider).name ?? 'Recruiter',
-              'price': totalBudget.toString(),
-            });
-            NavigationService.instance.pushReplacement(
-              PaymentSuccessfulView(
-                creatorName: widget.creatorProfile.name,
-                creatorId: widget.creatorProfile.id,
-                bookingId: createdBookingId,
-              ),
-            );
-          }
-        }
-      }
-      if (next is AsyncError) {
-        if (context.mounted) {
-          ToastDialog.showError(next.error.toString(), context);
-        }
-      }
-    });
+    if (!_tourStarted) {
+      _tourStarted = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ShowcaseView.get().startShowCase([
+          TourKeys.bookingTypeSelector,
+          TourKeys.bookingFormDescription,
+          TourKeys.bookingFormDetails,
+        ]);
+      });
+    }
 
-    ref.listen(verifyPaymentProvider, (_, value) {
-      if (value is AsyncData && createdBookingId != null) {
-        BookingAlertManager.show(context, {
-          'title': 'Booking Received',
-          'booking_id': createdBookingId,
-          'recruiter_name': ref.read(userControllerProvider).name ?? 'Recruiter',
-          'price': totalBudget.toString(),
-        });
-        NavigationService.instance.pushReplacement(
-          PaymentSuccessfulView(
-            creatorName: widget.creatorProfile.name,
-            creatorId: widget.creatorProfile.id,
-            bookingId: createdBookingId,
+    return AbsorbPointer(
+      absorbing: draftBookingLoading || bookingCreatorLoading,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Book ${widget.creatorProfile.name?.split(' ').first}',
+            style: context.textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w500,
+              color: AppColors.subHeading,
+            ),
           ),
-        );
-      }
-      if (value is AsyncError) {
-        if (context.mounted) {
-          ToastDialog.showError(value.error.toString(), context);
-        }
-      }
-    });
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.chevron_left, color: Colors.black, size: 28),
-          onPressed: () {
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
-            }
-          },
         ),
-        title: const Text(
-          'Book Creator',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 18),
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Banner
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE0F2F1).withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(16),
-                ),
+              // Booking Type (Radio Buttons)
+              Showcase(
+                key: TourKeys.bookingTypeSelector,
+                description:
+                    'Select time-based for hourly/day work or deliverable-based for specific output.',
+                targetBorderRadius: BorderRadius.circular(8),
                 child: Row(
+                  spacing: 4,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFB2DFDB),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.mail_outline, color: Color(0xFF00796B), size: 24),
-                    ),
-                    16.0.width,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Send a project invite',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131)),
+                    Text(
+                      "Booking Type",
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                            color: AppColors.subHeading,
+                            fontWeight: FontWeight.w500,
                           ),
-                          Text(
-                            'Tell the creator about your project and see if they\'re available. They\'ll be notified in the app.',
-                            style: TextStyle(fontSize: 11, color: Colors.black.withOpacity(0.6)),
-                          ),
-                        ],
-                      ),
                     ),
+                    Tooltip(
+                      preferBelow: true,
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                      margin: const EdgeInsets.symmetric(horizontal: 32),
+                      decoration: BoxDecoration(
+                        color: AppColors.highlightCoral,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      message: """
+[Time-based] Payment is released 48hours after the booking duration ends.
+
+[Deliverable-based] You have 72 hours to approve each deliverable before payment is released.""",
+                      textStyle: context.textTheme.bodySmall?.copyWith(
+                        color: AppColors.white,
+                      ),
+                      showDuration: 5000.ms,
+                      triggerMode: TooltipTriggerMode.tap,
+                      child: SvgPicture.asset(
+                        AppImages.info,
+                        height: 12,
+                        width: 12,
+                      ),
+                    )
                   ],
                 ),
               ),
-              24.0.height,
+              6.0.height,
+              IgnorePointer(
+                ignoring: _isFromDraft,
+                child: Opacity(
+                  opacity: _isFromDraft ? 0.6 : 1.0,
+                  child: RadioGroup(
+                    groupValue: selectedTypeOfBooking,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedTypeOfBooking = value ?? "";
 
-              // Creator Info
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.grey200),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: widget.creatorProfile.profileImage != null
-                          ? NetworkImage(widget.creatorProfile.profileImage!)
-                          : const AssetImage(AppImages.dummyAvatar) as ImageProvider,
-                    ),
-                    16.0.width,
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.creatorProfile.name ?? 'Unknown',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          Text(
-                            widget.creatorProfile.categories?.map((e) => e.name).join(', ') ?? 'No Category',
-                            style: const TextStyle(color: Color(0xFFFF6F61), fontSize: 12),
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                '(${widget.creatorProfile.ratingsAndReviews?.totalReviews ?? 0})',
-                                style: const TextStyle(fontSize: 12, color: AppColors.body),
-                              ),
-                              4.0.width,
-                              StarRating(rating: widget.creatorProfile.ratingsAndReviews?.averageRating ?? 0.0, starCount: 5, starSize: 12),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                         NavigationService.instance.push(
-                           FetchedCreatorProfileView(
-                             creatorId: widget.creatorProfile.id ?? '',
-                             creatorName: widget.creatorProfile.name ?? 'Creator',
-                           ),
-                         );
-                      },
-                      child: Row(
-                        children: [
-                          const Text('View Profile', style: TextStyle(color: Color(0xFF00796B), fontSize: 12, fontWeight: FontWeight.bold)),
-                          4.0.width,
-                          const Icon(Icons.chevron_right, color: Color(0xFF00796B), size: 16),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              32.0.height,
-
-              const Text('Project Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1B3131))),
-              24.0.height,
-
-              // Booking Type
-              _buildLabel('Booking Type'),
-              12.0.height,
-              Row(
-                children: [
-                  _buildBookingTypeRadioButton('Deliverable Based'),
-                  24.0.width,
-                  _buildBookingTypeRadioButton('Time Based'),
-                ],
-              ),
-              20.0.height,
-
-              // Project Title
-              _buildLabel('Project Title'),
-              8.0.height,
-              _buildTextField(projectTitleController, 'e.g. Brand Shoot for Fashion Campaign'),
-              20.0.height,
-
-              // Project Type
-              _buildLabel('Project Type'),
-              8.0.height,
-              _buildDropdownField(),
-              20.0.height,
-
-              // Project Description
-              _buildLabel('Project Description'),
-              8.0.height,
-              _buildTextArea(projectDescriptionController),
-              20.0.height,
-
-              // Proposed Start Date & Duration Row
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                        if (selectedTypeOfBooking == 'time-based') {
+                          // Set Unit to hours by default for time-based bookings
+                          unitController.text = 'hours';
+                        } else {
+                          // Clear Unit for deliverable-based bookings
+                          unitController.clear();
+                        }
+                      });
+                    },
+                    child: Row(
                       children: [
-                        _buildLabel('Proposed Start Date'),
-                        8.0.height,
-                        _buildDateField(),
-                      ],
-                    ),
-                  ),
-                  16.0.width,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel('Duration'),
-                        8.0.height,
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 2,
-                              child: TextField(
-                                controller: durationNumberController,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                onChanged: (_) => setState(() {}),
-                                style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: AppColors.grey50,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.grey200)),
-                                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AppColors.primary)),
-                                ),
+                        Flexible(
+                          child: RadioListTile<String>(
+                            contentPadding: EdgeInsets.zero,
+                            activeColor: AppColors.primary,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            title: Text(
+                              'Time Based',
+                              style: context.textTheme.bodyMedium?.copyWith(
+                                color: selectedTypeOfBooking == 'time-based'
+                                    ? AppColors.subHeading
+                                    : null,
                               ),
                             ),
-                            8.0.width,
-                            Expanded(
-                              flex: 3,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.grey200)),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    isExpanded: true,
-                                    value: selectedDurationUnit,
-                                    items: ['Hours', 'Days', 'Weeks']
-                                        .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)))))
-                                        .toList(),
-                                    onChanged: (val) {
-                                      if (val != null) {
-                                        setState(() {
-                                          selectedDurationUnit = val;
-                                        });
-                                      }
-                                    },
-                                    icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
-                                  ),
-                                ),
+                            value: 'time-based',
+                          ),
+                        ),
+                        Flexible(
+                          child: RadioListTile<String>(
+                            contentPadding: EdgeInsets.zero,
+                            activeColor: AppColors.primary,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            visualDensity: VisualDensity.compact,
+                            title: Text(
+                              'Deliverable Based',
+                              style: context.textTheme.bodyMedium?.copyWith(
+                                color: selectedTypeOfBooking == 'deliverable-based'
+                                    ? AppColors.subHeading
+                                    : null,
                               ),
                             ),
-                          ],
+                            value: 'deliverable-based',
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-              20.0.height,
-
-              // Proposed End Date (Auto-calculated)
-              _buildLabel('Proposed End Date (Auto-calculated)'),
-              8.0.height,
-              _buildEndDateField(),
-              20.0.height,
-
-              // Start Time
-              _buildLabel('Start Time'),
-              8.0.height,
-              _buildStartTimeField(),
-              20.0.height,
-
-              // Work Mode
-              _buildLabel('Work Mode'),
-              8.0.height,
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    isExpanded: true,
-                    value: workModeController.text.isNotEmpty ? workModeController.text : null,
-                    hint: const Text('Select Work Mode', style: TextStyle(fontSize: 15, color: AppColors.body)),
-                    items: ['On-site', 'Hybrid', 'Remote']
-                        .map((e) => DropdownMenuItem(value: e, child: Text(e, style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131)))))
-                        .toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setState(() {
-                          workModeController.text = val;
-                          if (val.toLowerCase() == 'remote') {
-                            locationController.text = 'Remote';
-                          } else if (locationController.text.toLowerCase() == 'remote') {
-                            locationController.text = '';
-                          }
-                        });
-                      }
-                    },
-                    icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
-                  ),
                 ),
               ),
-              20.0.height,
+              18.0.height,
 
-              // Location Dropdown
-              _buildLabel('Location'),
-              8.0.height,
-              Builder(
-                builder: (context) {
-                  final isRemote = workModeController.text.toLowerCase() == 'remote';
-
-                  return InkWell(
-                    onTap: isRemote
-                        ? null
-                        : () async {
-                            final isOnSite = workModeController.text.toLowerCase() == 'on-site';
-                            final selectedState = await AppBottomSheet.showBottomSheet(
-                              context,
-                              widget: StateSheet(
-                                creatorProfile: widget.creatorProfile,
-                                isOnSiteBooking: isOnSite,
-                              ),
-                            );
-                            if (selectedState != null) {
+              // Forms
+              TextInputField(
+                key: nicheKey,
+                header: 'Category/Niche',
+                controller: nicheController,
+                hint: (widget.creatorProfile.categories?.isNotEmpty == true)
+                    ? 'Select Category/Niche'
+                    : 'No categories available',
+                inputType: TextInputType.text,
+                onPressed: _isFromDraft
+                    ? null
+                    : () async {
+                        if (widget.creatorProfile.categories?.isNotEmpty == true) {
+                          await platformSpecificDropdown(
+                            context: context,
+                            items: widget.creatorProfile.categories
+                                    ?.map((category) => category.name ?? "")
+                                    .toList() ??
+                                [],
+                            value: nicheController.text,
+                            onChanged: (value) {
                               setState(() {
-                                locationController.text = selectedState.name ?? '';
+                                nicheController.text = value ?? "";
                               });
-                            }
-                          },
+                            },
+                            key: nicheKey,
+                          );
+
+                          selectedNiche = widget.creatorProfile.categories
+                              ?.firstWhere((category) => category.name == nicheController.text);
+                        }
+                      },
+                readOnly: true,
+                suffixIcon: _isFromDraft
+                    ? null
+                    : const Icon(
+                        Icons.keyboard_arrow_down,
+                        color: AppColors.body,
+                        size: 18,
+                      ),
+                validator: validateGeneric,
+              ),
+              12.0.height,
+
+              Showcase(
+                key: TourKeys.bookingFormDescription,
+                description: 'Describe the job clearly to avoid revisions.',
+                targetBorderRadius: BorderRadius.circular(8),
+                child: TextInputField(
+                  header: 'Describe Job',
+                  controller: jobDescriptionController,
+                  hint: 'Enter description here',
+                  inputType: TextInputType.text,
+                  textCapitalization: TextCapitalization.sentences,
+                  maxLines: 4,
+                  validator: validateGeneric,
+                ),
+              ),
+              12.0.height,
+              Showcase(
+                key: TourKeys.bookingFormDetails,
+                description: 'Set date, time, duration, price, and location (if in-person).',
+                targetBorderRadius: BorderRadius.circular(8),
+                child: TextInputField(
+                  key: workModeKey,
+                  header: 'Work Mode',
+                  controller: workModeController,
+                  hint: 'Select',
+                  inputType: TextInputType.text,
+                  onPressed: () async {
+                    await platformSpecificDropdown(
+                      context: context,
+                      items: ['Remote', 'On-site', 'Hybrid'],
+                      value: workModeController.text,
+                      onChanged: (value) {
+                        workModeController.text = value!;
+                      },
+                      key: workModeKey,
+                    );
+                  },
+                  readOnly: true,
+                  suffixIcon: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.body,
+                    size: 18,
+                  ),
+                  validator: validateGeneric,
+                ),
+              ),
+              12.0.height,
+              TextInputField(
+                header: 'Start Date',
+                controller: startDateController,
+                hint: 'Select Start Date',
+                inputType: TextInputType.text,
+                onPressed: () async {
+                  selectedStartDate = await AppBottomSheet.showBottomSheet(
+                    context,
+                    widget: CreatorUnavailabliitySheet(
+                      widget.creatorProfile.id ?? '',
+                      excludeToday: selectedTypeOfBooking == 'deliverable-based',
+                    ),
+                  );
+
+                  if (selectedStartDate != null) {
+                    startDateController.text =
+                        selectedStartDate!.unavailableDate!.toFormattedDateWithYear();
+                  } else {
+                    startDateController.clear();
+                  }
+                  setState(() {});
+                },
+                readOnly: true,
+                suffixIcon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: AppColors.body,
+                  size: 18,
+                ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Field cannot be Empty';
+                  }
+                  // For Deliverable Based, ensure selected date is not today
+                  else if (selectedTypeOfBooking == 'deliverable-based' &&
+                      selectedStartDate != null &&
+                      selectedStartDate!.unavailableDate!.isAtSameDateAs(DateTime.now())) {
+                    return 'Start date cannot be today';
+                  }
+
+                  return null;
+                },
+              ),
+
+              // Time Based Fields
+              if (selectedTypeOfBooking == 'time-based') ...[
+                if (selectedStartDate != null &&
+                    (selectedStartDate!.startTime != null) &&
+                    (selectedStartDate!.endTime != null)) ...[
+                  8.0.height,
+                  Row(
+                    children: [
+                      SvgPicture.asset(
+                        AppImages.infoCircle,
+                        width: 18,
+                        height: 18,
+                        colorFilter: AppColors.highlightCoral.colorFilterMode(),
+                      ),
+                      6.0.width,
+                      Flexible(
+                        child: RichText(
+                          text: TextSpan(
+                            text: "${widget.creatorProfile.name} will be UNAVAILABLE from ",
+                            style: context.textTheme.bodySmall,
+                            children: [
+                              TextSpan(
+                                text: selectedStartDate?.startTime?.toBookingTime(),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.highlightCoral,
+                                    ),
+                              ),
+                              const TextSpan(
+                                text: ' to ',
+                              ),
+                              TextSpan(
+                                text: selectedStartDate?.endTime?.toBookingTime(),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.highlightCoral,
+                                    ),
+                              ),
+                              const TextSpan(
+                                text: ' on the selected start date.',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                12.0.height,
+                TextInputField(
+                  header: 'Start Time',
+                  controller: startTimeController,
+                  hint: 'Select Start Time',
+                  inputType: TextInputType.text,
+                  onPressed: () async {
+                    final time = await showPlatformTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (time != null) {
+                      if (context.mounted) {
+                        startTimeController.text = time.format(context);
+                        selectedStartTime = time;
+                      }
+
+                      setState(() {});
+                    }
+                  },
+                  readOnly: true,
+                  suffixIcon: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: AppColors.body,
+                    size: 18,
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Field cannot be Empty';
+                    }
+                    log(value);
+                    if (selectedStartDate != null && selectedStartTime != null) {
+                      final unavailableStartTime = selectedStartDate!.startTime;
+                      final unavailableEndTime = selectedStartDate!.endTime;
+
+                      // Check if the Value is within the unavailable time range
+                      if (unavailableStartTime != null && unavailableEndTime != null) {
+                        // Parse the time strings (format: "HH:MM:SS")
+                        final startTimeParts = unavailableStartTime.split(':');
+                        final endTimeParts = unavailableEndTime.split(':');
+
+                        if (startTimeParts.length >= 2 && endTimeParts.length >= 2) {
+                          final selectedDateTime = DateTime(
+                            selectedStartDate!.unavailableDate!.year,
+                            selectedStartDate!.unavailableDate!.month,
+                            selectedStartDate!.unavailableDate!.day,
+                            selectedStartTime!.hour,
+                            selectedStartTime!.minute,
+                          );
+
+                          final startDateTime = DateTime(
+                            selectedStartDate!.unavailableDate!.year,
+                            selectedStartDate!.unavailableDate!.month,
+                            selectedStartDate!.unavailableDate!.day,
+                            int.parse(startTimeParts[0]),
+                            int.parse(startTimeParts[1]),
+                          );
+
+                          final endDateTime = DateTime(
+                            selectedStartDate!.unavailableDate!.year,
+                            selectedStartDate!.unavailableDate!.month,
+                            selectedStartDate!.unavailableDate!.day,
+                            int.parse(endTimeParts[0]),
+                            int.parse(endTimeParts[1]),
+                          );
+
+                          if ((selectedDateTime.isAfter(startDateTime) ||
+                                  selectedDateTime.isAtSameMomentAs(startDateTime)) &&
+                              (selectedDateTime.isBefore(endDateTime) ||
+                                  selectedDateTime.isAtSameMomentAs(endDateTime))) {
+                            return "Selected time is within the creator's unavailable time range";
+                          }
+                        }
+                      }
+
+                      // If the start date is today, ensure the selected time is not in the past
+                      final now = DateTime.now();
+                      if (selectedStartDate!.unavailableDate != null &&
+                          selectedStartDate!.unavailableDate!
+                              .isAtSameMomentAs(DateTime(now.year, now.month, now.day))) {
+                        final selectedDateTime = DateTime(
+                          selectedStartDate!.unavailableDate!.year,
+                          selectedStartDate!.unavailableDate!.month,
+                          selectedStartDate!.unavailableDate!.day,
+                          selectedStartTime!.hour,
+                          selectedStartTime!.minute,
+                        );
+
+                        if (selectedDateTime.isBefore(now)) {
+                          return "Selected time cannot be in the past";
+                        }
+                      }
+                    }
+                    return null;
+                  },
+                ),
+              ],
+              12.0.height,
+              Row(
+                children: [
+                  Expanded(
+                    child: TextInputField(
+                      header: 'Duration',
+                      controller: durationController,
+                      hint: 'Enter',
+                      inputType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(2)
+                      ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty || int.parse(value) == 0) {
+                          return 'This field is required';
+                        } else if ((selectedTypeOfBooking == 'time-based') &&
+                            int.parse(value) > 24) {
+                          return 'Cannot exceed 24 hours for time-based bookings';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  12.0.width,
+                  Expanded(
+                    child: TextInputField(
+                      key: unitKey,
+                      header: 'Unit',
+                      controller: unitController,
+                      hint: 'Select',
+                      inputType: TextInputType.text,
+                      onPressed: selectedTypeOfBooking == 'time-based'
+                          ? null
+                          : () async {
+                              await platformSpecificDropdown(
+                                context: context,
+                                items: [
+                                  if (selectedTypeOfBooking == 'time-based') ...[
+                                    'hours',
+                                  ] else ...[
+                                    'days',
+                                    'weeks',
+                                    'months',
+                                    'years',
+                                  ],
+                                ],
+                                value: unitController.text,
+                                onChanged: (value) {
+                                  unitController.text = value!;
+                                },
+                                key: unitKey,
+                              );
+                            },
+                      readOnly: true,
+                      suffixIcon: selectedTypeOfBooking == 'time-based'
+                          ? null
+                          : const Icon(
+                              Icons.keyboard_arrow_down,
+                              color: AppColors.body,
+                              size: 18,
+                            ),
+                      validator: validateGeneric,
+                    ),
+                  ),
+                ],
+              ),
+              12.0.height,
+              TextInputField(
+                header:
+                    'Location ${workModeController.text.toLowerCase() == 'remote' ? '(Optional)' : ''}',
+                controller: locationController,
+                hint: 'Enter Location',
+                inputType: TextInputType.text,
+                validator:
+                    workModeController.text.toLowerCase() == 'remote' ? null : validateGeneric,
+              ),
+
+              // Time Based Fields
+              if (selectedTypeOfBooking == 'time-based') ...[
+                12.0.height,
+                NumberInputField(
+                  header: 'Price',
+                  headerInfo:
+                      'This price is shown in the creator\'s currency (${widget.creatorProfile.primaryCurrency})',
+                  controller: priceController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                    LengthLimitingTextInputFormatter(17),
+                    ThousandsFormatter(
+                      allowFraction: true,
+                      formatter: NumberFormat.decimalPattern(),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    num val = num.tryParse(value.replaceAll(',', '')) ?? 0;
+                    if (val != 0) {
+                      num exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
+                      num equivalentPrice = val * exchangeRate;
+                      equivalentPriceController.text = equivalentPrice.toString();
+                    } else {
+                      equivalentPriceController.clear();
+                    }
+                  },
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: AppColors.heading,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '0.00',
+                    prefixText: "${widget.creatorProfile.primaryCurrency} ",
+                    prefixStyle: context.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    hintStyle: context.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.body,
+                    ),
+                  ),
+                ),
+
+                // Equivalent Price
+                if (userData.primaryCurrency != null &&
+                    widget.creatorProfile.primaryCurrency != userData.primaryCurrency) ...[
+                  ListenableBuilder(
+                      listenable: priceController,
+                      builder: (context, val) {
+                        return priceController.text.trim().isEmpty
+                            ? const SizedBox.shrink()
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  "≈ ${num.tryParse(equivalentPriceController.text.removeCommas())?.amountWithCurrency(userData.primaryCurrency ?? '') ?? 0.amountWithCurrency(userData.primaryCurrency ?? '')}",
+                                  style: context.textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.subHeading,
+                                  ),
+                                ),
+                              );
+                      })
+                ],
+              ],
+
+              if (selectedTypeOfBooking == 'deliverable-based') ...[
+                20.0.height,
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "Set Deliverables",
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: AppColors.subHeading,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+                18.0.height,
+
+                // Dynamic Deliverable Cards
+                ...deliverableCards.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  DeliverableCardData card = entry.value;
+
+                  return Column(
+                    children: [
+                      _buildDeliverableCard(card, index, userData),
+                      12.0.height,
+                    ],
+                  );
+                }),
+
+                // Add Button
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: _canAddDeliverable ? _addDeliverableCard : null,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: isRemote ? AppColors.grey200.withOpacity(0.5) : AppColors.grey50,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.grey200),
+                        color: _canAddDeliverable ? AppColors.highlightCoral : AppColors.grey300,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.location_on_outlined,
-                            size: 18,
-                            color: isRemote ? AppColors.body.withOpacity(0.5) : AppColors.body,
+                            Icons.add,
+                            color: _canAddDeliverable ? Colors.white : AppColors.body,
+                            size: 14,
                           ),
-                          8.0.width,
-                          Expanded(
-                            child: Text(
-                              isRemote
-                                  ? 'Remote'
-                                  : (locationController.text.isEmpty ? 'Search location' : locationController.text),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: isRemote
-                                    ? AppColors.body
-                                    : (locationController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131)),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          4.0.width,
+                          Text(
+                            "Add",
+                            style: context.textTheme.bodySmall?.copyWith(
+                              color: _canAddDeliverable ? Colors.white : AppColors.body,
                             ),
                           ),
-                          if (!isRemote)
-                            const Icon(Icons.keyboard_arrow_down, color: AppColors.body, size: 18),
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
-              20.0.height,
-
-              // Budget - Mandatory
-              _buildLabel('Budget'),
-              8.0.height,
-              _buildSplitCurrencyInput(),
-              if ((ref.watch(userControllerProvider).primaryCurrency ?? 'NGN') !=
-                  (widget.creatorProfile.primaryCurrency ?? 'NGN')) ...[
-                6.0.height,
-                Text(
-                  'Cross-border booking: Your currency (${ref.watch(userControllerProvider).primaryCurrency ?? 'NGN'}) will be converted to creator currency (${widget.creatorProfile.primaryCurrency ?? 'NGN'})',
-                  style: const TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500),
+                  ),
                 ),
-              ],
-              20.0.height,
 
-              // Deliverables Section (Only if Deliverable Based)
-              if (selectedBookingType == 'Deliverable Based') ...[
-                _buildDeliverablesSection(),
-                20.0.height,
-              ],
+                // Total Price
+                16.0.height,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: TransactionLine(
+                    title: 'Total Price',
+                    titleSize: 14,
+                    valueColor: AppColors.highlightGreen,
+                    value: (num.tryParse(priceController.text.replaceAll(',', '')) ?? 0)
+                        .amountWithCurrency(widget.creatorProfile.primaryCurrency ?? ''),
+                    valueSize: 14,
+                  ),
+                ),
 
-              // Attachments
-              _buildLabel('Attachments (Optional)'),
-              8.0.height,
-              _buildAttachmentBox(),
-              40.0.height,
-
-              // Submit Button
-              MainButton(
-                text: 'Send Invite',
-                isLoading: bookingCreatorLoading,
-                onPressed: () async {
-                  if (selectedProjectType == null || selectedProjectType!.isEmpty) {
-                    ToastDialog.showError('Please select a project type', context);
-                    return;
-                  }
-                  if (_formKey.currentState!.validate()) {
-                    final durationNum = int.tryParse(durationNumberController.text.trim()) ?? 1;
-                    final durationStr = "$durationNum $selectedDurationUnit";
-                    final endDt = calculatedEndDate;
-                    final endDateStr = endDt != null ? DateFormat('dd/MM/yyyy').format(endDt) : '';
-
-                    final deliverablesList = deliverableInputs
-                        .where((d) => d.descriptionController.text.trim().isNotEmpty)
-                        .map((d) => Deliverable(
-                              description: d.descriptionController.text.trim(),
-                              price: num.tryParse(d.priceController.text.replaceAll(',', '')) ?? 0,
-                            ))
-                        .toList();
-
-                    if (selectedBookingType == 'Deliverable Based') {
-                      if (deliverablesList.isEmpty) {
-                        ToastDialog.showError('Please add at least one deliverable for deliverable-based bookings', context);
-                        return;
+                // Equivalent Total Price
+                if (userData.primaryCurrency != null &&
+                    widget.creatorProfile.primaryCurrency != userData.primaryCurrency) ...[
+                  ListenableBuilder(
+                    listenable: priceController,
+                    builder: (context, _) {
+                      final rawTotal =
+                          num.tryParse(priceController.text.replaceAll(',', '').trim());
+                      if (rawTotal == null || rawTotal == 0) {
+                        return const SizedBox.shrink();
                       }
-                      final totalDeliverablesPrice = deliverablesList.fold<num>(0, (sum, d) => sum + (d.price ?? 0));
-                      final budgetVal = totalBudget;
-
-                      if ((totalDeliverablesPrice - budgetVal).abs() > 0.01) {
-                        ToastDialog.showError('The sum of deliverable amounts ($totalDeliverablesPrice) must add up to the total budget ($budgetVal)', context);
-                        return;
-                      }
-                    }
-
-                    final budgetVal = totalBudget;
-                    final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'NGN';
-                    final minBudget = CurrencyConverter.getEquivalent(1000, userCurrency);
-
-                    if (budgetVal < minBudget) {
-                      ToastDialog.showError('The budget must be at least ${minBudget.amountInt()} $userCurrency', context);
-                      return;
-                    }
-
-                    final localDate = selectedStartDate?.unavailableDate ?? DateTime.now();
-                    final localHour = selectedStartTime?.hour ?? 0;
-                    final localMinute = selectedStartTime?.minute ?? 0;
-                    
-                    final selectedLocalDt = selectedStartTime != null
-                        ? DateTime(localDate.year, localDate.month, localDate.day, localHour, localMinute)
-                        : DateTime(localDate.year, localDate.month, localDate.day);
-
-                    final comparisonNow = selectedStartTime != null
-                        ? DateTime.now()
-                        : DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-
-                    if (selectedLocalDt.isBefore(comparisonNow)) {
-                      ToastDialog.showError('Cannot select a start date in the past', context);
-                      return;
-                    }
-
-                    final localDt = selectedStartTime != null
-                        ? selectedLocalDt
-                        : DateTime(localDate.year, localDate.month, localDate.day, 12, 0);
-                    final utcDt = localDt.toUtc();
-
-                    final utcStartDate = DateTime(utcDt.year, utcDt.month, utcDt.day);
-                    final utcStartTime = selectedStartTime != null
-                        ? '${utcDt.hour.toString().padLeft(2, '0')}:${utcDt.minute.toString().padLeft(2, '0')}'
-                        : null;
-
-                    final currencyCode = userCurrency.toLowerCase();
-                    
-                    num priceInNgn = totalBudget;
-                    if (currencyCode == 'gbp') {
-                      priceInNgn = totalBudget / 0.00056;
-                    } else if (currencyCode == 'usd') {
-                      priceInNgn = totalBudget / 0.00067;
-                    } else if (currencyCode == 'eur') {
-                      priceInNgn = totalBudget / 0.00062;
-                    } else if (currencyCode == 'cad') {
-                      priceInNgn = totalBudget / 0.00095;
-                    } else if (currencyCode == 'aud') {
-                      priceInNgn = totalBudget / 0.0010;
-                    } else if (currencyCode == 'ghs') {
-                      priceInNgn = totalBudget / 0.0083;
-                    } else if (currencyCode == 'kes') {
-                      priceInNgn = totalBudget / 0.087;
-                    } else if (currencyCode == 'zar') {
-                      priceInNgn = totalBudget / 0.012;
-                    }
-
-                    final startDateOnly = DateTime(localDate.year, localDate.month, localDate.day);
-
-                    // Send booking request to backend (no payment required at initial request)
-                    ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
-                      BookCreatorReq(
-                        creatorId: widget.creatorProfile.id,
-                        creatorCategoryId: widget.creatorProfile.categories?.isNotEmpty == true
-                            ? widget.creatorProfile.categories!.first.id
-                            : (widget.creatorProfile.id ?? '1'),
-                        startDate: startDateOnly,
-                        endDate: calculatedEndDate,
-                        jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: $endDateStr\nDuration: $durationStr\n\n${projectDescriptionController.text}",
-                        location: locationController.text,
-                        workMode: workModeController.text.toLowerCase(),
-                        price: priceInNgn,
-                        bookingType: selectedBookingType == 'Deliverable Based' ? 'deliverable-based' : 'time-based',
-                        startTime: utcStartTime,
-                        duration: durationStr,
-                        deliverables: selectedBookingType == 'Deliverable Based' && deliverablesList.isNotEmpty
-                            ? deliverablesList
-                            : null,
-                      )
-                    );
-                  }
-                },
-              ),
+                      final exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
+                      final equivalentTotal = rawTotal * exchangeRate;
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            "≈ ${equivalentTotal.amountWithCurrency(userData.primaryCurrency ?? '')}",
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: AppColors.subHeading,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ],
               24.0.height,
+
+              // Accept Terms and Conditions
+              Row(
+                children: [
+                  Checkbox(
+                    value: acceptTerms,
+                    onChanged: (value) {
+                      setState(() {
+                        acceptTerms = value ?? false;
+                      });
+                    },
+                    activeColor: AppColors.primary,
+                  ),
+                  6.0.width,
+                  Expanded(
+                    child: RichText(
+                      text: TextSpan(
+                        text: "By booking, you agree to Creatify's ",
+                        style: context.textTheme.bodySmall,
+                        children: [
+                          TextSpan(
+                            text: 'Terms & Conditions',
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                context.push(
+                                  const WebviewScreen(
+                                    url: Constants.termsAndConditionsUrl,
+                                    routeName: 'Terms and Conditions',
+                                  ),
+                                );
+                              },
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.highlightCoral,
+                                ),
+                          ),
+                          const TextSpan(
+                            text: ' and ',
+                          ),
+                          TextSpan(
+                            text: 'Privacy Policy',
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                context.push(
+                                  const WebviewScreen(
+                                    url: Constants.privacyPolicyUrl,
+                                    routeName: 'Privacy Policy',
+                                  ),
+                                );
+                              },
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.highlightCoral,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+        bottomNavigationBar: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: const BoxDecoration(
+            border: Border(
+              top: BorderSide(color: AppColors.surface, width: 1),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  // MARK: Save Draft Button
+                  Expanded(
+                    child: ListenableBuilder(
+                      listenable: Listenable.merge([
+                        nicheController,
+                      ]),
+                      builder: (context, _) {
+                        bool isBookingValid = validateRequiredFields([
+                          nicheController.text,
+                          selectedTypeOfBooking,
+                        ]);
+
+                        return MainButton(
+                          text: 'Save as Draft',
+                          color: AppColors.orange,
+                          isLoading: draftBookingLoading,
+                          onPressed: isBookingValid
+                              ? () {
+                                  bool isTimeBased = selectedTypeOfBooking == 'time-based';
+
+                                  ref.read(saveDraftBookingProvider.notifier).saveDraftBooking(
+                                        BookCreatorReq(
+                                          creatorName: widget.creatorProfile.name ?? '',
+                                          creatorId: widget.creatorProfile.id ?? '',
+                                          creatorCategory: widget.creatorProfile.categories
+                                                  ?.firstWhere((category) =>
+                                                      category.id == selectedNiche?.id)
+                                                  .name ??
+                                              '',
+                                          bookingType: selectedTypeOfBooking,
+                                          jobDescription: jobDescriptionController.text.trim(),
+                                          creatorCategoryId: selectedNiche?.id ?? '',
+                                          workMode: workModeController.text.toLowerCase().trim(),
+                                          startDate: selectedStartDate?.unavailableDate,
+                                          startTime: isTimeBased
+                                              ? selectedStartTime?.to24HourFormat()
+                                              : null,
+                                          duration: durationController.text.isEmpty
+                                              ? null
+                                              : "${durationController.text.trim()}${unitController.text.trim()}",
+                                          location: locationController.text.trim(),
+                                          deliverables: isTimeBased ? null : deliverables,
+                                          price: priceController.text.isEmpty
+                                              ? null
+                                              : num.parse(
+                                                  priceController.text.replaceAll(',', '').trim(),
+                                                ),
+                                        ),
+                                      );
+                                }
+                              : null,
+                        );
+                      },
+                    ),
+                  ),
+                  12.0.width,
+
+                  // MARK: Send Offer Button
+                  Expanded(
+                    child: ListenableBuilder(
+                      listenable: Listenable.merge([
+                        jobDescriptionController,
+                        nicheController,
+                        workModeController,
+                        startDateController,
+                        startTimeController,
+                        durationController,
+                        unitController,
+                        locationController,
+                        priceController,
+                        ...deliverableCards.expand((card) => [
+                              card.descriptionController,
+                              card.priceController,
+                            ]),
+                      ]),
+                      builder: (context, _) {
+                        bool isBookingValid = validateRequiredFields([
+                              jobDescriptionController.text,
+                              nicheController.text,
+                              workModeController.text,
+                              startDateController.text,
+                              durationController.text,
+                              unitController.text,
+                              workModeController.text.toLowerCase() == 'remote'
+                                  ? 'Optional'
+                                  : locationController.text,
+                              if (selectedTypeOfBooking == 'time-based') ...[
+                                startTimeController.text,
+                                priceController.text,
+                              ],
+                              if (selectedTypeOfBooking == 'deliverable-based') ...[
+                                if (deliverables.isEmpty) '' else 'Valid',
+                              ],
+                            ]) &&
+                            (selectedTypeOfBooking == 'time-based'
+                                ? int.parse(durationController.text) <= 24
+                                : true) &&
+                            (selectedStartDate != null &&
+                                (selectedTypeOfBooking == 'time-based' ||
+                                    !selectedStartDate!.unavailableDate!
+                                        .isAtSameDateAs(DateTime.now())));
+
+                        return MainButton(
+                          text: 'Send Offer',
+                          isLoading: bookingCreatorLoading,
+                          onPressed: isBookingValid && acceptTerms
+                              ? () {
+                                  bool isTimeBased = selectedTypeOfBooking == 'time-based';
+
+                                  ref
+                                      .read(deliveryBasedCreatorBookingProvider.notifier)
+                                      .bookCreator(
+                                        BookCreatorReq(
+                                          creatorName: widget.creatorProfile.name ?? '',
+                                          creatorId: widget.creatorProfile.id ?? '',
+                                          creatorCategory: widget.creatorProfile.categories
+                                                  ?.firstWhere((category) =>
+                                                      category.id == selectedNiche?.id)
+                                                  .name ??
+                                              '',
+                                          bookingType: selectedTypeOfBooking,
+                                          jobDescription: jobDescriptionController.text.trim(),
+                                          creatorCategoryId: selectedNiche?.id ?? '',
+                                          workMode: workModeController.text.toLowerCase().trim(),
+                                          startDate: selectedStartDate?.unavailableDate,
+                                          startTime: isTimeBased
+                                              ? selectedStartTime?.to24HourFormat()
+                                              : null,
+                                          duration:
+                                              "${durationController.text.trim()}${unitController.text.trim()}",
+                                          location: locationController.text.trim(),
+                                          deliverables: isTimeBased ? null : deliverables,
+                                          price: num.parse(
+                                            priceController.text.replaceAll(',', '').trim(),
+                                          ),
+                                        ),
+                                      );
+                                }
+                              : null,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              12.0.height,
             ],
           ),
         ),
@@ -760,480 +1190,177 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     );
   }
 
-  Widget _buildDeliverablesSection() {
+  Widget _buildDeliverableCard(DeliverableCardData card, int index, UserDto userData) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildLabel('Deliverables (Optional)'),
-            TextButton.icon(
-              onPressed: () {
-                setState(() {
-                  deliverableInputs.add(DeliverableInput());
-                });
-              },
-              icon: const Icon(Icons.add, size: 16, color: Color(0xFF00796B)),
-              label: const Text('Add Deliverable', style: TextStyle(color: Color(0xFF00796B), fontSize: 13, fontWeight: FontWeight.bold)),
-            ),
-          ],
-        ),
-        8.0.height,
-        if (deliverableInputs.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.grey50,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.grey200),
-            ),
-            child: const Center(
-              child: Text(
-                'No deliverables added yet. Click "Add Deliverable" to specify project milestones or items.',
-                style: TextStyle(color: AppColors.body, fontSize: 13),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          )
-        else
-          Column(
-            children: deliverableInputs.asMap().entries.map((entry) {
-              final idx = entry.key;
-              final deliverable = entry.value;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.grey50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.grey200),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Deliverable ${idx + 1}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1B3131))),
-                        InkWell(
-                          onTap: () {
-                            setState(() {
-                              deliverable.descriptionController.dispose();
-                              deliverable.priceController.dispose();
-                              deliverableInputs.removeAt(idx);
-                            });
-                          },
-                          child: const Icon(Icons.close, size: 18, color: Colors.red),
-                        ),
-                      ],
-                    ),
-                    8.0.height,
-                    TextFormField(
-                      controller: deliverable.descriptionController,
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
-                      decoration: InputDecoration(
-                        hintText: 'Description (e.g. 3 Instagram Reels)',
-                        hintStyle: const TextStyle(color: AppColors.body, fontSize: 14),
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      ),
-                    ),
-                    8.0.height,
-                    TextFormField(
-                      controller: deliverable.priceController,
-                      keyboardType: TextInputType.number,
-                      style: const TextStyle(fontSize: 14, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
-                      decoration: InputDecoration(
-                        hintText: 'Price (e.g. 15,000)',
-                        hintStyle: const TextStyle(color: AppColors.body, fontSize: 14),
-                        prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? '₦'} ',
-                        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131), fontSize: 14),
-                        fillColor: Colors.white,
-                        filled: true,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildBookingTypeRadioButton(String label) {
-    final isSelected = selectedBookingType == label;
-    return InkWell(
-      onTap: () => setState(() => selectedBookingType = label),
-      child: Row(
-        children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: isSelected ? const Color(0xFF00796B) : AppColors.grey300, width: 2),
-            ),
-            child: isSelected ? Center(child: Container(width: 8, height: 8, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0xFF00796B)))) : null,
-          ),
-          8.0.width,
-          Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStartTimeField() {
-    return InkWell(
-      onTap: () async {
-        final time = await showTimePicker(
-          context: context,
-          initialTime: selectedStartTime ?? TimeOfDay.now(),
-        );
-        if (time != null) {
-          setState(() {
-            selectedStartTime = time;
-          });
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-        child: Row(
-          children: [
-            const Icon(Icons.access_time, size: 18, color: AppColors.body),
-            8.0.width,
-            Expanded(
-              child: Text(
-                selectedStartTime == null ? 'Select start time' : formatTimeOfDay(selectedStartTime!),
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: selectedStartTime == null ? AppColors.body : const Color(0xFF1B3131),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String formatTimeOfDay(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-    return '$hour:$minute $period';
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: Color(0xFF1B3131)),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String hint, {IconData? icon, String? prefixText}) {
-    return TextFormField(
-      controller: controller,
-      enableInteractiveSelection: true,
-      keyboardType: hint.contains('50,000') ? TextInputType.number : TextInputType.text,
-      style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.body, fontSize: 15),
-        prefixText: prefixText,
-        prefixStyle: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3131), fontSize: 16),
-        prefixIcon: icon != null ? Icon(icon, color: AppColors.body, size: 22) : null,
-        fillColor: AppColors.grey50,
-        filled: true,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-      validator: (val) => (val == null || val.trim().isEmpty) ? 'Required' : null,
-    );
-  }
-
-  Widget _buildDropdownField() {
-    final validValue = (selectedProjectType != null && projectTypes.contains(selectedProjectType)) ? selectedProjectType : null;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: validValue,
-          hint: const Text('Select project type', style: TextStyle(fontSize: 15, color: AppColors.body)),
-          items: projectTypes
-              .map((e) => DropdownMenuItem(
-                    value: e,
-                    child: Text(e, style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500)),
-                  ))
-              .toList(),
-          onChanged: (val) => setState(() => selectedProjectType = val),
-          icon: const Icon(Icons.keyboard_arrow_down, color: AppColors.body),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextArea(TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        TextFormField(
-          controller: controller,
-          maxLines: 4,
-          maxLength: 500,
-          enableInteractiveSelection: true,
-          style: const TextStyle(fontSize: 15, color: Color(0xFF1B3131), fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
-            hintText: 'Tell the creator about your project, goals, style, and any specific requirements...',
-            hintStyle: const TextStyle(color: AppColors.body, fontSize: 15),
-            fillColor: AppColors.grey50,
-            filled: true,
-            counterText: "",
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          validator: validateGeneric,
-        ),
-        4.0.height,
-        ValueListenableBuilder(
-          valueListenable: controller,
-          builder: (context, value, child) {
-            return Text('${value.text.length}/500', style: const TextStyle(fontSize: 10, color: AppColors.body));
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDateField() {
-    return InkWell(
-      onTap: () async {
-        final date = await showDatePicker(
-          context: context,
-          initialDate: DateTime.now(),
-          firstDate: DateTime.now(),
-          lastDate: DateTime.now().add(const Duration(days: 365)),
-        );
-        if (date != null) {
-          setState(() {
-            selectedStartDate = CreatorUnavailabilityItemDto(unavailableDate: date);
-            startDateController.text = DateFormat('dd/MM/yyyy').format(date);
-          });
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-        child: Row(
-          children: [
-            const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.body),
-            8.0.width,
-            Expanded(
-              child: Text(
-                startDateController.text.isEmpty ? 'Select start date' : startDateController.text,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: startDateController.text.isEmpty ? AppColors.body : const Color(0xFF1B3131),
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEndDateField() {
-    final endDt = calculatedEndDate;
-    final endStr = endDt != null ? DateFormat('dd/MM/yyyy').format(endDt) : 'Select start date & duration';
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      decoration: BoxDecoration(color: AppColors.grey50, borderRadius: BorderRadius.circular(12)),
-      child: Row(
-        children: [
-          const Icon(Icons.calendar_today_outlined, size: 18, color: AppColors.body),
-          8.0.width,
-          Expanded(
-            child: Text(
-              endStr,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: endDt != null ? const Color(0xFF1B3131) : AppColors.body,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAttachmentBox() {
-    return Column(
-      children: [
-        InkWell(
-          onTap: _pickFiles,
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1FDFB),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF00BFA5).withOpacity(0.3), style: BorderStyle.solid),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF00796B),
-                    shape: BoxShape.circle,
+            Text(
+              "Delivery ${index + 1}",
+              style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                    color: AppColors.subHeading,
+                    fontWeight: FontWeight.w500,
                   ),
-                  child: const Icon(Icons.add, color: Colors.white, size: 20),
-                ),
-                12.0.height,
-                const Text('Add files', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B3131))),
-                const Text('Images, moodboard, brief, etc. (Max 5 files)', style: TextStyle(fontSize: 10, color: AppColors.body)),
-              ],
             ),
+            if (deliverableCards.length > 1)
+              GestureDetector(
+                onTap: () => _removeDeliverableCard(index),
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade100,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Icon(
+                    Icons.remove,
+                    size: 16,
+                    color: Colors.red.shade700,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        6.0.height,
+        Container(
+          padding: const EdgeInsets.all(12),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: AppColors.grey300),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                autocorrect: true,
+                controller: card.descriptionController,
+                maxLines: 3,
+                textCapitalization: TextCapitalization.sentences,
+                onChanged: (value) {
+                  _updateDeliverables();
+                  setState(() {}); // Refresh UI to update add button state
+                },
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: AppColors.subHeading,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'Enter Deliverable',
+                  hintStyle: TextStyle(
+                    color: AppColors.body,
+                    fontSize: 14,
+                  ),
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+              12.0.height,
+              Align(
+                alignment: Alignment.centerRight,
+                child: SizedBox(
+                  width: MediaQuery.sizeOf(context).width * 0.4,
+                  child: NumberInputField(
+                    controller: card.priceController,
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      _updateDeliverables();
+                      _calculateTotalPrice();
+                      setState(() {}); // Refresh UI to update add button state
+                    },
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      FilteringTextInputFormatter.allow(RegExp(r'[\d.]')),
+                      LengthLimitingTextInputFormatter(17),
+                      ThousandsFormatter(
+                        allowFraction: true,
+                        formatter: NumberFormat.decimalPattern(),
+                      ),
+                    ],
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: AppColors.subHeading,
+                    ),
+                    decoration: InputDecoration(
+                      fillColor: AppColors.grey50,
+                      hintText: '0.00',
+                      prefixText: "${widget.creatorProfile.primaryCurrency} ",
+                      prefixStyle: context.textTheme.bodySmall?.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      hintStyle: context.textTheme.bodySmall?.copyWith(
+                        color: AppColors.body,
+                      ),
+                      contentPadding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Equivalent Price for individual deliverable
+              if (userData.primaryCurrency != null &&
+                  widget.creatorProfile.primaryCurrency != userData.primaryCurrency) ...[
+                ListenableBuilder(
+                  listenable: card.priceController,
+                  builder: (context, _) {
+                    final rawPrice =
+                        num.tryParse(card.priceController.text.replaceAll(',', '').trim());
+                    if (rawPrice == null || rawPrice == 0) {
+                      return const SizedBox.shrink();
+                    }
+                    final exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
+                    final equivalentPrice = rawPrice * exchangeRate;
+                    final userData = ref.read(userControllerProvider);
+                    return Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          "≈ ${equivalentPrice.amountWithCurrency(userData.primaryCurrency ?? '')}",
+                          style: context.textTheme.bodySmall?.copyWith(
+                            color: AppColors.subHeading,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ],
           ),
         ),
-        if (attachedFiles.isNotEmpty) ...[
-          12.0.height,
-          Column(
-            children: attachedFiles.asMap().entries.map((entry) {
-              final idx = entry.key;
-              final file = entry.value;
-              final fileName = file.path.split('/').last.split('\\').last;
-              return Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.grey50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: AppColors.grey200),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.insert_drive_file_outlined, size: 18, color: Color(0xFF00796B)),
-                    8.0.width,
-                    Expanded(
-                      child: Text(
-                        fileName,
-                        style: const TextStyle(fontSize: 13, color: Color(0xFF1B3131)),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          attachedFiles.removeAt(idx);
-                        });
-                      },
-                      child: const Icon(Icons.close, size: 18, color: Colors.red),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ],
       ],
-    );
-  }
-
-  Widget _buildSplitCurrencyInput() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.grey50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.grey200),
-      ),
-      child: Row(
-        children: [
-          Text(
-            ref.watch(userControllerProvider).primaryCurrency?.toUpperCase() ?? 'NGN',
-            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14),
-          ),
-          8.0.width,
-          Expanded(
-            flex: 3,
-            child: TextFormField(
-              controller: budgetMajorController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                hintText: '50000',
-                border: InputBorder.none,
-                isDense: true,
-              ),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              onChanged: (_) => setState(() {}),
-            ),
-          ),
-          const Text(
-            '.',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.body),
-          ),
-          8.0.width,
-          Expanded(
-            flex: 1,
-            child: TextFormField(
-              controller: budgetMinorController,
-              keyboardType: TextInputType.number,
-              maxLength: 2,
-              decoration: const InputDecoration(
-                hintText: '00',
-                counterText: '',
-                border: InputBorder.none,
-                isDense: true,
-              ),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              onChanged: (_) => setState(() {}),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
 
-class DeliverableInput {
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController priceController = TextEditingController();
+// Helper class to manage deliverable card data
+class DeliverableCardData {
+  final TextEditingController descriptionController;
+  final TextEditingController priceController;
+  final String id;
+
+  DeliverableCardData({
+    required this.id,
+  })  : descriptionController = TextEditingController(),
+        priceController = TextEditingController();
+
+  void dispose() {
+    descriptionController.dispose();
+    priceController.dispose();
+  }
+
+  bool get isValid =>
+      descriptionController.text.trim().isNotEmpty && priceController.text.trim().isNotEmpty;
+
+  Deliverable toDeliverable() {
+    return Deliverable(
+      description: descriptionController.text.trim(),
+      price: num.tryParse(priceController.text.replaceAll(',', '').trim()) ?? 0,
+    );
+  }
 }
