@@ -726,6 +726,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                       priceInNgn = totalBudget / 0.012;
                     }
 
+                    final startDateOnly = DateTime(localDate.year, localDate.month, localDate.day);
+
                     // Send booking request to backend (no payment required at initial request)
                     ref.read(deliveryBasedCreatorBookingProvider.notifier).bookCreator(
                       BookCreatorReq(
@@ -733,7 +735,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         creatorCategoryId: widget.creatorProfile.categories?.isNotEmpty == true
                             ? widget.creatorProfile.categories!.first.id
                             : (widget.creatorProfile.id ?? '1'),
-                        startDate: utcStartDate,
+                        startDate: startDateOnly,
                         endDate: calculatedEndDate,
                         jobDescription: "Title: ${projectTitleController.text}\nProject Type: $selectedProjectType\nStart Date: ${startDateController.text}\nEnd Date: $endDateStr\nDuration: $durationStr\n\n${projectDescriptionController.text}",
                         location: locationController.text,
