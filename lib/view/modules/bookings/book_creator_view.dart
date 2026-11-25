@@ -59,10 +59,17 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   final TextEditingController projectTitleController = TextEditingController();
   final TextEditingController projectDescriptionController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
-  final TextEditingController budgetController = TextEditingController();
+  final TextEditingController budgetMajorController = TextEditingController();
+  final TextEditingController budgetMinorController = TextEditingController();
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
   final TextEditingController durationNumberController = TextEditingController(text: '1');
+
+  num get totalBudget {
+    final major = budgetMajorController.text.trim();
+    final minor = budgetMinorController.text.trim();
+    return num.tryParse('${major.isEmpty ? '0' : major}.${minor.isEmpty ? '00' : minor}') ?? 0;
+  }
   String selectedDurationUnit = 'Hours';
   String paymentMethod = '';
   String? createdBookingId;
@@ -136,7 +143,8 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
     projectTitleController.dispose();
     projectDescriptionController.dispose();
     locationController.dispose();
-    budgetController.dispose();
+    budgetMajorController.dispose();
+    budgetMinorController.dispose();
     startDateController.dispose();
     endDateController.dispose();
     workModeController.dispose();
@@ -213,7 +221,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               'title': 'Booking Received',
               'booking_id': createdBookingId,
               'recruiter_name': ref.read(userControllerProvider).name ?? 'Recruiter',
-              'price': budgetController.text,
+              'price': totalBudget.toString(),
             });
             NavigationService.instance.pushReplacement(
               PaymentSuccessfulView(
@@ -238,7 +246,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           'title': 'Booking Received',
           'booking_id': createdBookingId,
           'recruiter_name': ref.read(userControllerProvider).name ?? 'Recruiter',
-          'price': budgetController.text,
+          'price': totalBudget.toString(),
         });
         NavigationService.instance.pushReplacement(
           PaymentSuccessfulView(
@@ -601,24 +609,13 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
               // Budget - Mandatory
               _buildLabel('Budget'),
               8.0.height,
-              _buildTextField(
-                budgetController,
-                'e.g. 50,000',
-                prefixText: '${ref.watch(userControllerProvider).primaryCurrency ?? '₦'} ',
-              ),
+              _buildSplitCurrencyInput(),
               if ((ref.watch(userControllerProvider).primaryCurrency ?? 'NGN') !=
                   (widget.creatorProfile.primaryCurrency ?? 'NGN')) ...[
                 6.0.height,
-                ValueListenableBuilder(
-                  valueListenable: budgetController,
-                  builder: (context, value, _) {
-                    final recruiterCurr = ref.watch(userControllerProvider).primaryCurrency ?? 'NGN';
-                    final creatorCurr = widget.creatorProfile.primaryCurrency ?? 'NGN';
-                    return Text(
-                      'Cross-border booking: Your currency ($recruiterCurr) will be converted to creator currency ($creatorCurr)',
-                      style: const TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500),
-                    );
-                  },
+                Text(
+                  'Cross-border booking: Your currency (${ref.watch(userControllerProvider).primaryCurrency ?? 'NGN'}) will be converted to creator currency (${widget.creatorProfile.primaryCurrency ?? 'NGN'})',
+                  style: const TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w500),
                 ),
               ],
               20.0.height,
@@ -664,19 +661,19 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                         return;
                       }
                       final totalDeliverablesPrice = deliverablesList.fold<num>(0, (sum, d) => sum + (d.price ?? 0));
-                      final totalBudget = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
+                      final budgetVal = totalBudget;
 
-                      if ((totalDeliverablesPrice - totalBudget).abs() > 0.01) {
-                        ToastDialog.showError('The sum of deliverable amounts ($totalDeliverablesPrice) must add up to the total budget ($totalBudget)', context);
+                      if ((totalDeliverablesPrice - budgetVal).abs() > 0.01) {
+                        ToastDialog.showError('The sum of deliverable amounts ($totalDeliverablesPrice) must add up to the total budget ($budgetVal)', context);
                         return;
                       }
                     }
 
-                    final totalBudget = num.tryParse(budgetController.text.replaceAll(',', '')) ?? 0;
+                    final budgetVal = totalBudget;
                     final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'NGN';
                     final minBudget = CurrencyConverter.getEquivalent(1000, userCurrency);
 
-                    if (totalBudget < minBudget) {
+                    if (budgetVal < minBudget) {
                       ToastDialog.showError('The budget must be at least ${minBudget.amountInt()} $userCurrency', context);
                       return;
                     }
@@ -1158,6 +1155,61 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildSplitCurrencyInput() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.grey50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.grey200),
+      ),
+      child: Row(
+        children: [
+          Text(
+            ref.watch(userControllerProvider).primaryCurrency?.toUpperCase() ?? 'NGN',
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 14),
+          ),
+          8.0.width,
+          Expanded(
+            flex: 3,
+            child: TextFormField(
+              controller: budgetMajorController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                hintText: '50000',
+                border: InputBorder.none,
+                isDense: true,
+              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+          const Text(
+            '.',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.body),
+          ),
+          8.0.width,
+          Expanded(
+            flex: 1,
+            child: TextFormField(
+              controller: budgetMinorController,
+              keyboardType: TextInputType.number,
+              maxLength: 2,
+              decoration: const InputDecoration(
+                hintText: '00',
+                counterText: '',
+                border: InputBorder.none,
+                isDense: true,
+              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              onChanged: (_) => setState(() {}),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
