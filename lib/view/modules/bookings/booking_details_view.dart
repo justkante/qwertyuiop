@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:creatify_mobile/core/error/stripe_onboarding_exception.dart';
 import 'package:creatify_mobile/data/models/responses/booking_item_dto.dart';
 import 'package:creatify_mobile/data/models/responses/conversation_dto.dart';
 import 'package:creatify_mobile/view/modules/bookings/booking_complete.dart';
@@ -220,7 +221,21 @@ class _BookingDetailsViewState extends ConsumerState<BookingDetailsView> {
       }
       if (next is AsyncError) {
         if (context.mounted) {
-          ToastDialog.showError(next.error.toString(), context);
+          if (next.error is StripeOnboardingException) {
+            final onboardingData = (next.error as StripeOnboardingException).onboardingData;
+            if (onboardingData.onboardingUrl != null) {
+              context.push(
+                WebviewScreen(
+                  url: onboardingData.onboardingUrl!,
+                  paymentReference: '',
+                  bookingId: widget.bookingId ?? '',
+                  routeName: 'Stripe Onboarding',
+                ),
+              );
+            }
+          } else {
+            ToastDialog.showError(next.error.toString(), context);
+          }
         }
       }
     });
