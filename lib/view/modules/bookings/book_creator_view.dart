@@ -681,14 +681,24 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                     final localDate = selectedStartDate?.unavailableDate ?? DateTime.now();
                     final localHour = selectedStartTime?.hour ?? 0;
                     final localMinute = selectedStartTime?.minute ?? 0;
-                    final selectedLocalDt = DateTime(localDate.year, localDate.month, localDate.day, localHour, localMinute);
+                    
+                    final selectedLocalDt = selectedStartTime != null
+                        ? DateTime(localDate.year, localDate.month, localDate.day, localHour, localMinute)
+                        : DateTime(localDate.year, localDate.month, localDate.day);
 
-                    if (selectedLocalDt.isBefore(DateTime.now())) {
-                      ToastDialog.showError('Cannot select a start date and time in the past', context);
+                    final comparisonNow = selectedStartTime != null
+                        ? DateTime.now()
+                        : DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
+                    if (selectedLocalDt.isBefore(comparisonNow)) {
+                      ToastDialog.showError('Cannot select a start date in the past', context);
                       return;
                     }
 
-                    final utcDt = localDate.toUtc(); // or localDt.toUtc()
+                    final localDt = selectedStartTime != null
+                        ? selectedLocalDt
+                        : DateTime(localDate.year, localDate.month, localDate.day, 12, 0);
+                    final utcDt = localDt.toUtc();
 
                     final utcStartDate = DateTime(utcDt.year, utcDt.month, utcDt.day);
                     final utcStartTime = selectedStartTime != null
@@ -906,7 +916,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
             8.0.width,
             Expanded(
               child: Text(
-                selectedStartTime == null ? 'Select start time' : selectedStartTime!.format(context),
+                selectedStartTime == null ? 'Select start time' : formatTimeOfDay(selectedStartTime!),
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -920,6 +930,13 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
         ),
       ),
     );
+  }
+
+  String formatTimeOfDay(TimeOfDay time) {
+    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hour:$minute $period';
   }
 
   Widget _buildLabel(String text) {
