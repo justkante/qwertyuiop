@@ -55,49 +55,20 @@ extension Amount on dynamic {
       'aed': 'د.إ',
     };
 
-    const nGNtoCurrencyRates = {
-      'ngn': 1.0,
-      'usd': 0.00067568,
-      'gbp': 0.00053191,
-      'eur': 0.00062500,
-      'cad': 0.00094340,
-      'aud': 0.00103093,
-      'ghs': 0.00869565,
-      'kes': 0.08695652,
-      'zar': 0.01219512,
-      'brl': 0.00384615,
-      'mxn': 0.01388889,
-      'sgd': 0.00090909,
-      'nzd': 0.00112360,
-      'hkd': 0.00526316,
-      'jpy': 0.10309278,
-      'inr': 0.05714286,
-      'aed': 0.00248139,
-      'chf': 0.00059524,
-      'sek': 0.00704225,
-      'nok': 0.00724638,
-      'dkk': 0.00467290,
-      'pln': 0.00270270,
-      'xof': 0.40983607,
-    };
-
     final sym = symbol.toLowerCase();
-    final currencySymbol = currencySymbols[sym] ?? '';
-    
+    final currencySymbol = currencySymbols[sym] ?? symbol.toUpperCase();
+
     final double rawValue = (this is String)
-        ? double.tryParse(this) ?? 0.0
+        ? double.tryParse(this.replaceAll(',', '')) ?? 0.0
         : (this is num)
             ? this.toDouble()
             : 0.0;
 
-    final rate = nGNtoCurrencyRates[sym] ?? 1.0;
-    final convertedValue = rawValue * rate;
-
     var formatter = NumberFormat.currency(
-      symbol: currencySymbol, 
+      symbol: currencySymbol.isNotEmpty ? '$currencySymbol ' : '',
       decimalDigits: sym == 'ngn' ? 0 : 2,
     );
-    return formatter.format(convertedValue);
+    return formatter.format(rawValue);
   }
 }
 
