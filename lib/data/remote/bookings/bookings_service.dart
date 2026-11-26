@@ -1,3 +1,5 @@
+import 'package:creatify_mobile/core/error/api_exception.dart';
+import 'package:creatify_mobile/core/error/error_handler.dart';
 import 'package:creatify_mobile/core/http/http_service.dart';
 import 'package:creatify_mobile/core/utils/app_url.dart';
 import 'package:creatify_mobile/core/utils/constants.dart';
@@ -12,6 +14,7 @@ import 'package:creatify_mobile/data/models/responses/draft_booking_item_dto.dar
 import 'package:creatify_mobile/data/models/responses/notifications_dto.dart';
 import 'package:creatify_mobile/data/models/responses/pending_review_tem_dto.dart';
 import 'package:creatify_mobile/data/models/responses/unavailability_time_item_dto.dart';
+import 'package:dio/dio.dart';
 
 class BookingsService {
   final HttpService _networkService;
@@ -38,7 +41,13 @@ class BookingsService {
 
       return parseResponseMessage(response.data, 'Booking created successfully');
     } catch (e) {
-      throw e.toString();
+      if (e is ApiException) {
+        throw e.message;
+      }
+      if (e is DioException) {
+        throw DioExceptions.fromDioError(e).message;
+      }
+      rethrow;
     }
   }
 
@@ -52,7 +61,13 @@ class BookingsService {
 
       return parseResponseMessage(response.data);
     } catch (e) {
-      throw e.toString();
+      if (e is ApiException) {
+        throw e.message;
+      }
+      if (e is DioException) {
+        throw DioExceptions.fromDioError(e).message;
+      }
+      rethrow;
     }
   }
 
@@ -65,7 +80,13 @@ class BookingsService {
 
       return parseResponseMessage(response.data);
     } catch (e) {
-      throw e.toString();
+      if (e is ApiException) {
+        throw e.message;
+      }
+      if (e is DioException) {
+        throw DioExceptions.fromDioError(e).message;
+      }
+      rethrow;
     }
   }
 
