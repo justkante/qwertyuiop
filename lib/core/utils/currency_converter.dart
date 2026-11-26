@@ -47,6 +47,11 @@ class CurrencyConverter {
     return (amountInNgn * rate).toDouble();
   }
 
+  /// Alias for fromNgn to maintain backward compatibility across filter sheets
+  static double getEquivalent(num amountInNgn, String targetCurrency) {
+    return fromNgn(amountInNgn, targetCurrency);
+  }
+
   /// Convert target currency amount back to NGN
   static double toNgn(num amountInTarget, String sourceCurrency) {
     final key = sourceCurrency.toLowerCase();
