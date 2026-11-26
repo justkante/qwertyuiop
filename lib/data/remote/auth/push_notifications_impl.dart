@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:creatify_mobile/core/env/env.dart';
 import 'package:creatify_mobile/core/http/dio_http_service.dart';
 import 'package:creatify_mobile/core/http/http_service.dart';
+import 'package:creatify_mobile/main.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -21,13 +22,21 @@ class PushNotification {
       OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     }
 
-    OneSignal.initialize(Env.oneSignalAppId);
+    final String activeAppId = Env.oneSignalAppId;
 
-    final userId = ref.read(userControllerProvider).id ?? '';
+    log("OneSignal initializing with activeAppId: $activeAppId (env: ${environmentNotifier.value})");
+    OneSignal.initialize(activeAppId);
+
+    final user = ref.read(userControllerProvider);
+    final userId = user.id ?? '';
 
     if (userId.isNotEmpty) {
       log("OneSignal logging in user: $userId");
       OneSignal.login(userId);
+      OneSignal.User.addTagWithKey("user_id", userId);
+      if (user.email != null && user.email!.isNotEmpty) {
+        OneSignal.User.addTagWithKey("user_email", user.email!);
+      }
 
       // Add subscription observer to capture playerID as soon as APNs registers
       OneSignal.User.pushSubscription.addObserver((state) {
@@ -73,10 +82,12 @@ class PushNotification {
     OneSignal.Notifications.addPermissionObserver((permission) {
       log("Permission observer $permission");
       if (permission) {
-        final userId = ref.watch(userControllerProvider).id ?? '';
+        final user = ref.watch(userControllerProvider);
+        final userId = user.id ?? '';
 
         if (userId.isNotEmpty) {
           OneSignal.login(userId);
+          OneSignal.User.addTagWithKey("user_id", userId);
           final currentId = OneSignal.User.pushSubscription.id;
           if (currentId != null && currentId.isNotEmpty) {
             _updateDevicePlatform(userId, currentId);
