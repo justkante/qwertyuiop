@@ -225,8 +225,16 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
   }
 
   void _updateDeliverables() {
-    deliverables =
-        deliverableCards.where((card) => card.isValid).map((card) => card.toDeliverable()).toList();
+    deliverables = deliverableCards
+        .where((card) => card.isValid)
+        .map((card) => Deliverable(
+              description: card.descriptionController.text.trim(),
+              price: CurrencyConverter.toNgn(
+                num.tryParse(card.priceController.text.replaceAll(',', '').trim()) ?? 0,
+                widget.creatorProfile.primaryCurrency ?? 'NGN',
+              ),
+            ))
+        .toList();
   }
 
   void _calculateTotalPrice() {
@@ -1090,8 +1098,9 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                                           deliverables: isTimeBased ? null : deliverables,
                                           price: priceController.text.isEmpty
                                               ? null
-                                              : num.parse(
-                                                  priceController.text.replaceAll(',', '').trim(),
+                                              : CurrencyConverter.toNgn(
+                                                  num.parse(priceController.text.replaceAll(',', '').trim()),
+                                                  widget.creatorProfile.primaryCurrency ?? 'NGN',
                                                 ),
                                         ),
                                       );
@@ -1190,7 +1199,7 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                                           deliverables: isTimeBased ? null : deliverables,
                                           price: CurrencyConverter.toNgn(
                                             num.parse(priceController.text.replaceAll(',', '').trim()),
-                                            ref.read(userControllerProvider).primaryCurrency ?? 'NGN',
+                                            widget.creatorProfile.primaryCurrency ?? 'NGN',
                                           ),
                                         ),
                                       );
