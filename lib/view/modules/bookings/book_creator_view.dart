@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:creatify_mobile/core/utils/constants.dart';
+import 'package:creatify_mobile/core/utils/currency_converter.dart';
 import 'package:creatify_mobile/data/models/requests/book_creator_req.dart';
 import 'package:creatify_mobile/data/models/responses/creator_profile_dto.dart';
 import 'package:creatify_mobile/data/models/responses/draft_booking_item_dto.dart';
@@ -1179,8 +1180,9 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                                               "${durationController.text.trim()}${unitController.text.trim()}",
                                           location: locationController.text.trim(),
                                           deliverables: isTimeBased ? null : deliverables,
-                                          price: num.parse(
-                                            priceController.text.replaceAll(',', '').trim(),
+                                          price: CurrencyConverter.toNgn(
+                                            num.parse(priceController.text.replaceAll(',', '').trim()),
+                                            ref.read(userControllerProvider).primaryCurrency ?? 'NGN',
                                           ),
                                         ),
                                       );
