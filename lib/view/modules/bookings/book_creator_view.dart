@@ -172,8 +172,10 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
       priceController.text = draft.offeredPrice!.formatDecimal();
       final val = num.tryParse(draft.offeredPrice!.removeCommas()) ?? 0;
       if (val != 0) {
-        final exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
-        equivalentPriceController.text = (val * exchangeRate).toString();
+        final creatorCurrency = widget.creatorProfile.primaryCurrency ?? 'NGN';
+        final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'GBP';
+        final equivalentPrice = CurrencyConverter.convert(val, from: creatorCurrency, to: userCurrency);
+        equivalentPriceController.text = equivalentPrice.toString();
       }
     }
 
@@ -805,8 +807,9 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                   onChanged: (value) {
                     num val = num.tryParse(value.replaceAll(',', '')) ?? 0;
                     if (val != 0) {
-                      num exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
-                      num equivalentPrice = val * exchangeRate;
+                      final creatorCurrency = widget.creatorProfile.primaryCurrency ?? 'NGN';
+                      final userCurrency = ref.read(userControllerProvider).primaryCurrency ?? 'GBP';
+                      final equivalentPrice = CurrencyConverter.convert(val, from: creatorCurrency, to: userCurrency);
                       equivalentPriceController.text = equivalentPrice.toString();
                     } else {
                       equivalentPriceController.clear();
