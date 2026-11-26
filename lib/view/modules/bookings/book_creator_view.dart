@@ -834,17 +834,22 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                   ListenableBuilder(
                       listenable: priceController,
                       builder: (context, val) {
-                        return priceController.text.trim().isEmpty
-                            ? const SizedBox.shrink()
-                            : Padding(
-                                padding: const EdgeInsets.only(top: 6),
-                                child: Text(
-                                  "≈ ${num.tryParse(equivalentPriceController.text.removeCommas())?.amountWithCurrency(userData.primaryCurrency ?? '') ?? 0.amountWithCurrency(userData.primaryCurrency ?? '')}",
-                                  style: context.textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.subHeading,
-                                  ),
-                                ),
-                              );
+                        final rawPrice = num.tryParse(priceController.text.replaceAll(',', '').trim()) ?? 0;
+                        if (rawPrice == 0) return const SizedBox.shrink();
+
+                        final creatorCurrency = widget.creatorProfile.primaryCurrency ?? 'NGN';
+                        final userCurrency = userData.primaryCurrency ?? 'GBP';
+                        final equivalentPrice = CurrencyConverter.convert(rawPrice, from: creatorCurrency, to: userCurrency);
+
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            "≈ ${equivalentPrice.amountWithCurrency(userCurrency)}",
+                            style: context.textTheme.bodyMedium?.copyWith(
+                              color: AppColors.subHeading,
+                            ),
+                          ),
+                        );
                       })
                 ],
               ],
@@ -938,19 +943,19 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                   ListenableBuilder(
                     listenable: priceController,
                     builder: (context, _) {
-                      final rawTotal =
-                          num.tryParse(priceController.text.replaceAll(',', '').trim());
-                      if (rawTotal == null || rawTotal == 0) {
-                        return const SizedBox.shrink();
-                      }
-                      final exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
-                      final equivalentTotal = rawTotal * exchangeRate;
+                      final rawTotal = num.tryParse(priceController.text.replaceAll(',', '').trim()) ?? 0;
+                      if (rawTotal == 0) return const SizedBox.shrink();
+
+                      final creatorCurrency = widget.creatorProfile.primaryCurrency ?? 'NGN';
+                      final userCurrency = userData.primaryCurrency ?? 'GBP';
+                      final equivalentTotal = CurrencyConverter.convert(rawTotal, from: creatorCurrency, to: userCurrency);
+
                       return Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Align(
                           alignment: Alignment.centerRight,
                           child: Text(
-                            "≈ ${equivalentTotal.amountWithCurrency(userData.primaryCurrency ?? '')}",
+                            "≈ ${equivalentTotal.amountWithCurrency(userCurrency)}",
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: AppColors.subHeading,
                             ),
@@ -1319,20 +1324,19 @@ class _BookCreatorViewState extends ConsumerState<BookCreatorView> {
                 ListenableBuilder(
                   listenable: card.priceController,
                   builder: (context, _) {
-                    final rawPrice =
-                        num.tryParse(card.priceController.text.replaceAll(',', '').trim());
-                    if (rawPrice == null || rawPrice == 0) {
-                      return const SizedBox.shrink();
-                    }
-                    final exchangeRate = widget.creatorProfile.exchangeRateInfo?.rate ?? 0;
-                    final equivalentPrice = rawPrice * exchangeRate;
-                    final userData = ref.read(userControllerProvider);
+                    final rawPrice = num.tryParse(card.priceController.text.replaceAll(',', '').trim()) ?? 0;
+                    if (rawPrice == 0) return const SizedBox.shrink();
+
+                    final creatorCurrency = widget.creatorProfile.primaryCurrency ?? 'NGN';
+                    final userCurrency = userData.primaryCurrency ?? 'GBP';
+                    final equivalentPrice = CurrencyConverter.convert(rawPrice, from: creatorCurrency, to: userCurrency);
+
                     return Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 6),
                         child: Text(
-                          "≈ ${equivalentPrice.amountWithCurrency(userData.primaryCurrency ?? '')}",
+                          "≈ ${equivalentPrice.amountWithCurrency(userCurrency)}",
                           style: context.textTheme.bodySmall?.copyWith(
                             color: AppColors.subHeading,
                           ),
