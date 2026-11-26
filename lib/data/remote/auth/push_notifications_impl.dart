@@ -4,8 +4,6 @@ import 'dart:io';
 import 'package:creatify_mobile/core/env/env.dart';
 import 'package:creatify_mobile/core/http/dio_http_service.dart';
 import 'package:creatify_mobile/core/http/http_service.dart';
-import 'package:creatify_mobile/view/modules/bookings/vm/bookings_providers.dart';
-import 'package:creatify_mobile/view/modules/bookings/widgets/booking_alert_popup.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -30,47 +28,31 @@ class PushNotification {
     if (userId.isNotEmpty) {
       log("OneSignal logging in user: $userId");
       OneSignal.login(userId);
-      _updateDevicePlatform(userId);
+
+      // Add subscription observer to capture playerID as soon as APNs registers
+      OneSignal.User.pushSubscription.addObserver((state) {
+        final newPlayerId = state.current.id;
+        if (newPlayerId != null && newPlayerId.isNotEmpty) {
+          log("OneSignal pushSubscription ID ready via observer: $newPlayerId");
+          _updateDevicePlatform(userId, newPlayerId);
+        }
+      });
+
+      final currentId = OneSignal.User.pushSubscription.id;
+      if (currentId != null && currentId.isNotEmpty) {
+        _updateDevicePlatform(userId, currentId);
+      }
     }
 
     final result = await OneSignal.Notifications.requestPermission(true);
     log("OneSignal permission requested: $result, userID: $userId");
-
-    OneSignal.Notifications.addClickListener((event) {
-      log('OneSignal notification clicked: ${event.notification.additionalData}');
-      ref.invalidate(fetchReceivedBookingsProvider);
-      ref.invalidate(fetchNotificationsProvider);
-
-      BookingAlertManager.handlePushNotification(
-        additionalData: event.notification.additionalData,
-        title: event.notification.title,
-        body: event.notification.body,
-      );
-    });
-
-    OneSignal.Notifications.addForegroundWillDisplayListener((event) {
-      log('OneSignal notification received in foreground: ${event.notification.body}');
-      ref.invalidate(fetchReceivedBookingsProvider);
-      ref.invalidate(fetchNotificationsProvider);
-
-      BookingAlertManager.handlePushNotification(
-        additionalData: event.notification.additionalData,
-        title: event.notification.title,
-        body: event.notification.body,
-      );
-
-      event.notification.display();
-    });
   }
 
-  Future<void> _updateDevicePlatform(String userId) async {
-    if (userId.isEmpty) return;
+  Future<void> _updateDevicePlatform(String userId, String playerId) async {
+    if (userId.isEmpty || playerId.isEmpty) return;
 
     try {
       final platform = kIsWeb ? 'web' : (Platform.isAndroid ? 'android' : 'ios');
-
-      // Get OneSignal Player ID (Subscription ID in v5)
-      final playerID = OneSignal.User.pushSubscription.id;
 
       final networkService = NetworkService();
       await networkService.request(
@@ -78,10 +60,10 @@ class PushNotification {
         RequestMethod.post,
         data: {
           'device_platform': platform,
-          'onesignal_player_id': playerID,
+          'onesignal_player_id': playerId,
         },
       );
-      log("Device platform updated to $platform for user $userId with playerID $playerID");
+      log("Device platform updated to $platform for user $userId with playerID $playerId");
     } catch (e) {
       log("Failed to update device platform: $e");
     }
@@ -93,8 +75,13 @@ class PushNotification {
       if (permission) {
         final userId = ref.watch(userControllerProvider).id ?? '';
 
-        OneSignal.login(userId);
-        _updateDevicePlatform(userId);
+        if (userId.isNotEmpty) {
+          OneSignal.login(userId);
+          final currentId = OneSignal.User.pushSubscription.id;
+          if (currentId != null && currentId.isNotEmpty) {
+            _updateDevicePlatform(userId, currentId);
+          }
+        }
       }
     });
   }
