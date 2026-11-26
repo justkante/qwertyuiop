@@ -6,7 +6,10 @@ import 'package:creatify_mobile/core/http/dio_http_service.dart';
 import 'package:creatify_mobile/core/services/mixpanel_service.dart';
 import 'package:creatify_mobile/core/storage/share_pref.dart';
 import 'package:creatify_mobile/data/models/responses/user_dto.dart';
+import 'package:creatify_mobile/data/remote/auth/push_notifications_impl.dart';
 import 'package:creatify_mobile/data/remote/chat/pusher_service.dart';
+import 'package:creatify_mobile/view/modules/bookings/widgets/booking_alert_popup.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:creatify_mobile/view/modules/authentication/login_view.dart';
 import 'package:creatify_mobile/view/modules/home/vm/user_controller.dart';
 import 'package:creatify_mobile/view/modules/onboarding/onboarding_view.dart';
@@ -75,7 +78,35 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
 
   getUserFromStorage() async {
     await _preloadAuthToken();
-    ref.read(userControllerProvider.notifier).getUserFromStorage();
+    await ref.read(userControllerProvider.notifier).getUserFromStorage();
+    final user = ref.read(userControllerProvider);
+    if (user.id != null && user.id!.isNotEmpty) {
+      ref.read(oneSignalpushNotificationProvider).init();
+    }
+  }
+
+  void _setupOneSignalNotificationListeners() {
+    try {
+      OneSignal.Notifications.addClickListener((event) {
+        log('OneSignal Notification Clicked: ${event.notification.title}');
+        BookingAlertManager.handlePushNotification(
+          additionalData: event.notification.additionalData,
+          title: event.notification.title,
+          body: event.notification.body,
+        );
+      });
+
+      OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+        log('OneSignal Foreground Notification: ${event.notification.title}');
+        BookingAlertManager.handlePushNotification(
+          additionalData: event.notification.additionalData,
+          title: event.notification.title,
+          body: event.notification.body,
+        );
+      });
+    } catch (e) {
+      log('Error setting up OneSignal listeners: $e');
+    }
   }
 
   @override
@@ -86,6 +117,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeMixpanel();
+      _setupOneSignalNotificationListeners();
       _appLinksDeepLink.onDeepLink = _handleDeepLink;
       _appLinksDeepLink.initDeepLinks();
     });

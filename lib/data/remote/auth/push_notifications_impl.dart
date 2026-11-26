@@ -25,16 +25,16 @@ class PushNotification {
 
     OneSignal.initialize(Env.oneSignalAppId);
 
-    final result = await OneSignal.Notifications.requestPermission(true);
+    final userId = ref.read(userControllerProvider).id ?? '';
 
-    final userId = ref.watch(userControllerProvider).id ?? '';
-
-    if (result) {
-      log("Permission granted: $result , userID: $userId");
-      // Log the user in on Onesignal
+    if (userId.isNotEmpty) {
+      log("OneSignal logging in user: $userId");
       OneSignal.login(userId);
       _updateDevicePlatform(userId);
     }
+
+    final result = await OneSignal.Notifications.requestPermission(true);
+    log("OneSignal permission requested: $result, userID: $userId");
 
     OneSignal.Notifications.addClickListener((event) {
       log('OneSignal notification clicked: ${event.notification.additionalData}');
