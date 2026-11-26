@@ -578,3 +578,27 @@ var deliveryStatusValues = EnumValues({
   "in_progress": DeliveryStatus.inProgress,
   "completed": DeliveryStatus.completed,
 });
+
+extension BookingItemExpiredExt on BookingItemDto {
+  bool get isExpired {
+    if (status == BookingStatus.completed || status == BookingStatus.cancelled) {
+      return false;
+    }
+    if (startDate == null) return false;
+
+    if (bookingType == 'time-based' && startTime != null && startTime!.isNotEmpty) {
+      try {
+        final timeParts = startTime!.split(':');
+        if (timeParts.length >= 2) {
+          final hour = int.parse(timeParts[0]);
+          final minute = int.parse(timeParts[1]);
+          final startDt = DateTime(startDate!.year, startDate!.month, startDate!.day, hour, minute);
+          return DateTime.now().isAfter(startDt);
+        }
+      } catch (_) {}
+    }
+
+    final endOfStartDate = DateTime(startDate!.year, startDate!.month, startDate!.day, 23, 59, 59);
+    return DateTime.now().isAfter(endOfStartDate);
+  }
+}

@@ -49,6 +49,8 @@ class BookingsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final otherUser = isSent ? bookingDetails?.creator : bookingDetails?.recruiter;
     final status = bookingDetails?.status;
+    final isExpired = bookingDetails?.isExpired ?? false;
+    final showExpired = isExpired && (status == BookingStatus.pending || status == BookingStatus.negotiated);
 
     final statusColor = switch (status) {
       BookingStatus.pending => const Color(0xFFF4A261),
@@ -116,21 +118,21 @@ class BookingsCard extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusBgColor,
+                  color: showExpired ? const Color(0xFFFFF1EF) : statusBgColor,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      status == BookingStatus.accepted ? Icons.check_circle_outline : Icons.access_time,
+                      showExpired ? Icons.cancel_outlined : (status == BookingStatus.accepted ? Icons.check_circle_outline : Icons.access_time),
                       size: 14,
-                      color: statusColor,
+                      color: showExpired ? AppColors.highlightRed : statusColor,
                     ),
                     4.0.width,
                     Text(
-                      status?.name.capitalize() ?? 'Pending',
-                      style: TextStyle(color: statusColor, fontSize: 10, fontWeight: FontWeight.bold),
+                      showExpired ? 'Cancelled - Booking Time Expired' : (status?.name.capitalize() ?? 'Pending'),
+                      style: TextStyle(color: showExpired ? AppColors.highlightRed : statusColor, fontSize: 10, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

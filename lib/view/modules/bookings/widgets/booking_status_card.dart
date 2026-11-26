@@ -8,37 +8,45 @@ import 'package:flutter_svg/svg.dart';
 
 class BookingStatusCard extends StatelessWidget {
   final BookingStatus? status;
+  final bool isExpired;
   const BookingStatusCard({
     super.key,
     this.status,
+    this.isExpired = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final showExpired = isExpired && (status == BookingStatus.pending || status == BookingStatus.negotiated);
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         SvgPicture.asset(
           AppImages.indicator,
-          colorFilter: switch (status) {
-            BookingStatus.pending => AppColors.highlightYellow.colorFilterMode(),
-            BookingStatus.accepted => AppColors.highlightGreen.colorFilterMode(),
-            BookingStatus.completed => AppColors.grey300.colorFilterMode(),
-            BookingStatus.cancelled => AppColors.highlightRed.colorFilterMode(),
-            BookingStatus.negotiated => AppColors.highlightBlue.colorFilterMode(),
-            null => AppColors.grey300.colorFilterMode(),
-          },
+          colorFilter: showExpired
+              ? AppColors.highlightRed.colorFilterMode()
+              : switch (status) {
+                  BookingStatus.pending => AppColors.highlightYellow.colorFilterMode(),
+                  BookingStatus.accepted => AppColors.highlightGreen.colorFilterMode(),
+                  BookingStatus.completed => AppColors.grey300.colorFilterMode(),
+                  BookingStatus.cancelled => AppColors.highlightRed.colorFilterMode(),
+                  BookingStatus.negotiated => AppColors.highlightBlue.colorFilterMode(),
+                  null => AppColors.grey300.colorFilterMode(),
+                },
         ),
         4.0.width,
         Text(
-          switch (status) {
-            BookingStatus.pending => 'Pending',
-            BookingStatus.accepted => 'Accepted',
-            BookingStatus.completed => 'Completed',
-            BookingStatus.cancelled => 'Cancelled',
-            BookingStatus.negotiated => 'Renegotiated',
-            null => 'Unknown',
-          },
+          showExpired
+              ? 'Cancelled - Booking Time Expired'
+              : switch (status) {
+                  BookingStatus.pending => 'Pending',
+                  BookingStatus.accepted => 'Accepted',
+                  BookingStatus.completed => 'Completed',
+                  BookingStatus.cancelled => 'Cancelled',
+                  BookingStatus.negotiated => 'Renegotiated',
+                  null => 'Unknown',
+                },
           style: context.textTheme.bodySmall?.copyWith(fontSize: 10),
         )
       ],
