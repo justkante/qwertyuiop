@@ -27,6 +27,12 @@ final class Env {
   @EnviedField(varName: 'ONESIGNAL_APP_ID')
   static final String oneSignalAppId = _Env.oneSignalAppId;
 
+  @EnviedField(varName: 'ONESIGNAL_REST_API_KEY', optional: true)
+  static final String oneSignalRestApiKey = _Env.oneSignalRestApiKey;
+
+  @EnviedField(varName: 'PROD_ONESIGNAL_REST_API_KEY', optional: true)
+  static final String prodOneSignalRestApiKey = _Env.prodOneSignalRestApiKey;
+
   @EnviedField(varName: 'GOOGLE_WEB_CLIENT_ID')
   static final String googleWebClientId = _Env.googleWebClientId;
 
